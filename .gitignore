@@ -1,6 +1,6 @@
 Core/u8g2
-Debug
-.setting/
+Debug/
+.settings
 .cproject
 .mxproject
 .project
