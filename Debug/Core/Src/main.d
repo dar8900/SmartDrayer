@@ -24,6 +24,7 @@ Core/Src/main.o: ../Core/Src/main.c ../Core/Inc/main.h \
  ../Drivers/STM32F1xx_HAL_Driver/Inc/stm32f1xx_hal_i2c.h \
  ../Drivers/STM32F1xx_HAL_Driver/Inc/stm32f1xx_hal_pwr.h \
  ../Drivers/STM32F1xx_HAL_Driver/Inc/stm32f1xx_hal_spi.h \
+ ../Core/Inc/../LcdLib/u8g2.h ../Core/Inc/../LcdLib/u8x8.h \
  ../Core/Inc/adc.h ../Core/Inc/main.h ../Core/Inc/i2c.h ../Core/Inc/spi.h \
  ../Core/Inc/gpio.h
 
@@ -78,6 +79,10 @@ Core/Src/main.o: ../Core/Src/main.c ../Core/Inc/main.h \
 ../Drivers/STM32F1xx_HAL_Driver/Inc/stm32f1xx_hal_pwr.h:
 
 ../Drivers/STM32F1xx_HAL_Driver/Inc/stm32f1xx_hal_spi.h:
+
+../Core/Inc/../LcdLib/u8g2.h:
+
+../Core/Inc/../LcdLib/u8x8.h:
 
 ../Core/Inc/adc.h:
 
