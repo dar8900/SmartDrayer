@@ -29,6 +29,7 @@ extern "C" {
 
 /* Includes ------------------------------------------------------------------*/
 #include "stm32f1xx_hal.h"
+#include "u8g2.h"
 
 /* Private includes ----------------------------------------------------------*/
 /* USER CODE BEGIN Includes */
@@ -58,8 +59,8 @@ void Error_Handler(void);
 /* USER CODE END EFP */
 
 /* Private defines -----------------------------------------------------------*/
-#define TermoCouple_Pin GPIO_PIN_0
-#define TermoCouple_GPIO_Port GPIOA
+#define TermoSensor_Pin GPIO_PIN_0
+#define TermoSensor_GPIO_Port GPIOA
 #define LcdCS_Pin GPIO_PIN_3
 #define LcdCS_GPIO_Port GPIOA
 #define ThermoCoupleCS_Pin GPIO_PIN_4

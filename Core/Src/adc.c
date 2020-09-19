@@ -72,9 +72,9 @@ void HAL_ADC_MspInit(ADC_HandleTypeDef* adcHandle)
     /**ADC1 GPIO Configuration
     PA0-WKUP     ------> ADC1_IN0
     */
-    GPIO_InitStruct.Pin = TermoCouple_Pin;
+    GPIO_InitStruct.Pin = TermoSensor_Pin;
     GPIO_InitStruct.Mode = GPIO_MODE_ANALOG;
-    HAL_GPIO_Init(TermoCouple_GPIO_Port, &GPIO_InitStruct);
+    HAL_GPIO_Init(TermoSensor_GPIO_Port, &GPIO_InitStruct);
 
   /* USER CODE BEGIN ADC1_MspInit 1 */
 
@@ -96,7 +96,7 @@ void HAL_ADC_MspDeInit(ADC_HandleTypeDef* adcHandle)
     /**ADC1 GPIO Configuration
     PA0-WKUP     ------> ADC1_IN0
     */
-    HAL_GPIO_DeInit(TermoCouple_GPIO_Port, TermoCouple_Pin);
+    HAL_GPIO_DeInit(TermoSensor_GPIO_Port, TermoSensor_Pin);
 
   /* USER CODE BEGIN ADC1_MspDeInit 1 */
 

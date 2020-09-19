@@ -15,18 +15,6 @@ C_SRCS += \
 ../Core/Src/sysmem.c \
 ../Core/Src/system_stm32f1xx.c 
 
-C_DEPS += \
-./Core/Src/adc.d \
-./Core/Src/gpio.d \
-./Core/Src/i2c.d \
-./Core/Src/main.d \
-./Core/Src/spi.d \
-./Core/Src/stm32f1xx_hal_msp.d \
-./Core/Src/stm32f1xx_it.d \
-./Core/Src/syscalls.d \
-./Core/Src/sysmem.d \
-./Core/Src/system_stm32f1xx.d 
-
 OBJS += \
 ./Core/Src/adc.o \
 ./Core/Src/gpio.o \
@@ -38,6 +26,18 @@ OBJS += \
 ./Core/Src/syscalls.o \
 ./Core/Src/sysmem.o \
 ./Core/Src/system_stm32f1xx.o 
+
+C_DEPS += \
+./Core/Src/adc.d \
+./Core/Src/gpio.d \
+./Core/Src/i2c.d \
+./Core/Src/main.d \
+./Core/Src/spi.d \
+./Core/Src/stm32f1xx_hal_msp.d \
+./Core/Src/stm32f1xx_it.d \
+./Core/Src/syscalls.d \
+./Core/Src/sysmem.d \
+./Core/Src/system_stm32f1xx.d 
 
 
 # Each subdirectory must supply rules for building sources it contributes
