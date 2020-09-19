@@ -29,10 +29,10 @@ extern "C" {
 
 /* Includes ------------------------------------------------------------------*/
 #include "stm32f1xx_hal.h"
+
 #include "../LcdLib/u8g2.h"
+#include "math.h"
 
-
-/* Exported functions prototypes ---------------------------------------------*/
 void Error_Handler(void);
 
 /* USER CODE BEGIN EFP */
@@ -40,14 +40,16 @@ void Error_Handler(void);
 /* USER CODE END EFP */
 
 /* Private defines -----------------------------------------------------------*/
-#define TermoSensor_Pin GPIO_PIN_0
-#define TermoSensor_GPIO_Port GPIOA
+#define CurrentSensor_Pin GPIO_PIN_0
+#define CurrentSensor_GPIO_Port GPIOA
 #define LcdCS_Pin GPIO_PIN_3
 #define LcdCS_GPIO_Port GPIOA
 #define ThermoCoupleCS_Pin GPIO_PIN_4
 #define ThermoCoupleCS_GPIO_Port GPIOA
 #define Sck_Pin GPIO_PIN_5
 #define Sck_GPIO_Port GPIOA
+#define Miso_Pin GPIO_PIN_6
+#define Miso_GPIO_Port GPIOA
 #define Mosi_Pin GPIO_PIN_7
 #define Mosi_GPIO_Port GPIOA
 #define UpButton_Pin GPIO_PIN_12
