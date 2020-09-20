@@ -22,7 +22,11 @@
 #include "adc.h"
 #include "i2c.h"
 #include "spi.h"
+#include "tim.h"
 #include "gpio.h"
+#include "Display.h"
+
+ST7920_LCD Display;
 
 /* Private includes ----------------------------------------------------------*/
 /* USER CODE BEGIN Includes */
@@ -91,9 +95,10 @@ int main(void)
   MX_ADC1_Init();
   MX_I2C1_Init();
   MX_SPI1_Init();
-  /* USER CODE BEGIN 2 */
+  MX_TIM2_Init();
 
-  /* USER CODE END 2 */
+  Display.setupDisplay();
+
 
   /* Infinite loop */
   /* USER CODE BEGIN WHILE */

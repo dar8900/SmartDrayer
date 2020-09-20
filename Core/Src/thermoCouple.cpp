@@ -12,7 +12,9 @@ uint16_t THERMO_COUPLE::readData()
 {
 	uint8_t Bytes[2] = {0};
 	uint16_t DataReceived = 0;
+	HAL_GPIO_WritePin(ThermoCoupleCS_GPIO_Port, ThermoCoupleCS_Pin, GPIO_PIN_SET);
 	HAL_SPI_Receive(&hspi1, Bytes, 2, 250);
+	HAL_GPIO_WritePin(ThermoCoupleCS_GPIO_Port, ThermoCoupleCS_Pin, GPIO_PIN_RESET);
 	DataReceived = Bytes[0];
 	DataReceived <<= 8;
 	DataReceived |= Bytes[1];

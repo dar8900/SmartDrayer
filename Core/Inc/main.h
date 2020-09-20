@@ -29,10 +29,31 @@ extern "C" {
 
 /* Includes ------------------------------------------------------------------*/
 #include "stm32f1xx_hal.h"
-
 #include "../LcdLib/u8g2.h"
 #include "math.h"
+#include "stdint.h"
 
+/* Private includes ----------------------------------------------------------*/
+/* USER CODE BEGIN Includes */
+
+/* USER CODE END Includes */
+
+/* Exported types ------------------------------------------------------------*/
+/* USER CODE BEGIN ET */
+
+/* USER CODE END ET */
+
+/* Exported constants --------------------------------------------------------*/
+/* USER CODE BEGIN EC */
+
+/* USER CODE END EC */
+
+/* Exported macro ------------------------------------------------------------*/
+/* USER CODE BEGIN EM */
+
+/* USER CODE END EM */
+
+/* Exported functions prototypes ---------------------------------------------*/
 void Error_Handler(void);
 
 /* USER CODE BEGIN EFP */
@@ -42,10 +63,10 @@ void Error_Handler(void);
 /* Private defines -----------------------------------------------------------*/
 #define CurrentSensor_Pin GPIO_PIN_0
 #define CurrentSensor_GPIO_Port GPIOA
+#define ThermoCoupleCS_Pin GPIO_PIN_2
+#define ThermoCoupleCS_GPIO_Port GPIOA
 #define LcdCS_Pin GPIO_PIN_3
 #define LcdCS_GPIO_Port GPIOA
-#define ThermoCoupleCS_Pin GPIO_PIN_4
-#define ThermoCoupleCS_GPIO_Port GPIOA
 #define Sck_Pin GPIO_PIN_5
 #define Sck_GPIO_Port GPIOA
 #define Miso_Pin GPIO_PIN_6
@@ -62,12 +83,16 @@ void Error_Handler(void);
 #define OkButton_GPIO_Port GPIOB
 #define ThermoRegulator_Pin GPIO_PIN_9
 #define ThermoRegulator_GPIO_Port GPIOA
-#define Fan_Pin GPIO_PIN_10
-#define Fan_GPIO_Port GPIOA
+#define FanCtrl_Pin GPIO_PIN_10
+#define FanCtrl_GPIO_Port GPIOA
 #define RedLed_Pin GPIO_PIN_11
 #define RedLed_GPIO_Port GPIOA
 #define GreenLed_Pin GPIO_PIN_12
 #define GreenLed_GPIO_Port GPIOA
+#define I2C_SCL_Pin GPIO_PIN_6
+#define I2C_SCL_GPIO_Port GPIOB
+#define I2C_SDA_Pin GPIO_PIN_7
+#define I2C_SDA_GPIO_Port GPIOB
 /* USER CODE BEGIN Private defines */
 
 /* USER CODE END Private defines */

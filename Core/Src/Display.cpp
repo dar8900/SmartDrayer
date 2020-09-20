@@ -79,7 +79,9 @@ uint8_t u8x8_byte_stm32_hw_spi(u8x8_t *u8x8, uint8_t msg, uint8_t arg_int, void 
   {
     case U8X8_MSG_BYTE_SEND:
       data = (uint8_t *)arg_ptr;
+      HAL_GPIO_WritePin(LcdCS_GPIO_Port, LcdCS_Pin, GPIO_PIN_RESET);
       HAL_SPI_Transmit(&hspi1, data, arg_int, 100);
+      HAL_GPIO_WritePin(LcdCS_GPIO_Port, LcdCS_Pin, GPIO_PIN_SET);
 //      while( arg_int > 0 )
 //      {
 //        SPI.transfer((uint8_t)*data);
@@ -121,7 +123,7 @@ uint8_t u8x8_byte_stm32_hw_spi(u8x8_t *u8x8, uint8_t msg, uint8_t arg_int, void 
 
 void ST7920_LCD::setupDisplay()
 {
-	u8g2_Setup_st7920_p_128x64_f(&Display, U8G2_R0, u8x8_byte_3wire_sw_spi, u8g2_gpio_and_delay_stm32);
+	u8g2_Setup_st7920_p_128x64_f(&Display, U8G2_R0, u8x8_byte_stm32_hw_spi, u8g2_gpio_and_delay_stm32);
 	u8g2_InitDisplay(&Display); // send init sequence to the display, display is in sleep mode after this,
 	u8g2_SetPowerSave(&Display, 0); // wake up display
 }
