@@ -11,7 +11,7 @@
 bool KEYBOARD::readPin()
 {
 	bool State = false;
-	if(HAL_GPIO_ReadPin(buttonPort, buttonPin) == GPIO_PIN_SET)
+	if(HAL_GPIO_ReadPin(buttonPort, buttonPin) == (GPIO_PinState)LOW)
 	{
 		State = true;
 	}

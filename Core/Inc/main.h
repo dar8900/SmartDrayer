@@ -29,10 +29,16 @@ extern "C" {
 
 /* Includes ------------------------------------------------------------------*/
 #include "stm32f1xx_hal.h"
+
 #include "../LcdLib/u8g2.h"
 #include "math.h"
 #include "stdint.h"
 
+typedef enum
+{
+	LOW = 0,
+	HIGH
+}PIN_STATE;
 /* Private includes ----------------------------------------------------------*/
 /* USER CODE BEGIN Includes */
 
@@ -81,17 +87,25 @@ void Error_Handler(void);
 #define LeftButton_GPIO_Port GPIOB
 #define OkButton_Pin GPIO_PIN_15
 #define OkButton_GPIO_Port GPIOB
-#define ThermoRegulator_Pin GPIO_PIN_9
-#define ThermoRegulator_GPIO_Port GPIOA
+#define Thermo_ctrl_Pin GPIO_PIN_9
+#define Thermo_ctrl_GPIO_Port GPIOA
 #define FanCtrl_Pin GPIO_PIN_10
 #define FanCtrl_GPIO_Port GPIOA
 #define RedLed_Pin GPIO_PIN_11
 #define RedLed_GPIO_Port GPIOA
 #define GreenLed_Pin GPIO_PIN_12
 #define GreenLed_GPIO_Port GPIOA
-#define I2C_SCL_Pin GPIO_PIN_6
+#define SWDIO_Pin GPIO_PIN_13
+#define SWDIO_GPIO_Port GPIOA
+#define SWCLK_Pin GPIO_PIN_14
+#define SWCLK_GPIO_Port GPIOA
+#define TX_Pin GPIO_PIN_6
+#define TX_GPIO_Port GPIOB
+#define RX_Pin GPIO_PIN_7
+#define RX_GPIO_Port GPIOB
+#define I2C_SCL_Pin GPIO_PIN_8
 #define I2C_SCL_GPIO_Port GPIOB
-#define I2C_SDA_Pin GPIO_PIN_7
+#define I2C_SDA_Pin GPIO_PIN_9
 #define I2C_SDA_GPIO_Port GPIOB
 /* USER CODE BEGIN Private defines */
 
