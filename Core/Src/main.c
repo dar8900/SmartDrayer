@@ -25,9 +25,9 @@
 #include "tim.h"
 #include "usart.h"
 #include "gpio.h"
-#include "Display.h"
-
-ST7920_LCD Display;
+//#include "Display.h"
+//
+//ST7920_LCD Display;
 
 /* Private includes ----------------------------------------------------------*/
 /* USER CODE BEGIN Includes */
@@ -98,8 +98,9 @@ int main(void)
   MX_SPI1_Init();
   MX_TIM2_Init();
   MX_USART1_UART_Init();
+  /* USER CODE BEGIN 2 */
 
-  Display.setupDisplay();
+  /* USER CODE END 2 */
 
   /* Infinite loop */
   /* USER CODE BEGIN WHILE */
