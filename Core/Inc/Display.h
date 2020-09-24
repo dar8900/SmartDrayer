@@ -9,6 +9,7 @@
 #define INC_DISPLAY_H_
 #include "main.h"
 #include "spi.h"
+#include <string>
 
 class ST7920_LCD
 {

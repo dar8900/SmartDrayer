@@ -25,7 +25,10 @@
 #include "tim.h"
 #include "usart.h"
 #include "gpio.h"
-//#include "Display.h"
+#include "Display.h"
+#include "SerialDebug.h"
+
+SerialDebug Dbg;
 //
 //ST7920_LCD Display;
 
@@ -98,17 +101,17 @@ int main(void)
   MX_SPI1_Init();
   MX_TIM2_Init();
   MX_USART1_UART_Init();
-  /* USER CODE BEGIN 2 */
 
-  /* USER CODE END 2 */
+
+  Dbg.sendDbgStr("Nella funzione main");
+
 
   /* Infinite loop */
   /* USER CODE BEGIN WHILE */
   while (1)
   {
-    /* USER CODE END WHILE */
 
-    /* USER CODE BEGIN 3 */
+
   }
   /* USER CODE END 3 */
 }

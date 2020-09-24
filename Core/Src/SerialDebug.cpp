@@ -9,7 +9,8 @@
 
 void SerialDebug::writeSerial()
 {
-	HAL_UART_Transmit(&huart1, serialBuffer, serialBufferLen, SEND_TIMEOUT);
+	uint16_t BufferLen = serialBuffer.size();
+	HAL_UART_Transmit(&huart1, (uint8_t *)serialBuffer.c_str(), BufferLen, SEND_TIMEOUT);
 }
 
 SerialDebug::SerialDebug()
@@ -18,26 +19,15 @@ SerialDebug::SerialDebug()
 
 }
 
-void SerialDebug::sendDbgStr(char *DbgStr)
+void SerialDebug::sendDbgStr(std::string DbgStr)
 {
-	if(DbgStr != NULL)
+	if(!DbgStr.empty())
 	{
-		serialBufferLen = strlen(DbgStr);
-		memset(serialBuffer, 0x00, DBG_BUFFER);
-		if(serialBufferLen > DBG_BUFFER)
-		{
-			serialBuffer = "Errore: messaggio di debug errato";
-			serialBufferLen = strlen(serialBuffer);
-		}
-		else
-		{
-			memccpy(serialBuffer, DbgStr, serialBufferLen);
-		}
+		serialBuffer = DbgStr;
 	}
 	else
 	{
 		serialBuffer = "Errore: messaggio mancante";
-		serialBufferLen = strlen(serialBuffer);
 	}
 	writeSerial();
 }
