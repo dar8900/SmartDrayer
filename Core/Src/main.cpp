@@ -29,6 +29,7 @@
 #include "SerialDebug.h"
 
 SerialDebug Dbg;
+ST7920_LCD Display;
 //
 //ST7920_LCD Display;
 
@@ -63,10 +64,7 @@ void SystemClock_Config(void);
 
 /* USER CODE END PFP */
 
-/* Private user code ---------------------------------------------------------*/
-/* USER CODE BEGIN 0 */
 
-/* USER CODE END 0 */
 
 /**
   * @brief  The application entry point.
@@ -110,6 +108,7 @@ int main(void)
   /* USER CODE BEGIN WHILE */
   while (1)
   {
+	  Display.testDisplay("Test");
 	  Dbg.sendDbgStr("Nella funzione main");
 	  HAL_Delay(2000);
   }

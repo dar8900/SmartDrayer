@@ -11,13 +11,49 @@
 #include "spi.h"
 #include <string>
 
+typedef std::string String;
+
 class ST7920_LCD
 {
 private:
-	u8g2_t Display;
+	typedef struct
+	{
+		uint8_t width;
+		uint8_t high;
 
+	}DISPLAY_PARAMS;
+	typedef struct
+	{
+		String text;
+		uint8_t textLen;
+		uint8_t textHigh;
+	}TEXT_4_WRITE;
+	u8g2_t *U8G2_Display;
+	DISPLAY_PARAMS DispParams;
+	TEXT_4_WRITE textToWrite;
+	uint8_t setTextLeft();
+	uint8_t setTextCenter();
+	uint8_t setTextRight();
+	uint8_t setTextTop();
+	uint8_t setTextMiddle();
+	uint8_t setTextBottom();
 public:
+	enum
+	{
+		LEFT_POS = 130,
+		CENTER_POS,
+		RIGHT_POS
+	};
+	enum
+	{
+		TOP_POS = 70,
+		MIDDLE_POS,
+		BOTTOM_POS
+	};
+	ST7920_LCD();
 	void setupDisplay();
+	void drawString(String Text, uint8_t XPos, uint8_t YPos);
+	void testDisplay(String Text);
 };
 
 #endif /* INC_DISPLAY_H_ */

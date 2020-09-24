@@ -123,7 +123,81 @@ uint8_t u8x8_byte_stm32_hw_spi(u8x8_t *u8x8, uint8_t msg, uint8_t arg_int, void 
 
 void ST7920_LCD::setupDisplay()
 {
-	u8g2_Setup_st7920_p_128x64_f(&Display, U8G2_R0, u8x8_byte_stm32_hw_spi, u8g2_gpio_and_delay_stm32);
-	u8g2_InitDisplay(&Display); // send init sequence to the display, display is in sleep mode after this,
-	u8g2_SetPowerSave(&Display, 0); // wake up display
+	u8g2_Setup_st7920_p_128x64_f(U8G2_Display, U8G2_R0, u8x8_byte_stm32_hw_spi, u8g2_gpio_and_delay_stm32);
+	u8g2_InitDisplay(U8G2_Display); // send init sequence to the display, display is in sleep mode after this, // @suppress("C-Style cast instead of C++ cast")
+	u8g2_SetPowerSave(U8G2_Display, 0); // wake up display // @suppress("C-Style cast instead of C++ cast")
+}
+
+ST7920_LCD::ST7920_LCD()
+{
+	U8G2_Display = new u8g2_t();
+	DispParams.width = 128;
+	DispParams.high = 64;
+}
+
+uint8_t ST7920_LCD::setTextLeft()
+{
+	uint8_t NewPos = 0;
+//	TextLen = u8g2_GetStrWidth(U8G2_Display, textToWrite.c_str());
+	return NewPos; // @suppress("Return with parenthesis")
+}
+
+uint8_t ST7920_LCD::setTextCenter()
+{
+	uint8_t NewPos = 0;
+	NewPos = (DispParams.width - textToWrite.textLen) / 2;
+	return NewPos; // @suppress("Return with parenthesis")
+}
+
+uint8_t ST7920_LCD::setTextRight()
+{
+	uint8_t NewPos = 0;
+	NewPos = (DispParams.width - textToWrite.textLen);
+	return NewPos; // @suppress("Return with parenthesis")
+}
+
+uint8_t ST7920_LCD::setTextTop()
+{
+	uint8_t NewPos = 0;
+	NewPos = 0 + textToWrite.textHigh + 1;
+	return NewPos; // @suppress("Return with parenthesis")
+}
+
+uint8_t ST7920_LCD::setTextMiddle()
+{
+	uint8_t NewPos = 0;
+	NewPos = (DispParams.high - textToWrite.textHigh + 1) / 2;
+	return NewPos; // @suppress("Return with parenthesis")
+}
+
+uint8_t ST7920_LCD::setTextBottom()
+{
+	uint8_t NewPos = 0;
+	NewPos = (DispParams.high - textToWrite.textHigh - 1);
+	return NewPos; // @suppress("Return with parenthesis")
+}
+
+void ST7920_LCD::drawString(String Text, uint8_t XPos, uint8_t YPos)
+{
+	textToWrite.textLen = 0;
+	textToWrite.textHigh = 0;
+	textToWrite.text = "";
+	textToWrite.textLen = u8g2_GetStrWidth(U8G2_Display, Text.c_str());
+	textToWrite.textHigh = u8g2_GetAscent(U8G2_Display);
+	if(textToWrite.textLen < DispParams.width)
+	{
+		textToWrite.text = Text;
+		u8g2_DrawStr(U8G2_Display, setTextCenter(), setTextMiddle(), textToWrite.text.c_str());
+	}
+	else
+	{
+
+	}
+}
+
+void ST7920_LCD::testDisplay(String Text)
+{
+	u8g2_ClearBuffer(U8G2_Display);
+	drawString(Text, CENTER_POS, MIDDLE_POS);
+	u8g2_SendBuffer(U8G2_Display);
 }
