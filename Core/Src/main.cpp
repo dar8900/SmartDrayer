@@ -110,8 +110,8 @@ int main(void)
   /* USER CODE BEGIN WHILE */
   while (1)
   {
-
-
+	  Dbg.sendDbgStr("Nella funzione main");
+	  HAL_Delay(2000);
   }
   /* USER CODE END 3 */
 }
