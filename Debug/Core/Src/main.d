@@ -31,7 +31,8 @@ Core/Src/main.o: ../Core/Src/main.cpp ../Core/Inc/main.h \
  ../Core/Inc/adc.h ../Core/Inc/main.h ../Core/Inc/i2c.h ../Core/Inc/spi.h \
  ../Core/Inc/tim.h ../Core/Inc/usart.h ../Core/Inc/gpio.h \
  ../Core/Inc/Display.h ../Core/Inc/spi.h ../Core/Inc/SerialDebug.h \
- ../Core/Inc/usart.h
+ ../Core/Inc/usart.h ../Core/Inc/Keyboard.h ../Core/Inc/RELE.h \
+ ../Core/Inc/DS1307RTC.h ../Core/Inc/i2c.h ../Core/Inc/ChronoTimer.h
 
 ../Core/Inc/main.h:
 
@@ -116,3 +117,13 @@ Core/Src/main.o: ../Core/Src/main.cpp ../Core/Inc/main.h \
 ../Core/Inc/SerialDebug.h:
 
 ../Core/Inc/usart.h:
+
+../Core/Inc/Keyboard.h:
+
+../Core/Inc/RELE.h:
+
+../Core/Inc/DS1307RTC.h:
+
+../Core/Inc/i2c.h:
+
+../Core/Inc/ChronoTimer.h:

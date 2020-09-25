@@ -25,44 +25,25 @@
 #include "tim.h"
 #include "usart.h"
 #include "gpio.h"
+
 #include "Display.h"
 #include "SerialDebug.h"
+#include "Keyboard.h"
+#include "RELE.h"
+#include "DS1307RTC.h"
+#include "ChronoTimer.h"
 
 SerialDebug Dbg;
 ST7920_LCD Display;
-//
-//ST7920_LCD Display;
+DryerKey Keyboard;
+DS1307_RTC RtcClock;
+ChronoTimer GetTimeTimer(ChronoTimer::MILLIS);
 
-/* Private includes ----------------------------------------------------------*/
-/* USER CODE BEGIN Includes */
 
-/* USER CODE END Includes */
-
-/* Private typedef -----------------------------------------------------------*/
-/* USER CODE BEGIN PTD */
-
-/* USER CODE END PTD */
-
-/* Private define ------------------------------------------------------------*/
-/* USER CODE BEGIN PD */
-/* USER CODE END PD */
-
-/* Private macro -------------------------------------------------------------*/
-/* USER CODE BEGIN PM */
-
-/* USER CODE END PM */
-
-/* Private variables ---------------------------------------------------------*/
-
-/* USER CODE BEGIN PV */
-
-/* USER CODE END PV */
 
 /* Private function prototypes -----------------------------------------------*/
 void SystemClock_Config(void);
-/* USER CODE BEGIN PFP */
 
-/* USER CODE END PFP */
 
 
 
@@ -72,25 +53,16 @@ void SystemClock_Config(void);
   */
 int main(void)
 {
-  /* USER CODE BEGIN 1 */
-
-  /* USER CODE END 1 */
 
   /* MCU Configuration--------------------------------------------------------*/
 
   /* Reset of all peripherals, Initializes the Flash interface and the Systick. */
   HAL_Init();
 
-  /* USER CODE BEGIN Init */
-
-  /* USER CODE END Init */
 
   /* Configure the system clock */
   SystemClock_Config();
 
-  /* USER CODE BEGIN SysInit */
-
-  /* USER CODE END SysInit */
 
   /* Initialize all configured peripherals */
   MX_GPIO_Init();
@@ -100,17 +72,69 @@ int main(void)
   MX_TIM2_Init();
   MX_USART1_UART_Init();
 
+  RtcClock.setup();
 
-  Dbg.sendDbgStr("Nella funzione main");
 
-
-  /* Infinite loop */
+  uint8_t SerialData[RECEIVE_BUFFER_LEN];
   /* USER CODE BEGIN WHILE */
   while (1)
   {
+	  uint8_t WichKey = DryerKey::NO_KEY, TestKey = 0;
+
 	  Display.testDisplay("Test");
-	  Dbg.sendDbgStr("Nella funzione main");
-	  HAL_Delay(2000);
+
+	  if(Dbg.readSerialIT(SerialData))
+	  {
+		  Dbg.sendDbgStr("Ricevuto qualcosa su seriale");
+	  }
+
+	  WichKey = Keyboard.checkKey();
+	  switch(WichKey)
+	  {
+	  case DryerKey::UP_KEY:
+		  TestKey = 1;
+		  break;
+	  case DryerKey::DOWN_KEY:
+		  TestKey = 2;
+		  break;
+	  case DryerKey::LEFT_KEY:
+		  TestKey = 3;
+		  break;
+	  case DryerKey::OK_KEY:
+		  TestKey = 4;
+		  break;
+	  case DryerKey::LONG_UP_KEY:
+		  TestKey = 5;
+		  break;
+	  case DryerKey::LONG_DOWN_KEY:
+		  TestKey = 6;
+		  break;
+	  case DryerKey::LONG_LEFT_KEY:
+		  TestKey = 7;
+		  break;
+	  case DryerKey::LONG_OK_KEY:
+		  TestKey = 8;
+		  break;
+	  default:
+		  break;
+	  }
+	  if(TestKey != 0)
+	  {
+		  Dbg.sendDbgStr("Il tasto premuto vale");
+		  Dbg.sendDbgStr(std::to_string(TestKey));
+	  }
+
+	  if(GetTimeTimer.isFinished(true, 2500))
+	  {
+		  if(RtcClock.isRunning())
+		  {
+			  Dbg.sendDbgStr("L'rtc sta funzionando");
+			  DS1307_RTC::TIME_DATE_T TimeDate;
+			  RtcClock.getTimeDate(TimeDate);
+			  Dbg.sendDbgStr("Data:" + RtcClock.getTimeDateStr(DS1307_RTC::TIME_DATE));
+		  }
+	  }
+	  HAL_Delay(1);
   }
   /* USER CODE END 3 */
 }

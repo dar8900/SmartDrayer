@@ -33,7 +33,7 @@ extern "C" {
 #include "../LcdLib/u8g2.h"
 #include "math.h"
 #include "stdint.h"
-
+#include "stdbool.h"
 
 
 typedef enum
@@ -41,32 +41,11 @@ typedef enum
 	LOW = 0,
 	HIGH
 }PIN_STATE;
-/* Private includes ----------------------------------------------------------*/
-/* USER CODE BEGIN Includes */
 
-/* USER CODE END Includes */
-
-/* Exported types ------------------------------------------------------------*/
-/* USER CODE BEGIN ET */
-
-/* USER CODE END ET */
-
-/* Exported constants --------------------------------------------------------*/
-/* USER CODE BEGIN EC */
-
-/* USER CODE END EC */
-
-/* Exported macro ------------------------------------------------------------*/
-/* USER CODE BEGIN EM */
-
-/* USER CODE END EM */
 
 /* Exported functions prototypes ---------------------------------------------*/
 void Error_Handler(void);
 
-/* USER CODE BEGIN EFP */
-
-/* USER CODE END EFP */
 
 /* Private defines -----------------------------------------------------------*/
 #define CurrentSensor_Pin GPIO_PIN_0

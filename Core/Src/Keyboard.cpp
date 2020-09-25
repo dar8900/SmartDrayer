@@ -8,7 +8,7 @@
 #include "Keyboard.h"
 
 
-bool KEYBOARD::readPin()
+bool BUTTON::readPin()
 {
 	bool State = false;
 	if(HAL_GPIO_ReadPin(buttonPort, buttonPin) == (GPIO_PinState)LOW)
@@ -18,14 +18,14 @@ bool KEYBOARD::readPin()
 	return State;
 }
 
-KEYBOARD::KEYBOARD(GPIO_TypeDef *ButtonPort, uint16_t ButtonPin, uint16_t LongPressDelay)
+BUTTON::BUTTON(GPIO_TypeDef *ButtonPort, uint16_t ButtonPin, uint16_t LongPressDelay)
 {
 	buttonPort = ButtonPort;
 	buttonPin = ButtonPin;
 	delay = LongPressDelay;
 }
 
-uint8_t KEYBOARD::checkButton()
+uint8_t BUTTON::checkButton()
 {
 	uint8_t Status = NO_PRESS;
 	bool ButtonState = readPin();
@@ -54,4 +54,34 @@ uint8_t KEYBOARD::checkButton()
 		HAL_Delay(25);
 	}
 	return Status;
+}
+
+DryerKey::DryerKey()
+{
+	keys[0] = new BUTTON(UpButton_GPIO_Port, UpButton_Pin, 1000);
+	keys[1] = new BUTTON(DownButton_GPIO_Port, DownButton_Pin, 1000);
+	keys[2] = new BUTTON(LeftButton_GPIO_Port, LeftButton_Pin, 1000);
+	keys[3] = new BUTTON(OkButton_GPIO_Port, OkButton_Pin, 1000);
+}
+
+uint8_t DryerKey::checkKey()
+{
+	uint8_t KeyPressed = NO_KEY;
+	for(int Key = 0; Key < MAX_KEYS; Key++)
+	{
+		uint8_t Status = keys[Key]->checkButton();
+		if(Status == PRESSED)
+		{
+			KeyPressed = Key;
+		}
+		else if(Status == LONG_PRESSED)
+		{
+			KeyPressed = Key + MAX_KEYS;
+		}
+		if(Status != NO_PRESS)
+		{
+			break;
+		}
+	}
+	return KeyPressed;
 }

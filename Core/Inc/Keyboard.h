@@ -17,7 +17,7 @@ enum
 	NO_PRESS
 };
 
-class KEYBOARD
+class BUTTON
 {
 private:
 
@@ -29,8 +29,31 @@ private:
 	bool readPin();
 public:
 
-	KEYBOARD(GPIO_TypeDef *ButtonPort, uint16_t ButtonPin, uint16_t ButtonDelay);
+	BUTTON(GPIO_TypeDef *ButtonPort, uint16_t ButtonPin, uint16_t ButtonDelay);
 	uint8_t checkButton();
 };
 
+class DryerKey
+{
+private:
+	static const uint8_t MAX_KEYS = 4;
+	BUTTON *keys[MAX_KEYS];
+
+public:
+	enum
+	{
+		UP_KEY = 0,
+		DOWN_KEY,
+		LEFT_KEY,
+		OK_KEY,
+		LONG_UP_KEY,
+		LONG_DOWN_KEY,
+		LONG_LEFT_KEY,
+		LONG_OK_KEY,
+		NO_KEY
+	};
+	DryerKey();
+	uint8_t checkKey();
+
+};
 #endif /* INC_KEYBOARD_H_ */

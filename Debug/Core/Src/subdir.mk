@@ -17,7 +17,10 @@ C_SRCS += \
 ../Core/Src/usart.c 
 
 CPP_SRCS += \
+../Core/Src/ChronoTimer.cpp \
+../Core/Src/DS1307RTC.cpp \
 ../Core/Src/Display.cpp \
+../Core/Src/Eeprom.cpp \
 ../Core/Src/Keyboard.cpp \
 ../Core/Src/RELE.cpp \
 ../Core/Src/SerialDebug.cpp \
@@ -38,7 +41,10 @@ C_DEPS += \
 ./Core/Src/usart.d 
 
 OBJS += \
+./Core/Src/ChronoTimer.o \
+./Core/Src/DS1307RTC.o \
 ./Core/Src/Display.o \
+./Core/Src/Eeprom.o \
 ./Core/Src/Keyboard.o \
 ./Core/Src/RELE.o \
 ./Core/Src/SerialDebug.o \
@@ -57,7 +63,10 @@ OBJS += \
 ./Core/Src/usart.o 
 
 CPP_DEPS += \
+./Core/Src/ChronoTimer.d \
+./Core/Src/DS1307RTC.d \
 ./Core/Src/Display.d \
+./Core/Src/Eeprom.d \
 ./Core/Src/Keyboard.d \
 ./Core/Src/RELE.d \
 ./Core/Src/SerialDebug.d \
@@ -66,8 +75,14 @@ CPP_DEPS += \
 
 
 # Each subdirectory must supply rules for building sources it contributes
+Core/Src/ChronoTimer.o: ../Core/Src/ChronoTimer.cpp
+	arm-none-eabi-g++ "$<" -mcpu=cortex-m3 -std=gnu++14 -g3 -DUSE_HAL_DRIVER -DSTM32F103xB -DDEBUG -c -I../Core/Inc -I../Drivers/STM32F1xx_HAL_Driver/Inc -I../Drivers/STM32F1xx_HAL_Driver/Inc/Legacy -I../Drivers/CMSIS/Device/ST/STM32F1xx/Include -I../Drivers/CMSIS/Include -O0 -ffunction-sections -fdata-sections -fno-exceptions -fno-rtti -fno-threadsafe-statics -fno-use-cxa-atexit -Wall -fstack-usage -MMD -MP -MF"Core/Src/ChronoTimer.d" -MT"$@" --specs=nano.specs -mfloat-abi=soft -mthumb -o "$@"
+Core/Src/DS1307RTC.o: ../Core/Src/DS1307RTC.cpp
+	arm-none-eabi-g++ "$<" -mcpu=cortex-m3 -std=gnu++14 -g3 -DUSE_HAL_DRIVER -DSTM32F103xB -DDEBUG -c -I../Core/Inc -I../Drivers/STM32F1xx_HAL_Driver/Inc -I../Drivers/STM32F1xx_HAL_Driver/Inc/Legacy -I../Drivers/CMSIS/Device/ST/STM32F1xx/Include -I../Drivers/CMSIS/Include -O0 -ffunction-sections -fdata-sections -fno-exceptions -fno-rtti -fno-threadsafe-statics -fno-use-cxa-atexit -Wall -fstack-usage -MMD -MP -MF"Core/Src/DS1307RTC.d" -MT"$@" --specs=nano.specs -mfloat-abi=soft -mthumb -o "$@"
 Core/Src/Display.o: ../Core/Src/Display.cpp
 	arm-none-eabi-g++ "$<" -mcpu=cortex-m3 -std=gnu++14 -g3 -DUSE_HAL_DRIVER -DSTM32F103xB -DDEBUG -c -I../Core/Inc -I../Drivers/STM32F1xx_HAL_Driver/Inc -I../Drivers/STM32F1xx_HAL_Driver/Inc/Legacy -I../Drivers/CMSIS/Device/ST/STM32F1xx/Include -I../Drivers/CMSIS/Include -O0 -ffunction-sections -fdata-sections -fno-exceptions -fno-rtti -fno-threadsafe-statics -fno-use-cxa-atexit -Wall -fstack-usage -MMD -MP -MF"Core/Src/Display.d" -MT"$@" --specs=nano.specs -mfloat-abi=soft -mthumb -o "$@"
+Core/Src/Eeprom.o: ../Core/Src/Eeprom.cpp
+	arm-none-eabi-g++ "$<" -mcpu=cortex-m3 -std=gnu++14 -g3 -DUSE_HAL_DRIVER -DSTM32F103xB -DDEBUG -c -I../Core/Inc -I../Drivers/STM32F1xx_HAL_Driver/Inc -I../Drivers/STM32F1xx_HAL_Driver/Inc/Legacy -I../Drivers/CMSIS/Device/ST/STM32F1xx/Include -I../Drivers/CMSIS/Include -O0 -ffunction-sections -fdata-sections -fno-exceptions -fno-rtti -fno-threadsafe-statics -fno-use-cxa-atexit -Wall -fstack-usage -MMD -MP -MF"Core/Src/Eeprom.d" -MT"$@" --specs=nano.specs -mfloat-abi=soft -mthumb -o "$@"
 Core/Src/Keyboard.o: ../Core/Src/Keyboard.cpp
 	arm-none-eabi-g++ "$<" -mcpu=cortex-m3 -std=gnu++14 -g3 -DUSE_HAL_DRIVER -DSTM32F103xB -DDEBUG -c -I../Core/Inc -I../Drivers/STM32F1xx_HAL_Driver/Inc -I../Drivers/STM32F1xx_HAL_Driver/Inc/Legacy -I../Drivers/CMSIS/Device/ST/STM32F1xx/Include -I../Drivers/CMSIS/Include -O0 -ffunction-sections -fdata-sections -fno-exceptions -fno-rtti -fno-threadsafe-statics -fno-use-cxa-atexit -Wall -fstack-usage -MMD -MP -MF"Core/Src/Keyboard.d" -MT"$@" --specs=nano.specs -mfloat-abi=soft -mthumb -o "$@"
 Core/Src/RELE.o: ../Core/Src/RELE.cpp
