@@ -8,10 +8,10 @@
 #include "SerialDebug.h"
 
 bool RxReady = false;
-void HAL_UART_RxCpltCallback(UART_HandleTypeDef *huart)
-{
-	RxReady = true;
-}
+//void HAL_UART_RxCpltCallback(UART_HandleTypeDef *huart)
+//{
+//	RxReady = true;
+//}
 
 void SerialDebug::writeSerial()
 {
@@ -22,7 +22,7 @@ void SerialDebug::writeSerial()
 
 SerialDebug::SerialDebug()
 {
-	HAL_UART_Receive_IT(&huart1, rxBuffer, RECEIVE_BUFFER_LEN);
+//	HAL_UART_Receive_IT(&huart1, rxBuffer, RECEIVE_BUFFER_LEN);
 }
 
 
@@ -30,7 +30,7 @@ void SerialDebug::sendDbgStr(std::string DbgStr)
 {
 	if(!DbgStr.empty())
 	{
-		serialBuffer = DbgStr;
+		serialBuffer = DbgStr + "\n";
 	}
 	else
 	{
@@ -42,12 +42,13 @@ void SerialDebug::sendDbgStr(std::string DbgStr)
 bool SerialDebug::readSerialIT(uint8_t *Data)
 {
 	bool Ready = false;
-	if(RxReady)
-	{
+//	if(RxReady)
+//	{
 		Ready = true;
+		HAL_UART_Receive(&huart1, rxBuffer, RECEIVE_BUFFER_LEN, 100);
 		memcpy(Data, rxBuffer, RECEIVE_BUFFER_LEN);
 		memset(rxBuffer, 0x00, RECEIVE_BUFFER_LEN);
-		RxReady = false;
-	}
+//		RxReady = false;
+//	}
 	return Ready;
 }

@@ -75,17 +75,21 @@ int main(void)
   RtcClock.setup();
 
 
-  uint8_t SerialData[RECEIVE_BUFFER_LEN];
-  /* USER CODE BEGIN WHILE */
+  bool RtcSetted = false;
+
   while (1)
   {
 	  uint8_t WichKey = DryerKey::NO_KEY, TestKey = 0;
+	  char SerialData[RECEIVE_BUFFER_LEN] = {0};
+//	  Display.testDisplay("Test");
 
-	  Display.testDisplay("Test");
-
-	  if(Dbg.readSerialIT(SerialData))
+	  Dbg.readSerialIT((uint8_t *)SerialData);
+	  if(SerialData[5] != 0)
 	  {
-		  Dbg.sendDbgStr("Ricevuto qualcosa su seriale");
+		  std::string Rec = "";
+		  for(int i = 0; i < RECEIVE_BUFFER_LEN; i++)
+			  Rec += SerialData[i];
+		  Dbg.sendDbgStr("Ricevuto: " + Rec);
 	  }
 
 	  WichKey = Keyboard.checkKey();
@@ -120,20 +124,9 @@ int main(void)
 	  }
 	  if(TestKey != 0)
 	  {
-		  Dbg.sendDbgStr("Il tasto premuto vale");
-		  Dbg.sendDbgStr(std::to_string(TestKey));
+		  Dbg.sendDbgStr("Il tasto premuto vale " + std::to_string(TestKey));
 	  }
 
-	  if(GetTimeTimer.isFinished(true, 2500))
-	  {
-		  if(RtcClock.isRunning())
-		  {
-			  Dbg.sendDbgStr("L'rtc sta funzionando");
-			  DS1307_RTC::TIME_DATE_T TimeDate;
-			  RtcClock.getTimeDate(TimeDate);
-			  Dbg.sendDbgStr("Data:" + RtcClock.getTimeDateStr(DS1307_RTC::TIME_DATE));
-		  }
-	  }
 	  HAL_Delay(1);
   }
   /* USER CODE END 3 */

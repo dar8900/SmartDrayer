@@ -16,7 +16,7 @@
     @return Binary value
 */
 /**************************************************************************/
-//static uint8_t bcd2bin(uint8_t val) { return val - 6 * (val >> 4); }
+static uint8_t bcd2bin(uint8_t val) { return val - 6 * (val >> 4); }
 
 /**************************************************************************/
 /*!
@@ -101,7 +101,7 @@ uint32_t DS1307_RTC::getUnixTS(TIME_DATE_T TimeDate)
 
 uint16_t DS1307_RTC::devAddressLShifted()
 {
-	return ds1307Address << 8;
+	return ds1307Address << 1;
 }
 
 void DS1307_RTC::clearI2CBuff()
@@ -160,13 +160,13 @@ void DS1307_RTC::getTimeDate(TIME_DATE_T &RetTimeDate)
 	clearI2CBuff();
 	HAL_I2C_Master_Transmit(&hi2c1, devAddressLShifted(), 0, 1, 1);
 	HAL_I2C_Master_Receive(&hi2c1, devAddressLShifted(), i2cBuffer, 7, 1);
-	RetTimeDate.second = bin2bcd(i2cBuffer[i2cBufferIndex++] & 0x7F);
-	RetTimeDate.minute = bin2bcd(i2cBuffer[i2cBufferIndex++]);
-	RetTimeDate.hour = bin2bcd(i2cBuffer[i2cBufferIndex++]);
+	RetTimeDate.second = bcd2bin(i2cBuffer[i2cBufferIndex++] & 0x7F);
+	RetTimeDate.minute = bcd2bin(i2cBuffer[i2cBufferIndex++]);
+	RetTimeDate.hour = bcd2bin(i2cBuffer[i2cBufferIndex++]);
 	i2cBufferIndex++;
-	RetTimeDate.day = bin2bcd(i2cBuffer[i2cBufferIndex++]);
-	RetTimeDate.month = bin2bcd(i2cBuffer[i2cBufferIndex++]);
-	RetTimeDate.year = bin2bcd(i2cBuffer[i2cBufferIndex++]) + 2000;
+	RetTimeDate.day = bcd2bin(i2cBuffer[i2cBufferIndex++]);
+	RetTimeDate.month = bcd2bin(i2cBuffer[i2cBufferIndex++]);
+	RetTimeDate.year = bcd2bin(i2cBuffer[i2cBufferIndex++]) + 2000;
 	clearI2CBuff();
 }
 
@@ -175,11 +175,11 @@ String DS1307_RTC::getTimeDateStr(uint8_t FormatType)
 	String second, minute, hour, day, month, year, RetStr = "Wrong type";
 	TIME_DATE_T TimeDate;
 	getTimeDate(TimeDate);
-	second = std::to_string(TimeDate.second);
-	minute = std::to_string(TimeDate.minute);
-	hour = std::to_string(TimeDate.hour);
-	day = std::to_string(TimeDate.day);
-	month = std::to_string(TimeDate.month);
+	second = TimeDate.second > 9 ? std::to_string(TimeDate.second) : "0" + std::to_string(TimeDate.second);
+	minute = TimeDate.minute > 9 ? std::to_string(TimeDate.minute) : "0" + std::to_string(TimeDate.minute);
+	hour = TimeDate.hour > 9 ? std::to_string(TimeDate.hour) : "0" + std::to_string(TimeDate.hour);
+	day = TimeDate.day > 9 ? std::to_string(TimeDate.day) : "0" + std::to_string(TimeDate.day);
+	month = TimeDate.month > 9 ? std::to_string(TimeDate.month) : "0" + std::to_string(TimeDate.month);
 	year = std::to_string(TimeDate.year);
 	switch(FormatType)
 	{

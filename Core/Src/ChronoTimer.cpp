@@ -78,7 +78,7 @@ bool ChronoTimer::isFinished(bool Restart, uint32_t DelayReset)
 	{
 		Finish = true;
 	}
-	if(Restart)
+	if(Restart && Finish)
 	{
 		restart();
 	}
