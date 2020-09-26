@@ -28,7 +28,7 @@ private:
 		uint8_t textLen;
 		uint8_t textHigh;
 	}TEXT_4_WRITE;
-	u8g2_t *U8G2_Display;
+	u8g2_t U8G2_Display;
 	DISPLAY_PARAMS DispParams;
 	TEXT_4_WRITE textToWrite;
 	uint8_t setTextLeft();
@@ -51,7 +51,7 @@ public:
 		BOTTOM_POS
 	};
 	ST7920_LCD();
-	void setupDisplay();
+	void setupLcd();
 	void drawString(String Text, uint8_t XPos, uint8_t YPos);
 	void testDisplay(String Text);
 };

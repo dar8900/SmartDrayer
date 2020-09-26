@@ -111,7 +111,7 @@
 "Core/Src/syscalls.o"
 "Core/Src/sysmem.o"
 "Core/Src/system_stm32f1xx.o"
-"Core/Src/thermoCouple.o"
+"Core/Src/thermoSensor.o"
 "Core/Src/tim.o"
 "Core/Src/usart.o"
 "Core/Startup/startup_stm32f103c8tx.o"

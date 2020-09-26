@@ -73,9 +73,9 @@ int main(void)
   MX_USART1_UART_Init();
 
   RtcClock.setup();
+//  Display.setupLcd();
 
 
-  bool RtcSetted = false;
 
   while (1)
   {
@@ -125,6 +125,11 @@ int main(void)
 	  if(TestKey != 0)
 	  {
 		  Dbg.sendDbgStr("Il tasto premuto vale " + std::to_string(TestKey));
+	  }
+
+	  if(GetTimeTimer.isFinished(true, 2000))
+	  {
+		  Dbg.sendDbgStr(RtcClock.getTimeDateStr(DS1307_RTC::ONLY_TIME));
 	  }
 
 	  HAL_Delay(1);

@@ -50,14 +50,12 @@ void Error_Handler(void);
 /* Private defines -----------------------------------------------------------*/
 #define CurrentSensor_Pin GPIO_PIN_0
 #define CurrentSensor_GPIO_Port GPIOA
-#define ThermoCoupleCS_Pin GPIO_PIN_2
-#define ThermoCoupleCS_GPIO_Port GPIOA
+#define ThermoSensor_Pin GPIO_PIN_2
+#define ThermoSensor_GPIO_Port GPIOA
 #define LcdCS_Pin GPIO_PIN_3
 #define LcdCS_GPIO_Port GPIOA
 #define Sck_Pin GPIO_PIN_5
 #define Sck_GPIO_Port GPIOA
-#define Miso_Pin GPIO_PIN_6
-#define Miso_GPIO_Port GPIOA
 #define Mosi_Pin GPIO_PIN_7
 #define Mosi_GPIO_Port GPIOA
 #define UpButton_Pin GPIO_PIN_12
@@ -68,8 +66,8 @@ void Error_Handler(void);
 #define LeftButton_GPIO_Port GPIOB
 #define OkButton_Pin GPIO_PIN_15
 #define OkButton_GPIO_Port GPIOB
-#define Thermo_ctrl_Pin GPIO_PIN_9
-#define Thermo_ctrl_GPIO_Port GPIOA
+#define ThermoCtrl_Pin GPIO_PIN_9
+#define ThermoCtrl_GPIO_Port GPIOA
 #define FanCtrl_Pin GPIO_PIN_10
 #define FanCtrl_GPIO_Port GPIOA
 #define RedLed_Pin GPIO_PIN_11

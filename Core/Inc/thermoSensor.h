@@ -5,13 +5,12 @@
  *      Author: Deo
  */
 
-#ifndef INC_THERMOCOUPLE_H_
-#define INC_THERMOCOUPLE_H_
+#ifndef INC_THERMOSENSOR_H_
+#define INC_THERMOSENSOR_H_
 
 #include "main.h"
-#include "spi.h"
 
-class THERMO_COUPLE
+class THERMO_SENSOR
 {
 private:
 
@@ -23,4 +22,4 @@ public:
 
 
 
-#endif /* INC_THERMOCOUPLE_H_ */
+#endif /* INC_THERMOSENSOR_H_ */
