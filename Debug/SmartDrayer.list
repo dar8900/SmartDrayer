@@ -39,11 +39,11 @@ Idx Name          Size      VMA       LMA       File off  Algn
                   CONTENTS, READONLY, DEBUGGING
  17 .debug_line   0001943f  00000000  00000000  000cb1be  2**0
                   CONTENTS, READONLY, DEBUGGING
- 18 .debug_str    0009965d  00000000  00000000  000e45fd  2**0
+ 18 .debug_str    00099666  00000000  00000000  000e45fd  2**0
                   CONTENTS, READONLY, DEBUGGING
- 19 .comment      0000007b  00000000  00000000  0017dc5a  2**0
+ 19 .comment      0000007b  00000000  00000000  0017dc63  2**0
                   CONTENTS, READONLY
- 20 .debug_frame  00007314  00000000  00000000  0017dcd8  2**2
+ 20 .debug_frame  00007314  00000000  00000000  0017dce0  2**2
                   CONTENTS, READONLY, DEBUGGING
 
 Disassembly of section .text:
@@ -441,7 +441,7 @@ static uint8_t bcd2bin(uint8_t val) { return val - 6 * (val >> 4); }
  800036c:	4770      	bx	lr
 
 0800036e <_ZN10DS1307_RTC18devAddressLShiftedEv>:
-  return t;
+  return t; // @suppress("Return with parenthesis")
 }
 
 

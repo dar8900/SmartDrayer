@@ -48,7 +48,7 @@ uint16_t DS1307_RTC::date2days(uint16_t y, uint8_t m, uint8_t d)
     days += daysInMonth[i - 1];
   if (m > 2 && y % 4 == 0)
     ++days;
-  return days + 365 * y + (y + 3) / 4 - 1;
+  return (days + 365 * y + (y + 3) / 4 - 1);
 }
 
 /**************************************************************************/
@@ -64,7 +64,7 @@ uint16_t DS1307_RTC::date2days(uint16_t y, uint8_t m, uint8_t d)
 /**************************************************************************/
 uint32_t DS1307_RTC::time2ulong(uint16_t days, uint8_t h, uint8_t m, uint8_t s)
 {
-  return ((days * 24UL + h) * 60 + m) * 60 + s;
+  return (((days * 24UL + h) * 60 + m) * 60 + s);
 }
 
 /**************************************************************************/
@@ -76,7 +76,7 @@ uint32_t DS1307_RTC::time2ulong(uint16_t days, uint8_t h, uint8_t m, uint8_t s)
 uint8_t DS1307_RTC::getDayOfTheWeek(uint16_t Year, uint8_t Month, uint8_t Day)
 {
   uint16_t day = date2days(Year, Month, Day);
-  return (day + 6) % 7; // Jan 1, 2000 is a Saturday, i.e. returns 6
+  return ((day + 6) % 7); // Jan 1, 2000 is a Saturday, i.e. returns 6
 }
 
 /**************************************************************************/
@@ -95,7 +95,7 @@ uint32_t DS1307_RTC::getUnixTS(TIME_DATE_T TimeDate)
   uint16_t days = date2days(TimeDate.year, TimeDate.month, TimeDate.day);
   t = time2ulong(days, TimeDate.hour, TimeDate.minute, TimeDate.second);
   t += 946684800; // seconds from 1970 to 2000
-  return t;
+  return t; // @suppress("Return with parenthesis")
 }
 
 

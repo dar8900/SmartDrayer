@@ -80,7 +80,7 @@ uint8_t u8g2_gpio_and_delay_stm32(U8X8_UNUSED u8x8_t *u8x8, U8X8_UNUSED uint8_t 
 		u8x8_SetGPIOResult(u8x8, 1);			// default return value
 		break;
 	}
-	return 1; // command processed successfully.
+	return 1; // command processed successfully. // @suppress("Return with parenthesis")
 }
 
 uint8_t u8x8_byte_stm32_hw_spi(u8x8_t *u8x8, uint8_t msg, uint8_t arg_int, void *arg_ptr)
@@ -89,7 +89,7 @@ uint8_t u8x8_byte_stm32_hw_spi(u8x8_t *u8x8, uint8_t msg, uint8_t arg_int, void 
   {
     case U8X8_MSG_BYTE_SEND:
 
-      HAL_SPI_Transmit(&hspi1, (uint8_t *)arg_ptr, arg_int, 100);
+      HAL_SPI_Transmit(&hspi1, (uint8_t *)arg_ptr, arg_int, 100); // @suppress("C-Style cast instead of C++ cast")
 
 //      while( arg_int > 0 )
 //      {
@@ -106,7 +106,7 @@ uint8_t u8x8_byte_stm32_hw_spi(u8x8_t *u8x8, uint8_t msg, uint8_t arg_int, void 
 //      u8x8_gpio_SetDC(u8x8, arg_int);
       break;
     case U8X8_MSG_BYTE_START_TRANSFER:
-        HAL_GPIO_WritePin(LcdCS_GPIO_Port, LcdCS_Pin, GPIO_PIN_RESET);
+        HAL_GPIO_WritePin(LcdCS_GPIO_Port, LcdCS_Pin, GPIO_PIN_RESET); // @suppress("C-Style cast instead of C++ cast")
 
 //      /* SPI mode has to be mapped to the mode of the current controller, at least Uno, Due, 101 have different SPI_MODEx values */
 //      internal_spi_mode =  0;
