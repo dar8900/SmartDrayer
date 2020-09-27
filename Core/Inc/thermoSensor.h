@@ -10,7 +10,9 @@
 
 #include "main.h"
 
+#include <string>
 
+typedef std::string String;
 
 
 class THERMO_SENSOR
@@ -54,7 +56,6 @@ private:
 	//         checksum     expected checksum
 	// return:              1 			   = checksum does not match
 	//                      0              = checksum matches
-	float temperature;
 public:
 	//==============================================================================
 	float getHumidity(void);
@@ -72,7 +73,7 @@ public:
 	// performs a soft reset, delays 15ms
 
 	//==============================================================================
-	uint8_t getSerialNumber(uint8_t return_sn);
+	String getSerialNumber();
 	//==============================================================================
 	// returns electronical identification code depending of selected memory
 	// location

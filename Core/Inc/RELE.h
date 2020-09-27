@@ -21,6 +21,7 @@ public:
 	RELE(GPIO_TypeDef *RelePort, uint16_t RelePin, PIN_STATE InitialState = LOW);
 	void toggleStatus();
 	void setState(PIN_STATE NewState);
+	PIN_STATE getState();
 
 };
 

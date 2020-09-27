@@ -180,7 +180,7 @@ String DS1307_RTC::getTimeDateStr(uint8_t FormatType)
 	hour = TimeDate.hour > 9 ? std::to_string(TimeDate.hour) : "0" + std::to_string(TimeDate.hour);
 	day = TimeDate.day > 9 ? std::to_string(TimeDate.day) : "0" + std::to_string(TimeDate.day);
 	month = TimeDate.month > 9 ? std::to_string(TimeDate.month) : "0" + std::to_string(TimeDate.month);
-	year = std::to_string(TimeDate.year);
+	year = std::to_string(TimeDate.year % 100);
 	switch(FormatType)
 	{
 	case ONLY_TIME:

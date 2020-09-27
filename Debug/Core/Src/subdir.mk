@@ -24,6 +24,7 @@ CPP_SRCS += \
 ../Core/Src/Keyboard.cpp \
 ../Core/Src/RELE.cpp \
 ../Core/Src/SerialDebug.cpp \
+../Core/Src/SmartDryer.cpp \
 ../Core/Src/main.cpp \
 ../Core/Src/thermoSensor.cpp 
 
@@ -48,6 +49,7 @@ OBJS += \
 ./Core/Src/Keyboard.o \
 ./Core/Src/RELE.o \
 ./Core/Src/SerialDebug.o \
+./Core/Src/SmartDryer.o \
 ./Core/Src/adc.o \
 ./Core/Src/gpio.o \
 ./Core/Src/i2c.o \
@@ -70,6 +72,7 @@ CPP_DEPS += \
 ./Core/Src/Keyboard.d \
 ./Core/Src/RELE.d \
 ./Core/Src/SerialDebug.d \
+./Core/Src/SmartDryer.d \
 ./Core/Src/main.d \
 ./Core/Src/thermoSensor.d 
 
@@ -89,6 +92,8 @@ Core/Src/RELE.o: ../Core/Src/RELE.cpp
 	arm-none-eabi-g++ "$<" -mcpu=cortex-m3 -std=gnu++14 -g3 -DUSE_HAL_DRIVER -DSTM32F103xB -DDEBUG -c -I../Core/Inc -I../Drivers/STM32F1xx_HAL_Driver/Inc -I../Drivers/STM32F1xx_HAL_Driver/Inc/Legacy -I../Drivers/CMSIS/Device/ST/STM32F1xx/Include -I../Drivers/CMSIS/Include -O0 -ffunction-sections -fdata-sections -fno-exceptions -fno-rtti -fno-threadsafe-statics -fno-use-cxa-atexit -Wall -fstack-usage -MMD -MP -MF"Core/Src/RELE.d" -MT"$@" --specs=nano.specs -mfloat-abi=soft -mthumb -o "$@"
 Core/Src/SerialDebug.o: ../Core/Src/SerialDebug.cpp
 	arm-none-eabi-g++ "$<" -mcpu=cortex-m3 -std=gnu++14 -g3 -DUSE_HAL_DRIVER -DSTM32F103xB -DDEBUG -c -I../Core/Inc -I../Drivers/STM32F1xx_HAL_Driver/Inc -I../Drivers/STM32F1xx_HAL_Driver/Inc/Legacy -I../Drivers/CMSIS/Device/ST/STM32F1xx/Include -I../Drivers/CMSIS/Include -O0 -ffunction-sections -fdata-sections -fno-exceptions -fno-rtti -fno-threadsafe-statics -fno-use-cxa-atexit -Wall -fstack-usage -MMD -MP -MF"Core/Src/SerialDebug.d" -MT"$@" --specs=nano.specs -mfloat-abi=soft -mthumb -o "$@"
+Core/Src/SmartDryer.o: ../Core/Src/SmartDryer.cpp
+	arm-none-eabi-g++ "$<" -mcpu=cortex-m3 -std=gnu++14 -g3 -DUSE_HAL_DRIVER -DSTM32F103xB -DDEBUG -c -I../Core/Inc -I../Drivers/STM32F1xx_HAL_Driver/Inc -I../Drivers/STM32F1xx_HAL_Driver/Inc/Legacy -I../Drivers/CMSIS/Device/ST/STM32F1xx/Include -I../Drivers/CMSIS/Include -O0 -ffunction-sections -fdata-sections -fno-exceptions -fno-rtti -fno-threadsafe-statics -fno-use-cxa-atexit -Wall -fstack-usage -MMD -MP -MF"Core/Src/SmartDryer.d" -MT"$@" --specs=nano.specs -mfloat-abi=soft -mthumb -o "$@"
 Core/Src/adc.o: ../Core/Src/adc.c
 	arm-none-eabi-gcc "$<" -mcpu=cortex-m3 -std=gnu11 -g3 -DUSE_HAL_DRIVER -DSTM32F103xB -DDEBUG -c -I../Core/Inc -I../Drivers/STM32F1xx_HAL_Driver/Inc -I../Drivers/STM32F1xx_HAL_Driver/Inc/Legacy -I../Drivers/CMSIS/Device/ST/STM32F1xx/Include -I../Drivers/CMSIS/Include -O0 -ffunction-sections -fdata-sections -Wall -fstack-usage -MMD -MP -MF"Core/Src/adc.d" -MT"$@" --specs=nano.specs -mfloat-abi=soft -mthumb -o "$@"
 Core/Src/gpio.o: ../Core/Src/gpio.c
