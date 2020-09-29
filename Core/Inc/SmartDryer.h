@@ -31,18 +31,17 @@ private:
 	};
 	enum
 	{
-		// Stato led
-		THERMO_ON = 0,
-		THERMO_OFF,
-		TEMP_REACHED,
-		FAN_ON,
-		FAN_OFF,
+		// Stato led funzionamento
+		THERMO_ON_FAN_OFF = 0,
+		THERMO_OFF_FAN_ON,
+		THERMO_OFF_FAN_OFF,
+		THERMO_ON_FAN_ON,
+
+		// Stato led attivazioni particolari
+		TEMP_REACHED = 500,
 		PROGRAM_INIT,
 		PROGRAM_END,
-
-		ALL_OFF = THERMO_OFF + FAN_OFF,
-
-		MAX_STATUS
+		UNKNOWN_STATE
 	};
 
 	typedef struct
@@ -61,23 +60,29 @@ private:
 	STM32_EEPROM *memory;
 
 	ChronoTimer *getTempTimer;
+	ChronoTimer *blinkRedLedTimer;
+	ChronoTimer *blinkGreenLedTimer;
 	ChronoTimer *testTimer;
 
 
 	SerialDebug *dbgDryer;
 
 	DRYER_FLAG statusFlags;
+	uint16_t ledStatus;
+	uint32_t readedTemperature;
 
 	void blinkLed(uint8_t WichLed, uint16_t BlinkDelay);
 	void toggleLed(uint8_t WichLed);
 	void turnOnLed(uint8_t WichLed);
 	void turnOffLed(uint8_t WichLed);
-	void ledControl(uint8_t State);
+	void ledControl();
+	void physicalReleCtrl();
 
 	void thermoRegulation(float WichTemp);
 
 
 public:
+	bool enableTest = true;
 	SmartDryer();
 	void run();
 

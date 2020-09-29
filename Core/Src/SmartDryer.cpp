@@ -20,45 +20,46 @@ SmartDryer::SmartDryer()
 	memory = new STM32_EEPROM();
 
 	getTempTimer = new ChronoTimer(ChronoTimer::SECONDS);
+
+	blinkRedLedTimer = new ChronoTimer(ChronoTimer::MILLIS);
+	blinkGreenLedTimer = new ChronoTimer(ChronoTimer::MILLIS);
+
 	testTimer = new ChronoTimer(ChronoTimer::MILLIS);
 
 	dbgDryer = new SerialDebug();
 
 }
 
-void SmartDryer::run()
-{
-	while(1)
-	{
-
-	}
-}
 
 void SmartDryer::blinkLed(uint8_t WichLed, uint16_t BlinkDelay)
 {
-	GPIO_TypeDef *LedPort;
-	uint16_t LedPin = 0;
-	switch(WichLed)
-	{
-	case RED_LED:
-		LedPort = RedLed_GPIO_Port;
-		LedPin = RedLed_Pin;
-		break;
-	case GREEN_LED:
-		LedPort = GreenLed_GPIO_Port;
-		LedPin = GreenLed_Pin;
-		break;
-	default:
-		break;
-	}
+//	GPIO_TypeDef *LedPort;
+//	uint16_t LedPin = 0;
 	if(BlinkDelay <= 1)
 	{
 		BlinkDelay = 2;
 	}
-	HAL_GPIO_WritePin(LedPort, LedPin, GPIO_PIN_SET);
-	HAL_Delay(BlinkDelay);
-	HAL_GPIO_WritePin(LedPort, LedPin, GPIO_PIN_RESET);
-	HAL_Delay(BlinkDelay);
+	switch(WichLed)
+	{
+	case RED_LED:
+//		LedPort = RedLed_GPIO_Port;
+//		LedPin = RedLed_Pin;
+		if(blinkRedLedTimer->isFinished(true, BlinkDelay))
+		{
+			toggleLed(WichLed);
+		}
+		break;
+	case GREEN_LED:
+		if(blinkGreenLedTimer->isFinished(true, BlinkDelay))
+		{
+			toggleLed(WichLed);
+		}
+//		LedPort = GreenLed_GPIO_Port;
+//		LedPin = GreenLed_Pin;
+		break;
+	default:
+		break;
+	}
 
 }
 
@@ -122,20 +123,51 @@ void SmartDryer::turnOffLed(uint8_t WichLed)
 	HAL_GPIO_WritePin(LedPort, LedPin, GPIO_PIN_RESET);
 }
 
-void SmartDryer::ledControl(uint8_t State)
+void SmartDryer::ledControl()
 {
-	switch(State)
+
+	switch(ledStatus)
 	{
-	case THERMO_ON:
-		blinkLed(RED_LED, 5);
+	case THERMO_ON_FAN_OFF:
+		blinkLed(RED_LED, 10);
+		turnOffLed(GREEN_LED);
 		break;
-	case THERMO_OFF:
+	case THERMO_OFF_FAN_ON:
 		turnOffLed(RED_LED);
+		blinkLed(GREEN_LED, 500);
+		break;
+	case THERMO_OFF_FAN_OFF:
+		turnOffLed(GREEN_LED);
+		turnOffLed(RED_LED);
+		break;
+	case THERMO_ON_FAN_ON:
+		blinkLed(RED_LED, 10);
+		blinkLed(GREEN_LED, 500);
 		break;
 	case TEMP_REACHED:
 		turnOnLed(RED_LED);
+		HAL_Delay(250);
 		break;
+	case PROGRAM_INIT:
+		for(int i = 0; i < 50*10; i++)
+		{
+			blinkLed(RED_LED, 50);
+			blinkLed(GREEN_LED, 50);
+			HAL_Delay(1);
+		};
+		break;
+	case PROGRAM_END:
+		for(int i = 0; i < 50*20; i++)
+		{
+			blinkLed(RED_LED, 50);
+			blinkLed(GREEN_LED, 50);
+			HAL_Delay(1);
+		};
+		break;
+	case UNKNOWN_STATE:
 	default:
+		blinkLed(RED_LED, 5);
+		blinkLed(GREEN_LED, 5);
 		break;
 	}
 }
@@ -143,39 +175,64 @@ void SmartDryer::ledControl(uint8_t State)
 void SmartDryer::thermoRegulation(float WichTemp)
 {
 	float ReadedTemp = 0.0;
-	uint32_t TempTarget = (uint32_t)roundf(WichTemp * 10), TempReaded = 0;
+	uint32_t TempTarget = (uint32_t)roundf(WichTemp * 10);
 	if(getTempTimer->isFinished(true, 2))
 	{
 		ReadedTemp = tempSens->getTemperature();
-		TempReaded = (uint32_t)roundf(ReadedTemp * 10);
+		readedTemperature = (uint32_t)roundf(ReadedTemp * 10);
 	}
-	if(TempReaded != 0)
+	if(readedTemperature != 0)
 	{
 		if(TempReaded >= TempTarget - TOLLERANCE_DEGREES)
 		{
 			statusFlags.fanOn = true;
+			statusFlags.thermoOn = true;
+			ledStatus = THERMO_ON_FAN_ON;
 		}
 		else if(TempReaded >= TempTarget)
 		{
 			statusFlags.fanOn = true;
 			statusFlags.thermoOn = false;
-		}
-		else if(TempReaded < TempTarget - TOLLERANCE_DEGREES && !statusFlags.thermoOn)
-		{
-			statusFlags.thermoOn = true;
-			statusFlags.fanOn = false;
+			ledStatus = THERMO_OFF_FAN_ON;
 		}
 		else if(TempReaded < TempTarget - TOLLERANCE_DEGREES)
 		{
 			statusFlags.fanOn = false;
+			statusFlags.thermoOn = true;
+			ledStatus = THERMO_ON_FAN_OFF;
 		}
+	}
+	else
+	{
+		statusFlags.fanOn = false;
+		statusFlags.thermoOn = false;
+		ledStatus = THERMO_OFF_FAN_OFF;
 	}
 }
 
-
+void SmartDryer::physicalReleCtrl()
+{
+	if(statusFlags.fanOn)
+	{
+		fanCtrl->setState(HIGH);
+	}
+	else
+	{
+		fanCtrl->setState(LOW);
+	}
+	if(statusFlags.thermoOn)
+	{
+		thermoCtrl->setState(HIGH);
+	}
+	else
+	{
+		thermoCtrl->setState(LOW);
+	}
+}
 
 void SmartDryer::test()
 {
+	testTimer->setTimer(5000);
 	while(1)
 	{
 		  uint8_t WichKey = DryerKey::NO_KEY, TestKey = 0;
@@ -226,10 +283,29 @@ void SmartDryer::test()
 			  dbgDryer->sendDbgStr("Il tasto premuto vale " + std::to_string(TestKey));
 		  }
 
-		  if(testTimer->isFinished(true, 2000))
+//		  if(testTimer->isFinished(true, 2000))
+//		  {
+//			  dbgDryer->sendDbgStr(clock->getTimeDateStr(DS1307_RTC::ONLY_TIME));
+//		  }
+		  physicalReleCtrl();
+
+		  if(testTimer->isFinished(true))
 		  {
-			  dbgDryer->sendDbgStr(clock->getTimeDateStr(DS1307_RTC::ONLY_TIME));
+			  ledStatus = PROGRAM_END;
 		  }
+		  else
+		  {
+			  ledStatus = THERMO_ON_FAN_OFF;
+		  }
+		  ledControl();
+	}
+}
+
+void SmartDryer::run()
+{
+	while(1)
+	{
 
 	}
 }
+
