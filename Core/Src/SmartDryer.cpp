@@ -183,19 +183,19 @@ void SmartDryer::thermoRegulation(float WichTemp)
 	}
 	if(readedTemperature != 0)
 	{
-		if(TempReaded >= TempTarget - TOLLERANCE_DEGREES)
+		if(readedTemperature >= TempTarget - TOLLERANCE_DEGREES)
 		{
 			statusFlags.fanOn = true;
 			statusFlags.thermoOn = true;
 			ledStatus = THERMO_ON_FAN_ON;
 		}
-		else if(TempReaded >= TempTarget)
+		else if(readedTemperature >= TempTarget)
 		{
 			statusFlags.fanOn = true;
 			statusFlags.thermoOn = false;
 			ledStatus = THERMO_OFF_FAN_ON;
 		}
-		else if(TempReaded < TempTarget - TOLLERANCE_DEGREES)
+		else if(readedTemperature < TempTarget - TOLLERANCE_DEGREES)
 		{
 			statusFlags.fanOn = false;
 			statusFlags.thermoOn = true;
