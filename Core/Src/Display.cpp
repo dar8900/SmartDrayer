@@ -51,14 +51,14 @@ uint8_t u8g2_gpio_and_delay_stm32(U8X8_UNUSED u8x8_t *u8x8, U8X8_UNUSED uint8_t 
 	case U8X8_MSG_GPIO_E:				// E/WR pin: Output level in arg_int
 		break;
 	case U8X8_MSG_GPIO_CS:				// CS (chip select) pin: Output level in arg_int
-		if(arg_int)
-		{
-			HAL_GPIO_WritePin(LcdCS_GPIO_Port, LcdCS_Pin, GPIO_PIN_RESET);
-		}
-		else
-		{
-			HAL_GPIO_WritePin(LcdCS_GPIO_Port, LcdCS_Pin, GPIO_PIN_SET);
-		}
+//		if(arg_int)
+//		{
+//			HAL_GPIO_WritePin(LcdCS_GPIO_Port, LcdCS_Pin, GPIO_PIN_RESET);
+//		}
+//		else
+//		{
+//			HAL_GPIO_WritePin(LcdCS_GPIO_Port, LcdCS_Pin, GPIO_PIN_SET);
+//		}
 		break;
 	case U8X8_MSG_GPIO_DC:				// DC (data/cmd, A0, register select) pin: Output level in arg_int
 		if(arg_int)
@@ -113,7 +113,7 @@ uint8_t u8x8_byte_stm32_hw_spi(u8x8_t *u8x8, uint8_t msg, uint8_t arg_int, void 
   {
     case U8X8_MSG_BYTE_SEND:
 
-      HAL_SPI_Transmit(&hspi1, (uint8_t *)arg_ptr, arg_int, 100); // @suppress("C-Style cast instead of C++ cast")
+//      HAL_SPI_Transmit(&hspi1, (uint8_t *)arg_ptr, arg_int, 100); // @suppress("C-Style cast instead of C++ cast")
 
 //      while( arg_int > 0 )
 //      {
@@ -123,19 +123,28 @@ uint8_t u8x8_byte_stm32_hw_spi(u8x8_t *u8x8, uint8_t msg, uint8_t arg_int, void 
 //      }
       break;
     case U8X8_MSG_BYTE_INIT:
-    	HAL_GPIO_WritePin(LcdCS_GPIO_Port, LcdCS_Pin, GPIO_PIN_SET); // @suppress("C-Style cast instead of C++ cast")
+//    	HAL_GPIO_WritePin(LcdCS_GPIO_Port, LcdCS_Pin, GPIO_PIN_SET); // @suppress("C-Style cast instead of C++ cast")
 //      u8x8_gpio_SetCS(u8x8, u8x8->display_info->chip_disable_level);
       break;
     case U8X8_MSG_BYTE_SET_DC:
-      u8x8_gpio_SetDC(u8x8, arg_int);
+		if(arg_int)
+		{
+			HAL_GPIO_WritePin(LcdCS_GPIO_Port, LcdCS_Pin, GPIO_PIN_SET);
+		}
+		else
+		{
+			HAL_GPIO_WritePin(LcdCS_GPIO_Port, LcdCS_Pin, GPIO_PIN_RESET);
+		}
       break;
     case U8X8_MSG_BYTE_START_TRANSFER:
 
-    	HAL_GPIO_WritePin(LcdCS_GPIO_Port, LcdCS_Pin, GPIO_PIN_RESET); // @suppress("C-Style cast instead of C++ cast")
+//    	HAL_GPIO_WritePin(LcdCS_GPIO_Port, LcdCS_Pin, GPIO_PIN_RESET); // @suppress("C-Style cast instead of C++ cast")
 //      u8x8_gpio_SetCS(u8x8, u8x8->display_info->chip_enable_level);
 //      u8x8->gpio_and_delay_cb(u8x8, U8X8_MSG_DELAY_NANO, u8x8->display_info->post_chip_enable_wait_ns, NULL);
       break;
     case U8X8_MSG_BYTE_END_TRANSFER:
+    	HAL_GPIO_WritePin(LcdCS_GPIO_Port, LcdCS_Pin, GPIO_PIN_RESET);
+    	HAL_SPI_Transmit(&hspi1, (uint8_t *)arg_ptr, arg_int, 100);
     	HAL_GPIO_WritePin(LcdCS_GPIO_Port, LcdCS_Pin, GPIO_PIN_SET);
 //      u8x8->gpio_and_delay_cb(u8x8, U8X8_MSG_DELAY_NANO, u8x8->display_info->pre_chip_disable_wait_ns, NULL);
 //      u8x8_gpio_SetCS(u8x8, u8x8->display_info->chip_disable_level);
@@ -166,9 +175,11 @@ void NHDST7565_LCD::assignTextParams(String Text, const uint8_t *Font)
 	textToWrite.textLen = 0;
 	textToWrite.textHigh = 0;
 	textToWrite.text = "";
+	textToWrite.textFont = Font;
+	u8g2_SetFont(&U8G2_Display, textToWrite.textFont);
 	textToWrite.textLen = u8g2_GetStrWidth(&U8G2_Display, Text.c_str());
 	textToWrite.textHigh = u8g2_GetAscent(&U8G2_Display);
-	textToWrite.textFont = Font;
+
 	if(textToWrite.textLen < DispParams.width)
 	{
 		textToWrite.text = Text;
@@ -227,6 +238,7 @@ void NHDST7565_LCD::drawString(String Text, uint8_t XPos, uint8_t YPos, const ui
 {
 	uint8_t NewXPos = 0, NewYPos = 0;
 	assignTextParams(Text, u8g2Font);
+
 	if(XPos <= DispParams.width && YPos <= DispParams.high)
 	{
 		NewXPos = XPos;
@@ -303,16 +315,16 @@ void NHDST7565_LCD::drawString(String Text, uint8_t XPos, uint8_t YPos, const ui
 			break;
 		}
 	}
-	u8g2_SetFont(&U8G2_Display, textToWrite.textFont);
+
 	u8g2_DrawStr(&U8G2_Display, NewXPos, NewYPos, textToWrite.text.c_str());
 }
 
 
 void NHDST7565_LCD::testDisplay(String Text)
 {
-//	u8g2_SetFont(&U8G2_Display, u8g2_font_6x12_tn);
+	u8g2_SetFont(&U8G2_Display, u8g2_font_6x12_tn);
 	u8g2_ClearBuffer(&U8G2_Display);
-//	u8g2_DrawStr(&U8G2_Display, 20, 20, Text.c_str());
-	drawString(Text, CENTER_POS, MIDDLE_POS, u8g2_font_6x12_tn);
+	u8g2_DrawStr(&U8G2_Display, 20, 20, Text.c_str());
+//	drawString(Text, CENTER_POS, MIDDLE_POS, u8g2_font_6x12_tn);
 	u8g2_SendBuffer(&U8G2_Display);
 }
