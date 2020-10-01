@@ -13,7 +13,7 @@
 
 typedef std::string String;
 
-class ST7920_LCD
+class NHDST7565_LCD
 {
 private:
 	typedef struct
@@ -22,21 +22,26 @@ private:
 		uint8_t high;
 
 	}DISPLAY_PARAMS;
+
 	typedef struct
 	{
 		String text;
 		uint8_t textLen;
 		uint8_t textHigh;
+		const uint8_t *textFont;
 	}TEXT_4_WRITE;
+
 	u8g2_t U8G2_Display;
 	DISPLAY_PARAMS DispParams;
 	TEXT_4_WRITE textToWrite;
+	void assignTextParams(String Text, const uint8_t *Font);
 	uint8_t setTextLeft();
 	uint8_t setTextCenter();
 	uint8_t setTextRight();
 	uint8_t setTextTop();
 	uint8_t setTextMiddle();
 	uint8_t setTextBottom();
+
 public:
 	enum
 	{
@@ -50,9 +55,9 @@ public:
 		MIDDLE_POS,
 		BOTTOM_POS
 	};
-	ST7920_LCD();
+	NHDST7565_LCD(uint8_t Width, uint8_t High);
 	void setupLcd();
-	void drawString(String Text, uint8_t XPos, uint8_t YPos);
+	void drawString(String Text, uint8_t XPos, uint8_t YPos, const uint8_t *u8g2Font);
 	void testDisplay(String Text);
 };
 

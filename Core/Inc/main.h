@@ -54,8 +54,12 @@ void Error_Handler(void);
 #define ThermoSensor_GPIO_Port GPIOA
 #define LcdCS_Pin GPIO_PIN_3
 #define LcdCS_GPIO_Port GPIOA
+#define LcdA0_Pin GPIO_PIN_4
+#define LcdA0_GPIO_Port GPIOA
 #define Sck_Pin GPIO_PIN_5
 #define Sck_GPIO_Port GPIOA
+#define LcdReset_Pin GPIO_PIN_6
+#define LcdReset_GPIO_Port GPIOA
 #define Mosi_Pin GPIO_PIN_7
 #define Mosi_GPIO_Port GPIOA
 #define UpButton_Pin GPIO_PIN_12

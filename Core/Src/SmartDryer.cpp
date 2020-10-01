@@ -11,6 +11,7 @@
 
 SmartDryer::SmartDryer()
 {
+	display = new NHDST7565_LCD(128, 64);
 	clock = new DS1307_RTC();
 	keyboard = new DryerKey();
 	tempSens = new THERMO_SENSOR();
@@ -233,11 +234,13 @@ void SmartDryer::physicalReleCtrl()
 void SmartDryer::test()
 {
 	testTimer->setTimer(5000);
+
+	display->setupLcd();
+
 	while(1)
 	{
 		  uint8_t WichKey = DryerKey::NO_KEY, TestKey = 0;
 		  char SerialData[RECEIVE_BUFFER_LEN] = {0};
-	//	  Display.testDisplay("Test");
 
 		  dbgDryer->readSerialIT((uint8_t *)SerialData);
 		  if(SerialData[5] != 0)
@@ -298,6 +301,8 @@ void SmartDryer::test()
 			  ledStatus = THERMO_ON_FAN_OFF;
 		  }
 		  ledControl();
+
+		  display->testDisplay("Test");
 	}
 }
 

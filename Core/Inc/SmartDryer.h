@@ -51,6 +51,7 @@ private:
 
 	}DRYER_FLAG;
 
+	NHDST7565_LCD *display;
 	DS1307_RTC *clock;
 	DryerKey *keyboard;
 	THERMO_SENSOR *tempSens;

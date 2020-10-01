@@ -51,10 +51,34 @@ uint8_t u8g2_gpio_and_delay_stm32(U8X8_UNUSED u8x8_t *u8x8, U8X8_UNUSED uint8_t 
 	case U8X8_MSG_GPIO_E:				// E/WR pin: Output level in arg_int
 		break;
 	case U8X8_MSG_GPIO_CS:				// CS (chip select) pin: Output level in arg_int
+		if(arg_int)
+		{
+			HAL_GPIO_WritePin(LcdCS_GPIO_Port, LcdCS_Pin, GPIO_PIN_RESET);
+		}
+		else
+		{
+			HAL_GPIO_WritePin(LcdCS_GPIO_Port, LcdCS_Pin, GPIO_PIN_SET);
+		}
 		break;
 	case U8X8_MSG_GPIO_DC:				// DC (data/cmd, A0, register select) pin: Output level in arg_int
+		if(arg_int)
+		{
+			HAL_GPIO_WritePin(LcdCS_GPIO_Port, LcdCS_Pin, GPIO_PIN_SET);
+		}
+		else
+		{
+			HAL_GPIO_WritePin(LcdCS_GPIO_Port, LcdCS_Pin, GPIO_PIN_RESET);
+		}
 		break;
 	case U8X8_MSG_GPIO_RESET:			// Reset pin: Output level in arg_int
+		if(arg_int)
+		{
+			HAL_GPIO_WritePin(LcdCS_GPIO_Port, LcdCS_Pin, GPIO_PIN_SET);
+		}
+		else
+		{
+			HAL_GPIO_WritePin(LcdCS_GPIO_Port, LcdCS_Pin, GPIO_PIN_RESET);
+		}
 		break;
 	case U8X8_MSG_GPIO_CS1:				// CS1 (chip select) pin: Output level in arg_int
 		break;
@@ -99,25 +123,15 @@ uint8_t u8x8_byte_stm32_hw_spi(u8x8_t *u8x8, uint8_t msg, uint8_t arg_int, void 
 //      }
       break;
     case U8X8_MSG_BYTE_INIT:
+    	HAL_GPIO_WritePin(LcdCS_GPIO_Port, LcdCS_Pin, GPIO_PIN_SET); // @suppress("C-Style cast instead of C++ cast")
 //      u8x8_gpio_SetCS(u8x8, u8x8->display_info->chip_disable_level);
-//      SPI.begin();
       break;
     case U8X8_MSG_BYTE_SET_DC:
-//      u8x8_gpio_SetDC(u8x8, arg_int);
+      u8x8_gpio_SetDC(u8x8, arg_int);
       break;
     case U8X8_MSG_BYTE_START_TRANSFER:
-        HAL_GPIO_WritePin(LcdCS_GPIO_Port, LcdCS_Pin, GPIO_PIN_RESET); // @suppress("C-Style cast instead of C++ cast")
 
-//      /* SPI mode has to be mapped to the mode of the current controller, at least Uno, Due, 101 have different SPI_MODEx values */
-//      internal_spi_mode =  0;
-//      switch(u8x8->display_info->spi_mode)
-//      {
-//        case 0: internal_spi_mode = SPI_MODE0; break;
-//        case 1: internal_spi_mode = SPI_MODE1; break;
-//        case 2: internal_spi_mode = SPI_MODE2; break;
-//        case 3: internal_spi_mode = SPI_MODE3; break;
-//      }
-//      SPI.beginTransaction(SPISettings(u8x8->display_info->sck_clock_hz, MSBFIRST, internal_spi_mode));
+    	HAL_GPIO_WritePin(LcdCS_GPIO_Port, LcdCS_Pin, GPIO_PIN_RESET); // @suppress("C-Style cast instead of C++ cast")
 //      u8x8_gpio_SetCS(u8x8, u8x8->display_info->chip_enable_level);
 //      u8x8->gpio_and_delay_cb(u8x8, U8X8_MSG_DELAY_NANO, u8x8->display_info->post_chip_enable_wait_ns, NULL);
       break;
@@ -125,7 +139,6 @@ uint8_t u8x8_byte_stm32_hw_spi(u8x8_t *u8x8, uint8_t msg, uint8_t arg_int, void 
     	HAL_GPIO_WritePin(LcdCS_GPIO_Port, LcdCS_Pin, GPIO_PIN_SET);
 //      u8x8->gpio_and_delay_cb(u8x8, U8X8_MSG_DELAY_NANO, u8x8->display_info->pre_chip_disable_wait_ns, NULL);
 //      u8x8_gpio_SetCS(u8x8, u8x8->display_info->chip_disable_level);
-//      SPI.endTransaction();
       break;
     default:
       return 0;
@@ -134,86 +147,172 @@ uint8_t u8x8_byte_stm32_hw_spi(u8x8_t *u8x8, uint8_t msg, uint8_t arg_int, void 
 }
 
 
-ST7920_LCD::ST7920_LCD()
+NHDST7565_LCD::NHDST7565_LCD(uint8_t Width, uint8_t High)
 {
 //	U8G2_Display = new u8g2_t();
-	DispParams.width = 128;
-	DispParams.high = 64;
+	DispParams.width = Width;
+	DispParams.high = High;
 }
 
-void ST7920_LCD::setupLcd()
+void NHDST7565_LCD::setupLcd()
 {
-	u8g2_Setup_st7920_s_128x64_f(&U8G2_Display, U8G2_R2, u8x8_byte_stm32_hw_spi, u8g2_gpio_and_delay_stm32);
+	u8g2_Setup_st7565_nhd_c12864_f(&U8G2_Display, U8G2_R2, u8x8_byte_stm32_hw_spi, u8g2_gpio_and_delay_stm32);
 	u8g2_InitDisplay(&U8G2_Display); // send init sequence to the display, display is in sleep mode after this, // @suppress("C-Style cast instead of C++ cast")
 	u8g2_SetPowerSave(&U8G2_Display, 0); // wake up display // @suppress("C-Style cast instead of C++ cast")
 }
 
-
-uint8_t ST7920_LCD::setTextLeft()
-{
-	uint8_t NewPos = 0;
-//	TextLen = u8g2_GetStrWidth(U8G2_Display, textToWrite.c_str());
-	return NewPos; // @suppress("Return with parenthesis")
-}
-
-uint8_t ST7920_LCD::setTextCenter()
-{
-	uint8_t NewPos = 0;
-	NewPos = (DispParams.width - textToWrite.textLen) / 2;
-	return NewPos; // @suppress("Return with parenthesis")
-}
-
-uint8_t ST7920_LCD::setTextRight()
-{
-	uint8_t NewPos = 0;
-	NewPos = (DispParams.width - textToWrite.textLen);
-	return NewPos; // @suppress("Return with parenthesis")
-}
-
-uint8_t ST7920_LCD::setTextTop()
-{
-	uint8_t NewPos = 0;
-	NewPos = 0 + textToWrite.textHigh + 1;
-	return NewPos; // @suppress("Return with parenthesis")
-}
-
-uint8_t ST7920_LCD::setTextMiddle()
-{
-	uint8_t NewPos = 0;
-	NewPos = (DispParams.high - textToWrite.textHigh + 1) / 2;
-	return NewPos; // @suppress("Return with parenthesis")
-}
-
-uint8_t ST7920_LCD::setTextBottom()
-{
-	uint8_t NewPos = 0;
-	NewPos = (DispParams.high - textToWrite.textHigh - 1);
-	return NewPos; // @suppress("Return with parenthesis")
-}
-
-void ST7920_LCD::drawString(String Text, uint8_t XPos, uint8_t YPos)
+void NHDST7565_LCD::assignTextParams(String Text, const uint8_t *Font)
 {
 	textToWrite.textLen = 0;
 	textToWrite.textHigh = 0;
 	textToWrite.text = "";
 	textToWrite.textLen = u8g2_GetStrWidth(&U8G2_Display, Text.c_str());
 	textToWrite.textHigh = u8g2_GetAscent(&U8G2_Display);
+	textToWrite.textFont = Font;
 	if(textToWrite.textLen < DispParams.width)
 	{
 		textToWrite.text = Text;
-		u8g2_DrawStr(&U8G2_Display, setTextCenter(), setTextMiddle(), textToWrite.text.c_str());
 	}
 	else
 	{
-
+		textToWrite.textFont = u8g2_font_5x8_mf;
+		textToWrite.text = "STRING ERROR!";
 	}
 }
 
-void ST7920_LCD::testDisplay(String Text)
+
+uint8_t NHDST7565_LCD::setTextLeft()
 {
-	u8g2_SetFont(&U8G2_Display, u8g2_font_6x12_tn);
+	uint8_t NewPos = 0;
+//	TextLen = u8g2_GetStrWidth(U8G2_Display, textToWrite.c_str());
+	return NewPos; // @suppress("Return with parenthesis")
+}
+
+uint8_t NHDST7565_LCD::setTextCenter()
+{
+	uint8_t NewPos = 0;
+	NewPos = (DispParams.width - textToWrite.textLen) / 2;
+	return NewPos; // @suppress("Return with parenthesis")
+}
+
+uint8_t NHDST7565_LCD::setTextRight()
+{
+	uint8_t NewPos = 0;
+	NewPos = (DispParams.width - textToWrite.textLen);
+	return NewPos; // @suppress("Return with parenthesis")
+}
+
+uint8_t NHDST7565_LCD::setTextTop()
+{
+	uint8_t NewPos = 0;
+	NewPos = 0 + textToWrite.textHigh + 1;
+	return NewPos; // @suppress("Return with parenthesis")
+}
+
+uint8_t NHDST7565_LCD::setTextMiddle()
+{
+	uint8_t NewPos = 0;
+	NewPos = (DispParams.high - textToWrite.textHigh + 1) / 2;
+	return NewPos; // @suppress("Return with parenthesis")
+}
+
+uint8_t NHDST7565_LCD::setTextBottom()
+{
+	uint8_t NewPos = 0;
+	NewPos = (DispParams.high - textToWrite.textHigh - 1);
+	return NewPos; // @suppress("Return with parenthesis")
+}
+
+void NHDST7565_LCD::drawString(String Text, uint8_t XPos, uint8_t YPos, const uint8_t *u8g2Font)
+{
+	uint8_t NewXPos = 0, NewYPos = 0;
+	assignTextParams(Text, u8g2Font);
+	if(XPos <= DispParams.width && YPos <= DispParams.high)
+	{
+		NewXPos = XPos;
+		NewYPos = YPos;
+	}
+	else if(XPos > DispParams.width && YPos <= DispParams.high)
+	{
+		NewYPos = YPos;
+		switch(XPos)
+		{
+		case LEFT_POS:
+			NewXPos = setTextLeft();
+			break;
+		case CENTER_POS:
+			NewXPos = setTextCenter();
+			break;
+		case RIGHT_POS:
+			NewXPos = setTextRight();
+			break;
+		default:
+			NewXPos = setTextCenter();
+			break;
+		}
+	}
+	else if(XPos <= DispParams.width && YPos > DispParams.high)
+	{
+		NewXPos = XPos;
+		switch(YPos)
+		{
+		case TOP_POS:
+			NewYPos = setTextTop();
+			break;
+		case MIDDLE_POS:
+			NewYPos = setTextMiddle();
+			break;
+		case BOTTOM_POS:
+			NewYPos = setTextBottom();
+			break;
+		default:
+			NewYPos = setTextMiddle();
+			break;
+		}
+	}
+	else
+	{
+		switch(XPos)
+		{
+		case LEFT_POS:
+			NewXPos = setTextLeft();
+			break;
+		case CENTER_POS:
+			NewXPos = setTextCenter();
+			break;
+		case RIGHT_POS:
+			NewXPos = setTextRight();
+			break;
+		default:
+			NewXPos = setTextCenter();
+			break;
+		}
+		switch(YPos)
+		{
+		case TOP_POS:
+			NewYPos = setTextTop();
+			break;
+		case MIDDLE_POS:
+			NewYPos = setTextMiddle();
+			break;
+		case BOTTOM_POS:
+			NewYPos = setTextBottom();
+			break;
+		default:
+			NewYPos = setTextMiddle();
+			break;
+		}
+	}
+	u8g2_SetFont(&U8G2_Display, textToWrite.textFont);
+	u8g2_DrawStr(&U8G2_Display, NewXPos, NewYPos, textToWrite.text.c_str());
+}
+
+
+void NHDST7565_LCD::testDisplay(String Text)
+{
+//	u8g2_SetFont(&U8G2_Display, u8g2_font_6x12_tn);
 	u8g2_ClearBuffer(&U8G2_Display);
-	u8g2_DrawStr(&U8G2_Display, 20, 20, Text.c_str());
-//	drawString(Text, CENTER_POS, MIDDLE_POS);
+//	u8g2_DrawStr(&U8G2_Display, 20, 20, Text.c_str());
+	drawString(Text, CENTER_POS, MIDDLE_POS, u8g2_font_6x12_tn);
 	u8g2_SendBuffer(&U8G2_Display);
 }
