@@ -69,6 +69,8 @@ int main(void)
 	MX_TIM2_Init();
 	MX_USART1_UART_Init();
 
+	HAL_TIM_Base_Start(&htim2);
+
 	DryerApplication = new SmartDryer();
 
 	if(DryerApplication->enableTest)

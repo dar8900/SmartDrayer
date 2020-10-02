@@ -46,8 +46,8 @@ private:
 
 	typedef struct
 	{
-		bool thermoOn;
-		bool fanOn;
+		bool thermoOn = false;
+		bool fanOn = false;
 
 	}DRYER_FLAG;
 
@@ -69,8 +69,8 @@ private:
 	SerialDebug *dbgDryer;
 
 	DRYER_FLAG statusFlags;
-	uint16_t ledStatus;
-	uint32_t readedTemperature;
+	uint16_t ledStatus = UNKNOWN_STATE;
+	uint32_t readedTemperature = 0.0;
 
 	void blinkLed(uint8_t WichLed, uint16_t BlinkDelay);
 	void toggleLed(uint8_t WichLed);

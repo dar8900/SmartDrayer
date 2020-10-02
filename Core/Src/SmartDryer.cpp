@@ -167,8 +167,8 @@ void SmartDryer::ledControl()
 		break;
 	case UNKNOWN_STATE:
 	default:
-		blinkLed(RED_LED, 5);
-		blinkLed(GREEN_LED, 5);
+		blinkLed(RED_LED, 1000);
+		blinkLed(GREEN_LED, 1000);
 		break;
 	}
 }
@@ -234,7 +234,7 @@ void SmartDryer::physicalReleCtrl()
 void SmartDryer::test()
 {
 	testTimer->setTimer(5000);
-
+	std::string Time = "";
 	display->setupLcd();
 
 	while(1)
@@ -286,10 +286,10 @@ void SmartDryer::test()
 			  dbgDryer->sendDbgStr("Il tasto premuto vale " + std::to_string(TestKey));
 		  }
 
-//		  if(testTimer->isFinished(true, 2000))
-//		  {
-//			  dbgDryer->sendDbgStr(clock->getTimeDateStr(DS1307_RTC::ONLY_TIME));
-//		  }
+		  if(testTimer->isFinished(true, 2000))
+		  {
+			  Time = clock->getTimeDateStr(DS1307_RTC::ONLY_TIME);
+		  }
 		  physicalReleCtrl();
 
 		  if(testTimer->isFinished(true))

@@ -31,7 +31,6 @@ private:
 		const uint8_t *textFont;
 	}TEXT_4_WRITE;
 
-	u8g2_t U8G2_Display;
 	DISPLAY_PARAMS DispParams;
 	TEXT_4_WRITE textToWrite;
 	void assignTextParams(String Text, const uint8_t *Font);
