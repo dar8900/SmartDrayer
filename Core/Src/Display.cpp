@@ -28,10 +28,11 @@ uint8_t u8g2_gpio_and_delay_stm32(U8X8_UNUSED u8x8_t *u8x8, U8X8_UNUSED uint8_t 
 	case U8X8_MSG_GPIO_AND_DELAY_INIT:	// called once during init phase of u8g2/u8x8
 		break;							// can be used to setup pins
 	case U8X8_MSG_DELAY_NANO:			// delay arg_int * 1 nano second
-		DelayNs(arg_int);
+//		DelayNs(arg_int);
 		break;
 	case U8X8_MSG_DELAY_100NANO:		// delay arg_int * 100 nano seconds
-		DelayNs(arg_int);
+//		DelayNs(arg_int);
+		__NOP();
 		break;
 		//Function which delays 10us
 	case U8X8_MSG_DELAY_10MICRO:
@@ -56,7 +57,7 @@ uint8_t u8g2_gpio_and_delay_stm32(U8X8_UNUSED u8x8_t *u8x8, U8X8_UNUSED uint8_t 
 		HAL_GPIO_WritePin(LcdCS_GPIO_Port, LcdCS_Pin, (GPIO_PinState)arg_int);
 		break;
 	case U8X8_MSG_GPIO_DC:				// DC (data/cmd, A0, register select) pin: Output level in arg_int
-		HAL_GPIO_WritePin(LcdCS_GPIO_Port, LcdCS_Pin, (GPIO_PinState)arg_int);
+		HAL_GPIO_WritePin(LcdA0_GPIO_Port, LcdA0_Pin, (GPIO_PinState)arg_int);
 		break;
 	case U8X8_MSG_GPIO_RESET:			// Reset pin: Output level in arg_int
 		HAL_GPIO_WritePin(LcdReset_GPIO_Port, LcdReset_Pin, (GPIO_PinState)arg_int);
@@ -70,9 +71,19 @@ uint8_t u8g2_gpio_and_delay_stm32(U8X8_UNUSED u8x8_t *u8x8, U8X8_UNUSED uint8_t 
 
 uint8_t u8x8_byte_stm32_hw_spi(u8x8_t *u8g2, uint8_t msg, uint8_t arg_int, void *arg_ptr)
 {
+//	uint8_t byte;
+//	uint8_t *data;
 	switch(msg)
 	{
 	case U8X8_MSG_BYTE_SEND:
+//		data = (uint8_t *)arg_ptr;
+//		while (arg_int > 0)
+//		{
+//			byte = *data;
+//			data++;
+//			arg_int--;
+//			HAL_SPI_Transmit(&hspi1, &byte, 1, 100);
+//		}
 		HAL_SPI_Transmit(&hspi1, (uint8_t *)arg_ptr, arg_int, 10);
 		break;
 	case U8X8_MSG_BYTE_INIT:
@@ -83,10 +94,12 @@ uint8_t u8x8_byte_stm32_hw_spi(u8x8_t *u8g2, uint8_t msg, uint8_t arg_int, void 
 		break;
 	case U8X8_MSG_BYTE_START_TRANSFER:
 		u8x8_gpio_SetCS(u8g2, u8g2->display_info->chip_enable_level);
-		u8g2->gpio_and_delay_cb(u8g2, U8X8_MSG_DELAY_NANO, u8g2->display_info->post_chip_enable_wait_ns, NULL);
+		__NOP();
+//		u8g2->gpio_and_delay_cb(u8g2, U8X8_MSG_DELAY_NANO, u8g2->display_info->post_chip_enable_wait_ns, NULL);
 		break;
 	case U8X8_MSG_BYTE_END_TRANSFER:
-		u8g2->gpio_and_delay_cb(u8g2, U8X8_MSG_DELAY_NANO, u8g2->display_info->pre_chip_disable_wait_ns, NULL);
+//		u8g2->gpio_and_delay_cb(u8g2, U8X8_MSG_DELAY_NANO, u8g2->display_info->pre_chip_disable_wait_ns, NULL);
+		__NOP();
 		u8x8_gpio_SetCS(u8g2, u8g2->display_info->chip_disable_level);
 		break;
 	default:
