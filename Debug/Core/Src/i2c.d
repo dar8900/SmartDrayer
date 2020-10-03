@@ -27,7 +27,8 @@ Core/Src/i2c.o: ../Core/Src/i2c.c ../Core/Inc/i2c.h ../Core/Inc/main.h \
  ../Drivers/STM32F1xx_HAL_Driver/Inc/stm32f1xx_hal_tim.h \
  ../Drivers/STM32F1xx_HAL_Driver/Inc/stm32f1xx_hal_tim_ex.h \
  ../Drivers/STM32F1xx_HAL_Driver/Inc/stm32f1xx_hal_uart.h \
- ../Core/Inc/../LcdLib/u8g2.h ../Core/Inc/../LcdLib/u8x8.h
+ ../Core/Inc/../LcdLib/u8g2.h ../Core/Inc/../LcdLib/u8x8.h \
+ ../Core/Inc/version_info.h
 
 ../Core/Inc/i2c.h:
 
@@ -92,3 +93,5 @@ Core/Src/i2c.o: ../Core/Src/i2c.c ../Core/Inc/i2c.h ../Core/Inc/main.h \
 ../Core/Inc/../LcdLib/u8g2.h:
 
 ../Core/Inc/../LcdLib/u8x8.h:
+
+../Core/Inc/version_info.h:

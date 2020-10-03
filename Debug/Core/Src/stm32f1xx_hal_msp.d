@@ -27,7 +27,8 @@ Core/Src/stm32f1xx_hal_msp.o: ../Core/Src/stm32f1xx_hal_msp.c \
  ../Drivers/STM32F1xx_HAL_Driver/Inc/stm32f1xx_hal_tim.h \
  ../Drivers/STM32F1xx_HAL_Driver/Inc/stm32f1xx_hal_tim_ex.h \
  ../Drivers/STM32F1xx_HAL_Driver/Inc/stm32f1xx_hal_uart.h \
- ../Core/Inc/../LcdLib/u8g2.h ../Core/Inc/../LcdLib/u8x8.h
+ ../Core/Inc/../LcdLib/u8g2.h ../Core/Inc/../LcdLib/u8x8.h \
+ ../Core/Inc/version_info.h
 
 ../Core/Inc/main.h:
 
@@ -90,3 +91,5 @@ Core/Src/stm32f1xx_hal_msp.o: ../Core/Src/stm32f1xx_hal_msp.c \
 ../Core/Inc/../LcdLib/u8g2.h:
 
 ../Core/Inc/../LcdLib/u8x8.h:
+
+../Core/Inc/version_info.h:

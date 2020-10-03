@@ -176,6 +176,9 @@ void NHDST7565_LCD::setupLcd()
 	u8g2_Setup_st7565_nhd_c12864_f(&U8G2_Display, DisplayRotation, u8x8_byte_stm32_hw_spi, u8g2_gpio_and_delay_stm32);
 	u8g2_InitDisplay(&U8G2_Display); // send init sequence to the display, display is in sleep mode after this, // @suppress("C-Style cast instead of C++ cast")
 	u8g2_SetPowerSave(&U8G2_Display, 0); // wake up display // @suppress("C-Style cast instead of C++ cast")
+	u8g2_SetFontMode(&U8G2_Display, 1);
+	clearFrameBuffer();
+	sendFrameBuffer();
 }
 
 
@@ -203,22 +206,55 @@ uint8_t NHDST7565_LCD::setTextRight()
 uint8_t NHDST7565_LCD::setTextTop()
 {
 	uint8_t NewPos = 0;
-	NewPos = 0 + textToWrite.textHigh + 1;
+	NewPos = textToWrite.textHigh + 1;
 	return NewPos; // @suppress("Return with parenthesis")
 }
 
 uint8_t NHDST7565_LCD::setTextMiddle()
 {
 	uint8_t NewPos = 0;
-	NewPos = (DispParams.high - textToWrite.textHigh + 1) / 2;
+	NewPos = ((DispParams.high - textToWrite.textHigh + 1) / 2) + (textToWrite.textHigh / 2);
 	return NewPos; // @suppress("Return with parenthesis")
 }
 
 uint8_t NHDST7565_LCD::setTextBottom()
 {
 	uint8_t NewPos = 0;
-	NewPos = (DispParams.high - textToWrite.textHigh - 1);
+//	NewPos = (DispParams.high - textToWrite.textHigh - 1);
+	NewPos = DispParams.high - 1;
 	return NewPos; // @suppress("Return with parenthesis")
+}
+
+void NHDST7565_LCD::clearFrameBuffer()
+{
+	u8g2_ClearBuffer(&U8G2_Display);
+}
+void NHDST7565_LCD::sendFrameBuffer()
+{
+	u8g2_SendBuffer(&U8G2_Display);
+}
+
+void NHDST7565_LCD::clearScreen()
+{
+	u8g2_ClearDisplay(&U8G2_Display);
+}
+
+
+void NHDST7565_LCD::drawBox(uint8_t x, uint8_t y, uint8_t w, uint8_t h)
+{
+	u8g2_SetDrawColor(&U8G2_Display, 1);
+	u8g2_DrawBox(&U8G2_Display, x, y, w, h);
+	u8g2_SetDrawColor(&U8G2_Display, 0);
+}
+
+void NHDST7565_LCD::drawCircle(uint8_t x, uint8_t y, uint8_t r, bool Empty)
+{
+	u8g2_SetDrawColor(&U8G2_Display, 1);
+	if(Empty)
+		u8g2_DrawCircle(&U8G2_Display, x, y, r, U8G2_DRAW_ALL);
+	else
+		u8g2_DrawDisc(&U8G2_Display, x, y, r, U8G2_DRAW_ALL);
+	u8g2_SetDrawColor(&U8G2_Display, 0);
 }
 
 void NHDST7565_LCD::drawString(String Text, uint8_t XPos, uint8_t YPos, const uint8_t *u8g2Font)
@@ -309,7 +345,9 @@ void NHDST7565_LCD::drawString(String Text, uint8_t XPos, uint8_t YPos, const ui
 
 void NHDST7565_LCD::testDisplay(String Text)
 {
-	u8g2_ClearBuffer(&U8G2_Display);
-	drawString(Text, CENTER_POS, MIDDLE_POS, u8g2_font_5x8_mf );
-	u8g2_SendBuffer(&U8G2_Display);
+	clearFrameBuffer();
+	drawString(Text, CENTER_POS, MIDDLE_POS, displayFonts[W_6_H_10] );
+	drawString(Text, CENTER_POS, TOP_POS, displayFonts[W_6_H_10] );
+	drawString(Text, CENTER_POS, BOTTOM_POS, displayFonts[W_6_H_10] );
+	sendFrameBuffer();
 }

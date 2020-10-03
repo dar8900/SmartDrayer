@@ -31,6 +31,7 @@ extern "C" {
 #include "stm32f1xx_hal.h"
 
 #include "../LcdLib/u8g2.h"
+#include "version_info.h"
 #include "math.h"
 #include "stdint.h"
 #include "stdbool.h"

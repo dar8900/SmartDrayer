@@ -255,9 +255,11 @@ void SmartDryer::test()
 		  switch(WichKey)
 		  {
 		  case DryerKey::UP_KEY:
+			  statusFlags.fanOn = true;
 			  TestKey = 1;
 			  break;
 		  case DryerKey::DOWN_KEY:
+			  statusFlags.fanOn = false;
 			  TestKey = 2;
 			  break;
 		  case DryerKey::LEFT_KEY:
@@ -267,9 +269,11 @@ void SmartDryer::test()
 			  TestKey = 4;
 			  break;
 		  case DryerKey::LONG_UP_KEY:
+			  statusFlags.thermoOn = true;
 			  TestKey = 5;
 			  break;
 		  case DryerKey::LONG_DOWN_KEY:
+			  statusFlags.thermoOn = false;
 			  TestKey = 6;
 			  break;
 		  case DryerKey::LONG_LEFT_KEY:
@@ -283,26 +287,19 @@ void SmartDryer::test()
 		  }
 		  if(TestKey != 0)
 		  {
-			  dbgDryer->sendDbgStr("Il tasto premuto vale " + std::to_string(TestKey));
+//			  dbgDryer->sendDbgStr("Il tasto premuto vale " + std::to_string(TestKey));
+			  display->clearFrameBuffer();
+			  display->drawString("Tasto premuto: ", NHDST7565_LCD::CENTER_POS, NHDST7565_LCD::TOP_POS, display->displayFonts[NHDST7565_LCD::W_5_H_8]);
+			  display->drawString(std::to_string(WichKey), NHDST7565_LCD::CENTER_POS, NHDST7565_LCD::MIDDLE_POS, display->displayFonts[NHDST7565_LCD::W_5_H_8]);
+			  display->sendFrameBuffer();
 		  }
 
-		  if(testTimer->isFinished(true, 2000))
-		  {
-			  Time = clock->getTimeDateStr(DS1307_RTC::ONLY_TIME);
-		  }
+//		  if(testTimer->isFinished(true, 2000))
+//		  {
+//			  Time = clock->getTimeDateStr(DS1307_RTC::ONLY_TIME);
+//		  }
 		  physicalReleCtrl();
 
-		  if(testTimer->isFinished(true))
-		  {
-			  ledStatus = PROGRAM_END;
-		  }
-		  else
-		  {
-			  ledStatus = THERMO_ON_FAN_OFF;
-		  }
-		  ledControl();
-
-		  display->testDisplay("Test");
 	}
 }
 

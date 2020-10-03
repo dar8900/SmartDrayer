@@ -28,6 +28,7 @@ BUTTON::BUTTON(GPIO_TypeDef *ButtonPort, uint16_t ButtonPin, uint16_t LongPressD
 uint8_t BUTTON::checkButton()
 {
 	uint8_t Status = NO_PRESS;
+	bool LongPressed = false;
 	bool ButtonState = readPin();
 	if(ButtonState)
 	{
@@ -37,21 +38,24 @@ uint8_t BUTTON::checkButton()
 			ButtonState = readPin();
 			if(HAL_GetTick() - longPressDelay > delay)
 			{
-				Status = LONG_PRESSED;
-				wasLongPressed = true;
+				LongPressed = true;
 				break;
 			}
 		}
-		if(!wasLongPressed)
+		if(!LongPressed)
 		{
-			Status = PRESSED;
+			if(!wasLongPressed)
+				Status = PRESSED;
+			else
+				wasLongPressed = false;
 		}
 		else
 		{
-			wasLongPressed = false;
+			Status = LONG_PRESSED;
+			wasLongPressed = true;
 		}
 		longPressDelay = 0;
-		HAL_Delay(25);
+		HAL_Delay(10);
 	}
 	return Status;
 }
