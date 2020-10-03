@@ -237,68 +237,88 @@ void SmartDryer::test()
 	std::string Time = "";
 	display->setupLcd();
 
+	uint8_t TopPos = 0, ItemSel = 0, MaxLines = 0, MaxItems = 0;
+	bool SwitchMenu = false;
+	StrVector MenuList1, MenuList2;
+	MenuList1.push_back("stringa 1");
+	MenuList1.push_back("stringa 2");
+	MenuList1.push_back("stringa 3");
+	MenuList1.push_back("stringa 4");
+	MenuList1.push_back("stringa 5");
+
+	MenuList2.push_back("stringa 11");
+	MenuList2.push_back("stringa 22");
+	MenuList2.push_back("stringa 33");
+	MenuList2.push_back("stringa 44");
+	MenuList2.push_back("stringa 55");
+	MenuList2.push_back("stringa 66");
+	MenuList2.push_back("stringa 77");
+	MenuList2.push_back("stringa 88");
+	MenuList2.push_back("stringa 99");
+
 	while(1)
 	{
-		  uint8_t WichKey = DryerKey::NO_KEY, TestKey = 0;
-		  char SerialData[RECEIVE_BUFFER_LEN] = {0};
-
-		  dbgDryer->readSerialIT((uint8_t *)SerialData);
-		  if(SerialData[5] != 0)
+		  uint8_t WichKey = DryerKey::NO_KEY;
+		  display->clearFrameBuffer();
+		  if(!SwitchMenu)
 		  {
-			  std::string Rec = "";
-			  for(int i = 0; i < RECEIVE_BUFFER_LEN; i++)
-				  Rec += SerialData[i];
-			  dbgDryer->sendDbgStr("Ricevuto: " + Rec);
+			  MaxLines = display->drawMenuList(5, 1, TopPos, ItemSel, MenuList1, display->displayFonts[NHDST7565_LCD::W_5_H_8]);
+			  MaxItems = MenuList1.size();
 		  }
-
+		  else
+		  {
+			  MaxLines = display->drawMenuList(60, 1, TopPos, ItemSel, MenuList2, display->displayFonts[NHDST7565_LCD::W_5_H_8]);
+			  MaxItems = MenuList2.size();
+		  }
+		  display->sendFrameBuffer();
 		  WichKey = keyboard->checkKey();
 		  switch(WichKey)
 		  {
 		  case DryerKey::UP_KEY:
-			  statusFlags.fanOn = true;
-			  TestKey = 1;
+		  case DryerKey::LONG_UP_KEY:
+			  if(ItemSel > 0)
+				  ItemSel--;
+			  else
+				  ItemSel = MaxItems - 1;
 			  break;
 		  case DryerKey::DOWN_KEY:
-			  statusFlags.fanOn = false;
-			  TestKey = 2;
+		  case DryerKey::LONG_DOWN_KEY:
+			  if(ItemSel < MaxItems - 1)
+				  ItemSel++;
+			  else
+				  ItemSel = 0;
 			  break;
 		  case DryerKey::LEFT_KEY:
-			  TestKey = 3;
+			  SwitchMenu = !SwitchMenu;
+			  TopPos = 0;
+			  ItemSel = 0;
 			  break;
 		  case DryerKey::OK_KEY:
-			  TestKey = 4;
-			  break;
-		  case DryerKey::LONG_UP_KEY:
-			  statusFlags.thermoOn = true;
-			  TestKey = 5;
-			  break;
-		  case DryerKey::LONG_DOWN_KEY:
-			  statusFlags.thermoOn = false;
-			  TestKey = 6;
 			  break;
 		  case DryerKey::LONG_LEFT_KEY:
-			  TestKey = 7;
+
 			  break;
 		  case DryerKey::LONG_OK_KEY:
-			  TestKey = 8;
 			  break;
 		  default:
 			  break;
 		  }
-		  if(TestKey != 0)
+		  if(WichKey != DryerKey::NO_KEY)
 		  {
-//			  dbgDryer->sendDbgStr("Il tasto premuto vale " + std::to_string(TestKey));
-			  display->clearFrameBuffer();
-			  display->drawString("Tasto premuto: ", NHDST7565_LCD::CENTER_POS, NHDST7565_LCD::TOP_POS, display->displayFonts[NHDST7565_LCD::W_5_H_8]);
-			  display->drawString(std::to_string(WichKey), NHDST7565_LCD::CENTER_POS, NHDST7565_LCD::MIDDLE_POS, display->displayFonts[NHDST7565_LCD::W_5_H_8]);
-			  display->sendFrameBuffer();
+			  if(ItemSel > MaxLines - 3)
+			  {
+				  if(ItemSel - (MaxLines - 3) < MaxItems - 1)
+					  TopPos = ItemSel - (MaxLines - 3);
+				  else
+					  TopPos = 0;
+			  }
+			  else
+				  TopPos = 0;
+			  if(ItemSel >= MaxItems - MaxLines)
+			  {
+				  TopPos = MaxItems - MaxLines;
+			  }
 		  }
-
-//		  if(testTimer->isFinished(true, 2000))
-//		  {
-//			  Time = clock->getTimeDateStr(DS1307_RTC::ONLY_TIME);
-//		  }
-		  physicalReleCtrl();
 
 	}
 }

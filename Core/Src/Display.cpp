@@ -116,16 +116,16 @@ NHDST7565_LCD::NHDST7565_LCD(uint8_t Rotation)
 
 void NHDST7565_LCD::changeDisplayDisposition(uint8_t NewRotation)
 {
-	DispParams.rotation = NewRotation;
-	if(DispParams.rotation == VERTICAL_1 || DispParams.rotation == VERTICAL_2)
+	dispParams.rotation = NewRotation;
+	if(dispParams.rotation == VERTICAL_1 || dispParams.rotation == VERTICAL_2)
 	{
-		DispParams.width = 64;
-		DispParams.high = 128;
+		dispParams.width = 64;
+		dispParams.high = 128;
 	}
 	else
 	{
-		DispParams.width = 128;
-		DispParams.high = 64;
+		dispParams.width = 128;
+		dispParams.high = 64;
 	}
 }
 
@@ -136,11 +136,15 @@ void NHDST7565_LCD::assignTextParams(String Text, const uint8_t *Font)
 	textToWrite.textHigh = 0;
 	textToWrite.text = "";
 	textToWrite.textFont = Font;
-	u8g2_SetFont(&U8G2_Display, textToWrite.textFont);
-	textToWrite.textLen = u8g2_GetStrWidth(&U8G2_Display, Text.c_str());
-	textToWrite.textHigh = u8g2_GetAscent(&U8G2_Display);
+//	if(textToWrite.textFont != Font)
+//	{
+		u8g2_SetFont(&U8G2_Display, textToWrite.textFont);
+		textToWrite.textHigh = u8g2_GetAscent(&U8G2_Display);
+//	}
+	if(Text != "")
+		textToWrite.textLen = u8g2_GetStrWidth(&U8G2_Display, Text.c_str());
 
-	if(textToWrite.textLen < DispParams.width)
+	if(textToWrite.textLen < dispParams.width)
 	{
 		textToWrite.text = Text;
 	}
@@ -155,7 +159,7 @@ void NHDST7565_LCD::assignTextParams(String Text, const uint8_t *Font)
 void NHDST7565_LCD::setupLcd()
 {
 	const u8g2_cb_t *DisplayRotation;
-	switch(DispParams.rotation)
+	switch(dispParams.rotation)
 	{
 	case LANDSCAPE_1:
 		DisplayRotation = &u8g2_cb_r2;
@@ -177,8 +181,7 @@ void NHDST7565_LCD::setupLcd()
 	u8g2_InitDisplay(&U8G2_Display); // send init sequence to the display, display is in sleep mode after this, // @suppress("C-Style cast instead of C++ cast")
 	u8g2_SetPowerSave(&U8G2_Display, 0); // wake up display // @suppress("C-Style cast instead of C++ cast")
 	u8g2_SetFontMode(&U8G2_Display, 1);
-	clearFrameBuffer();
-	sendFrameBuffer();
+	clearScreen();
 }
 
 
@@ -192,14 +195,14 @@ uint8_t NHDST7565_LCD::setTextLeft()
 uint8_t NHDST7565_LCD::setTextCenter()
 {
 	uint8_t NewPos = 0;
-	NewPos = (DispParams.width - textToWrite.textLen) / 2;
+	NewPos = (dispParams.width - textToWrite.textLen) / 2;
 	return NewPos; // @suppress("Return with parenthesis")
 }
 
 uint8_t NHDST7565_LCD::setTextRight()
 {
 	uint8_t NewPos = 0;
-	NewPos = (DispParams.width - textToWrite.textLen);
+	NewPos = (dispParams.width - textToWrite.textLen);
 	return NewPos; // @suppress("Return with parenthesis")
 }
 
@@ -213,7 +216,7 @@ uint8_t NHDST7565_LCD::setTextTop()
 uint8_t NHDST7565_LCD::setTextMiddle()
 {
 	uint8_t NewPos = 0;
-	NewPos = ((DispParams.high - textToWrite.textHigh + 1) / 2) + (textToWrite.textHigh / 2);
+	NewPos = ((dispParams.high - textToWrite.textHigh + 1) / 2) + (textToWrite.textHigh / 2);
 	return NewPos; // @suppress("Return with parenthesis")
 }
 
@@ -221,7 +224,7 @@ uint8_t NHDST7565_LCD::setTextBottom()
 {
 	uint8_t NewPos = 0;
 //	NewPos = (DispParams.high - textToWrite.textHigh - 1);
-	NewPos = DispParams.high - 1;
+	NewPos = dispParams.high - 1;
 	return NewPos; // @suppress("Return with parenthesis")
 }
 
@@ -236,7 +239,8 @@ void NHDST7565_LCD::sendFrameBuffer()
 
 void NHDST7565_LCD::clearScreen()
 {
-	u8g2_ClearDisplay(&U8G2_Display);
+	clearFrameBuffer();
+	sendFrameBuffer();
 }
 
 
@@ -262,12 +266,12 @@ void NHDST7565_LCD::drawString(String Text, uint8_t XPos, uint8_t YPos, const ui
 	uint8_t NewXPos = 0, NewYPos = 0;
 	assignTextParams(Text, u8g2Font);
 
-	if(XPos <= DispParams.width && YPos <= DispParams.high)
+	if(XPos <= dispParams.width && YPos <= dispParams.high)
 	{
 		NewXPos = XPos;
 		NewYPos = YPos;
 	}
-	else if(XPos > DispParams.width && YPos <= DispParams.high)
+	else if(XPos > dispParams.width && YPos <= dispParams.high)
 	{
 		NewYPos = YPos;
 		switch(XPos)
@@ -286,7 +290,7 @@ void NHDST7565_LCD::drawString(String Text, uint8_t XPos, uint8_t YPos, const ui
 			break;
 		}
 	}
-	else if(XPos <= DispParams.width && YPos > DispParams.high)
+	else if(XPos <= dispParams.width && YPos > dispParams.high)
 	{
 		NewXPos = XPos;
 		switch(YPos)
@@ -342,12 +346,81 @@ void NHDST7565_LCD::drawString(String Text, uint8_t XPos, uint8_t YPos, const ui
 	u8g2_DrawStr(&U8G2_Display, NewXPos, NewYPos, textToWrite.text.c_str());
 }
 
-
-void NHDST7565_LCD::testDisplay(String Text)
+void NHDST7565_LCD::drawText(String Text, uint8_t XPos, uint8_t YPos,
+		uint8_t MarginLen)
 {
-	clearFrameBuffer();
-	drawString(Text, CENTER_POS, MIDDLE_POS, displayFonts[W_6_H_10] );
-	drawString(Text, CENTER_POS, TOP_POS, displayFonts[W_6_H_10] );
-	drawString(Text, CENTER_POS, BOTTOM_POS, displayFonts[W_6_H_10] );
-	sendFrameBuffer();
+	assignTextParams(Text, displayFonts[W_3_H_6]);
+	if(textToWrite.textLen < MarginLen)
+	{
+		drawString(Text, XPos, YPos, displayFonts[W_3_H_6]);
+	}
+	else
+	{
+		int LastChar = 0;
+		int NLines = (Text.length() / MarginLen);
+		for(int NSpace = 0; NSpace < Text.length(); NSpace++)
+		{
+			if(Text[NSpace] == ' ')
+				NLines++;
+		}
+		if((NLines * textToWrite.textHigh) < dispParams.high)
+		{
+			for(int i = 0; i < NLines; i++)
+			{
+				String NewLine = "";
+				int j = 0;
+				for(j = LastChar; j < MarginLen + LastChar; j++)
+				{
+					if(j < Text.length() && Text[j] != ' ')
+					{
+						NewLine += Text[j];
+					}
+					else
+					{
+						if(Text[j] == ' ')
+							j++;
+						break;
+					}
+				}
+				u8g2_DrawStr(&U8G2_Display, XPos, YPos + (i * textToWrite.textHigh), NewLine.c_str());
+				LastChar = j;
+			}
+		}
+		else
+		{
+			drawString("To Long", XPos, YPos, displayFonts[W_3_H_6]);
+		}
+	}
+}
+
+uint8_t NHDST7565_LCD::drawMenuList(uint8_t FirstItemXPos, uint8_t FirstItemYPos, uint8_t FirsListItem,
+		uint8_t ItemSel, StrVector &MenuItems, const uint8_t *u8g2Font)
+{
+	assignTextParams("", u8g2Font);
+	uint8_t MaxLines = (dispParams.high - FirstItemYPos) / (textToWrite.textHigh + MENU_ITEM_INTERLINE);
+	uint8_t NextItem = 0;
+	uint8_t MaxTexLen = 0;
+	for(int Item = 0; Item < MaxLines; Item++)
+	{
+		NextItem = FirsListItem + Item;
+		if(NextItem >= MenuItems.size())
+			break;
+		if(NextItem == ItemSel)
+		{
+			assignTextParams(MenuItems.at(NextItem), u8g2Font);
+			u8g2_SetFontMode(&U8G2_Display, 0);
+			u8g2_SetDrawColor(&U8G2_Display, 0);
+			drawString(MenuItems.at(NextItem), FirstItemXPos, FirstItemYPos + textToWrite.textHigh + (Item * (textToWrite.textHigh + MENU_ITEM_INTERLINE)), u8g2Font);
+			u8g2_SetFontMode(&U8G2_Display, 1);
+			u8g2_SetDrawColor(&U8G2_Display, 1);
+		}
+		else
+		{
+			drawString(MenuItems.at(NextItem), FirstItemXPos, FirstItemYPos + textToWrite.textHigh + (Item * (textToWrite.textHigh + MENU_ITEM_INTERLINE)), u8g2Font);
+		}
+		if(MaxTexLen < textToWrite.textLen)
+			MaxTexLen = textToWrite.textLen;
+	}
+	u8g2_DrawRFrame(&U8G2_Display, FirstItemXPos, FirstItemYPos, MaxTexLen + 2, dispParams.high - 1, 3);
+	return MaxLines;
 }

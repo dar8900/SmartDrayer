@@ -62,8 +62,8 @@ uint8_t BUTTON::checkButton()
 
 DryerKey::DryerKey()
 {
-	keys[0] = new BUTTON(UpButton_GPIO_Port, UpButton_Pin, 1000);
-	keys[1] = new BUTTON(DownButton_GPIO_Port, DownButton_Pin, 1000);
+	keys[0] = new BUTTON(UpButton_GPIO_Port, UpButton_Pin, 250);
+	keys[1] = new BUTTON(DownButton_GPIO_Port, DownButton_Pin, 250);
 	keys[2] = new BUTTON(LeftButton_GPIO_Port, LeftButton_Pin, 1000);
 	keys[3] = new BUTTON(OkButton_GPIO_Port, OkButton_Pin, 1000);
 }

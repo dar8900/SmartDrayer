@@ -10,8 +10,10 @@
 #include "main.h"
 #include "spi.h"
 #include <string>
+#include <vector>
 
 typedef std::string String;
+typedef std::vector<String> StrVector;
 
 class NHDST7565_LCD
 {
@@ -33,9 +35,9 @@ private:
 
 
 
-	DISPLAY_PARAMS DispParams;
+	DISPLAY_PARAMS dispParams;
 	TEXT_4_WRITE textToWrite;
-
+	static const uint8_t MENU_ITEM_INTERLINE = 3;
 
 
 	void changeDisplayDisposition(uint8_t NewRotation);
@@ -107,7 +109,8 @@ public:
 	void drawBox(uint8_t x, uint8_t y, uint8_t w, uint8_t h);
 	void drawCircle(uint8_t x, uint8_t y, uint8_t r, bool Empty);
 	void drawString(String Text, uint8_t XPos, uint8_t YPos, const uint8_t *u8g2Font);
-	void testDisplay(String Text);
+	void drawText(String Text, uint8_t XPos, uint8_t YPos, uint8_t MarginLen);
+	uint8_t drawMenuList(uint8_t FirstItemXPos, uint8_t FirstItemYPos, uint8_t FirsListItem, uint8_t ItemSel, StrVector &MenuItems, const uint8_t *u8g2Font);
 };
 
 #endif /* INC_DISPLAY_H_ */
