@@ -20,7 +20,7 @@ private:
 	{
 		uint8_t width;
 		uint8_t high;
-
+		uint8_t rotation;
 	}DISPLAY_PARAMS;
 
 	typedef struct
@@ -31,8 +31,10 @@ private:
 		const uint8_t *textFont;
 	}TEXT_4_WRITE;
 
+	u8g2_t U8G2_Display;
 	DISPLAY_PARAMS DispParams;
 	TEXT_4_WRITE textToWrite;
+	void changeDisplayDisposition(uint8_t NewRotation);
 	void assignTextParams(String Text, const uint8_t *Font);
 	uint8_t setTextLeft();
 	uint8_t setTextCenter();
@@ -42,6 +44,13 @@ private:
 	uint8_t setTextBottom();
 
 public:
+	enum
+	{
+		LANDSCAPE_1 = 0,
+		LANDSCAPE_2,
+		VERTICAL_1,
+		VERTICAL_2
+	};
 	enum
 	{
 		LEFT_POS = 130,
@@ -54,7 +63,7 @@ public:
 		MIDDLE_POS,
 		BOTTOM_POS
 	};
-	NHDST7565_LCD(uint8_t Width, uint8_t High);
+	NHDST7565_LCD(uint8_t Rotation);
 	void setupLcd();
 	void drawString(String Text, uint8_t XPos, uint8_t YPos, const uint8_t *u8g2Font);
 	void testDisplay(String Text);

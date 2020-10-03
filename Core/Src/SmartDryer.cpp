@@ -11,7 +11,7 @@
 
 SmartDryer::SmartDryer()
 {
-	display = new NHDST7565_LCD(128, 64);
+	display = new NHDST7565_LCD(NHDST7565_LCD::LANDSCAPE_2);
 	clock = new DS1307_RTC();
 	keyboard = new DryerKey();
 	tempSens = new THERMO_SENSOR();

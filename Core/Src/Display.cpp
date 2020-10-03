@@ -8,7 +8,7 @@
 #include "Display.h"
 #include "tim.h"
 
-u8g2_t U8G2_Display;
+
 
 void DelayNs(uint32_t NsDelay)
 {
@@ -109,19 +109,26 @@ uint8_t u8x8_byte_stm32_hw_spi(u8x8_t *u8g2, uint8_t msg, uint8_t arg_int, void 
 }
 
 
-NHDST7565_LCD::NHDST7565_LCD(uint8_t Width, uint8_t High)
+NHDST7565_LCD::NHDST7565_LCD(uint8_t Rotation)
 {
-	//	U8G2_Display = new u8g2_t();
-	DispParams.width = Width;
-	DispParams.high = High;
+	changeDisplayDisposition(Rotation);
 }
 
-void NHDST7565_LCD::setupLcd()
+void NHDST7565_LCD::changeDisplayDisposition(uint8_t NewRotation)
 {
-	u8g2_Setup_st7565_nhd_c12864_f(&U8G2_Display, U8G2_R2, u8x8_byte_stm32_hw_spi, u8g2_gpio_and_delay_stm32);
-	u8g2_InitDisplay(&U8G2_Display); // send init sequence to the display, display is in sleep mode after this, // @suppress("C-Style cast instead of C++ cast")
-	u8g2_SetPowerSave(&U8G2_Display, 0); // wake up display // @suppress("C-Style cast instead of C++ cast")
+	DispParams.rotation = NewRotation;
+	if(DispParams.rotation == VERTICAL_1 || DispParams.rotation == VERTICAL_2)
+	{
+		DispParams.width = 64;
+		DispParams.high = 128;
+	}
+	else
+	{
+		DispParams.width = 128;
+		DispParams.high = 64;
+	}
 }
+
 
 void NHDST7565_LCD::assignTextParams(String Text, const uint8_t *Font)
 {
@@ -142,6 +149,33 @@ void NHDST7565_LCD::assignTextParams(String Text, const uint8_t *Font)
 		textToWrite.textFont = u8g2_font_5x8_mf;
 		textToWrite.text = "STRING ERROR!";
 	}
+}
+
+
+void NHDST7565_LCD::setupLcd()
+{
+	const u8g2_cb_t *DisplayRotation;
+	switch(DispParams.rotation)
+	{
+	case LANDSCAPE_1:
+		DisplayRotation = &u8g2_cb_r2;
+		break;
+	case LANDSCAPE_2:
+		DisplayRotation = &u8g2_cb_r0;
+		break;
+	case VERTICAL_1:
+		DisplayRotation = &u8g2_cb_r1;
+		break;
+	case VERTICAL_2:
+		DisplayRotation = &u8g2_cb_r3;
+		break;
+	default:
+		DisplayRotation = &u8g2_cb_r0;
+		break;
+	}
+	u8g2_Setup_st7565_nhd_c12864_f(&U8G2_Display, DisplayRotation, u8x8_byte_stm32_hw_spi, u8g2_gpio_and_delay_stm32);
+	u8g2_InitDisplay(&U8G2_Display); // send init sequence to the display, display is in sleep mode after this, // @suppress("C-Style cast instead of C++ cast")
+	u8g2_SetPowerSave(&U8G2_Display, 0); // wake up display // @suppress("C-Style cast instead of C++ cast")
 }
 
 
@@ -275,10 +309,7 @@ void NHDST7565_LCD::drawString(String Text, uint8_t XPos, uint8_t YPos, const ui
 
 void NHDST7565_LCD::testDisplay(String Text)
 {
-	//	u8g2_SetFont(&U8G2_Display, u8g2_font_6x12_tn);
 	u8g2_ClearBuffer(&U8G2_Display);
-	//	u8g2_DrawStr(&U8G2_Display, 20, 20, Text.c_str());
-//	drawString(Text, CENTER_POS, MIDDLE_POS, u8g2_font_5x8_mf );
-	u8g2_DrawHLine(&U8G2_Display, 5, 32, 100);
+	drawString(Text, CENTER_POS, MIDDLE_POS, u8g2_font_5x8_mf );
 	u8g2_SendBuffer(&U8G2_Display);
 }
