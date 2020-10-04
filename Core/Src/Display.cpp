@@ -228,6 +228,8 @@ uint8_t NHDST7565_LCD::setTextBottom()
 	return NewPos; // @suppress("Return with parenthesis")
 }
 
+
+
 void NHDST7565_LCD::clearFrameBuffer()
 {
 	u8g2_ClearBuffer(&U8G2_Display);
@@ -393,8 +395,9 @@ void NHDST7565_LCD::drawText(String Text, uint8_t XPos, uint8_t YPos,
 	}
 }
 
-uint8_t NHDST7565_LCD::drawMenuList(uint8_t FirstItemXPos, uint8_t FirstItemYPos, uint8_t FirsListItem,
-		uint8_t ItemSel, StrVector &MenuItems, const uint8_t *u8g2Font)
+
+uint8_t NHDST7565_LCD::drawMenuList(uint8_t FirstItemXPos, uint8_t FirstItemYPos, uint8_t FirsListItem, uint8_t ItemSel, const char **MenuItems, uint8_t MaxItems,
+		bool WithCheckBox, bool MenuSelected, CheckVector &ItemsChecked, const uint8_t *u8g2Font)
 {
 	assignTextParams("", u8g2Font);
 	uint8_t MaxLines = (dispParams.high - FirstItemYPos) / (textToWrite.textHigh + MENU_ITEM_INTERLINE);
@@ -403,24 +406,53 @@ uint8_t NHDST7565_LCD::drawMenuList(uint8_t FirstItemXPos, uint8_t FirstItemYPos
 	for(int Item = 0; Item < MaxLines; Item++)
 	{
 		NextItem = FirsListItem + Item;
-		if(NextItem >= MenuItems.size())
+		if(NextItem >= MaxItems)
 			break;
-		if(NextItem == ItemSel)
+		if(NextItem == ItemSel && MenuSelected)
 		{
-			assignTextParams(MenuItems.at(NextItem), u8g2Font);
+			assignTextParams(MenuItems[NextItem], u8g2Font);
 			u8g2_SetFontMode(&U8G2_Display, 0);
 			u8g2_SetDrawColor(&U8G2_Display, 0);
-			drawString(MenuItems.at(NextItem), FirstItemXPos, FirstItemYPos + textToWrite.textHigh + (Item * (textToWrite.textHigh + MENU_ITEM_INTERLINE)), u8g2Font);
+			drawString(MenuItems[NextItem], FirstItemXPos, FirstItemYPos + textToWrite.textHigh + (Item * (textToWrite.textHigh + MENU_ITEM_INTERLINE)), u8g2Font);
 			u8g2_SetFontMode(&U8G2_Display, 1);
 			u8g2_SetDrawColor(&U8G2_Display, 1);
+			if(!WithCheckBox)
+			{
+				u8g2_SetFont(&U8G2_Display, displayFonts[W_8_H_8_ICON]);
+				u8g2_DrawGlyph(&U8G2_Display, FirstItemXPos + textToWrite.textLen + 1, FirstItemYPos + textToWrite.textHigh + (Item * (textToWrite.textHigh + MENU_ITEM_INTERLINE)) + 1, 0x006F);
+				u8g2_SetFont(&U8G2_Display, textToWrite.textFont);
+			}
+			else
+			{
+				if(ItemsChecked.at(NextItem))
+				{
+					u8g2_DrawBox(&U8G2_Display, FirstItemXPos + textToWrite.textLen + 2, FirstItemYPos  + (Item * (textToWrite.textHigh + MENU_ITEM_INTERLINE)), 8, 8);
+
+				}
+				else
+				{
+					u8g2_DrawFrame(&U8G2_Display, FirstItemXPos + textToWrite.textLen + 2, FirstItemYPos  + (Item * (textToWrite.textHigh + MENU_ITEM_INTERLINE)), 8, 8);
+				}
+			}
 		}
 		else
 		{
-			drawString(MenuItems.at(NextItem), FirstItemXPos, FirstItemYPos + textToWrite.textHigh + (Item * (textToWrite.textHigh + MENU_ITEM_INTERLINE)), u8g2Font);
+			drawString(MenuItems[NextItem], FirstItemXPos, FirstItemYPos + textToWrite.textHigh + (Item * (textToWrite.textHigh + MENU_ITEM_INTERLINE)), u8g2Font);
+			if(WithCheckBox)
+			{
+				u8g2_DrawFrame(&U8G2_Display, FirstItemXPos + textToWrite.textLen + 2, FirstItemYPos  + (Item * (textToWrite.textHigh + MENU_ITEM_INTERLINE)), 8, 8);
+			}
 		}
 		if(MaxTexLen < textToWrite.textLen)
 			MaxTexLen = textToWrite.textLen;
 	}
-	u8g2_DrawRFrame(&U8G2_Display, FirstItemXPos, FirstItemYPos, MaxTexLen + 2, dispParams.high - 1, 3);
+	if(!WithCheckBox)
+	{
+		u8g2_DrawRFrame(&U8G2_Display, FirstItemXPos - 1, FirstItemYPos - 1, MaxTexLen + 10, dispParams.high - FirstItemYPos - 1, 3);
+	}
+	else
+	{
+		u8g2_DrawRFrame(&U8G2_Display, FirstItemXPos - 1, FirstItemYPos - 1, MaxTexLen + 16, dispParams.high - FirstItemYPos - 1, 3);
+	}
 	return MaxLines;
 }

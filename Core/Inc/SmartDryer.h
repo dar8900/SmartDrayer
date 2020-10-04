@@ -20,6 +20,8 @@
 #include "Eeprom.h"
 
 
+
+
 class SmartDryer
 {
 private:
@@ -51,6 +53,23 @@ private:
 
 	}DRYER_FLAG;
 
+	typedef struct
+	{
+		String menuTitle;
+		const uint8_t *menuTitleFont;
+		const char **menuVoices;
+		uint8_t XPos;
+		uint8_t YPos;
+		const uint8_t *menuFont;
+		uint8_t topItemPos;
+		uint8_t itemSelected;
+		uint8_t maxMenuLines;
+		uint8_t maxMenuItems;
+		bool withChebox;
+		CheckVector itemsChecked;
+		bool menuSelected;
+	}MENU_STRUCTURE;
+
 	NHDST7565_LCD *display;
 	DS1307_RTC *clock;
 	DryerKey *keyboard;
@@ -80,6 +99,8 @@ private:
 	void physicalReleCtrl();
 
 	void thermoRegulation(float WichTemp);
+
+	void navMenu();
 
 
 public:

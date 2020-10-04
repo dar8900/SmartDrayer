@@ -231,44 +231,74 @@ void SmartDryer::physicalReleCtrl()
 	}
 }
 
+void SmartDryer::navMenu()
+{
+//	String menuTitle;
+//	const uint8_t *menuTitleFont;
+//	const char **menuVoices;
+//	uint8_t XPos;
+//	uint8_t YPos;
+//	const uint8_t *menuFont;
+//	uint8_t topItemPos;
+//	uint8_t itemSelected;
+//	uint8_t maxMenuLines;
+//	uint8_t maxMenuItems;
+//	bool withChebox;
+//	CheckVector itemsChecked;
+//	bool menuSelected;
+	bool ExitNavMenu = false;
+//	MENU_STRUCTURE mainMenu =
+//	{
+//			"Menu principale",
+//			display->displayFonts[NHDST7565_LCD::W_6_H_13_B],
+//			{
+//					"Thermo",
+//					"Ventola",
+//			},
+//			5,
+//			14,
+//			display->displayFonts[NHDST7565_LCD::W_5_H_8],
+//			0,
+//			0,
+//			0,
+//			2,
+//			false,
+//			std::
+//			true
+//
+//	};
+
+	while(!ExitNavMenu)
+	{
+
+	}
+
+}
+
 void SmartDryer::test()
 {
 	testTimer->setTimer(5000);
 	std::string Time = "";
 	display->setupLcd();
 
-	uint8_t TopPos = 0, ItemSel = 0, MaxLines = 0, MaxItems = 0;
-	bool SwitchMenu = false;
-	StrVector MenuList1, MenuList2;
-	MenuList1.push_back("stringa 1");
-	MenuList1.push_back("stringa 2");
-	MenuList1.push_back("stringa 3");
-	MenuList1.push_back("stringa 4");
-	MenuList1.push_back("stringa 5");
-
-	MenuList2.push_back("stringa 11");
-	MenuList2.push_back("stringa 22");
-	MenuList2.push_back("stringa 33");
-	MenuList2.push_back("stringa 44");
-	MenuList2.push_back("stringa 55");
-	MenuList2.push_back("stringa 66");
-	MenuList2.push_back("stringa 77");
-	MenuList2.push_back("stringa 88");
-	MenuList2.push_back("stringa 99");
+	uint8_t TopPos1 = 0, ItemSel1 = 0, TopPos2 = 0, ItemSel2 = 0, MaxLines1 = 0, MaxLines2 = 0, MaxItemsMenu1 = 8, MaxItemsMenu2 = 8;
+	uint8_t *TopPosPtr = &TopPos1;
+	uint8_t *ItemSelPtr = &ItemSel1;
+	uint8_t *MaxLinesPtr = &MaxLines1;
+	uint8_t MaxItemsMenu = MaxItemsMenu1;
+	bool SwitchMenu = true;
 
 	while(1)
 	{
 		  uint8_t WichKey = DryerKey::NO_KEY;
 		  display->clearFrameBuffer();
-		  if(!SwitchMenu)
+		  if(SwitchMenu)
 		  {
-			  MaxLines = display->drawMenuList(5, 1, TopPos, ItemSel, MenuList1, display->displayFonts[NHDST7565_LCD::W_5_H_8]);
-			  MaxItems = MenuList1.size();
+//			  MaxLines1 = display->drawMenuList(1, 12, TopPos1, ItemSel1, MenuList1, MaxItemsMenu1, false, SwitchMenu, display->displayFonts[NHDST7565_LCD::W_5_H_8]);
 		  }
 		  else
 		  {
-			  MaxLines = display->drawMenuList(60, 1, TopPos, ItemSel, MenuList2, display->displayFonts[NHDST7565_LCD::W_5_H_8]);
-			  MaxItems = MenuList2.size();
+//			  MaxLines2 = display->drawMenuList(40, 12, TopPos2, ItemSel2, MenuList2, MaxItemsMenu2, true, !SwitchMenu, display->displayFonts[NHDST7565_LCD::W_5_H_8]);
 		  }
 		  display->sendFrameBuffer();
 		  WichKey = keyboard->checkKey();
@@ -276,22 +306,38 @@ void SmartDryer::test()
 		  {
 		  case DryerKey::UP_KEY:
 		  case DryerKey::LONG_UP_KEY:
-			  if(ItemSel > 0)
-				  ItemSel--;
+			  if(*ItemSelPtr > 0)
+				  (*ItemSelPtr)--;
 			  else
-				  ItemSel = MaxItems - 1;
+				  (*ItemSelPtr) = MaxItemsMenu - 1;
 			  break;
 		  case DryerKey::DOWN_KEY:
 		  case DryerKey::LONG_DOWN_KEY:
-			  if(ItemSel < MaxItems - 1)
-				  ItemSel++;
+			  if(*ItemSelPtr < MaxItemsMenu - 1)
+				  (*ItemSelPtr)++;
 			  else
-				  ItemSel = 0;
+				  (*ItemSelPtr) = 0;
 			  break;
 		  case DryerKey::LEFT_KEY:
 			  SwitchMenu = !SwitchMenu;
-			  TopPos = 0;
-			  ItemSel = 0;
+			  if(!SwitchMenu)
+			  {
+				  TopPosPtr = &TopPos2;
+				  ItemSelPtr = &ItemSel2;
+				  MaxLinesPtr = &MaxLines2;
+				  MaxItemsMenu = MaxItemsMenu2;
+			  }
+			  else
+			  {
+				  TopPos2 = 0;
+				  ItemSel2  =0;
+				  MaxLines2 = 0;
+				  TopPosPtr = &TopPos1;
+				  ItemSelPtr = &ItemSel1;
+				  MaxLinesPtr = &MaxLines1;
+				  MaxItemsMenu = MaxItemsMenu1;
+
+			  }
 			  break;
 		  case DryerKey::OK_KEY:
 			  break;
@@ -303,23 +349,22 @@ void SmartDryer::test()
 		  default:
 			  break;
 		  }
-		  if(WichKey != DryerKey::NO_KEY)
+		  if(WichKey != DryerKey::NO_KEY && WichKey != DryerKey::LEFT_KEY)
 		  {
-			  if(ItemSel > MaxLines - 3)
+			  if(*ItemSelPtr > *MaxLinesPtr - 2)
 			  {
-				  if(ItemSel - (MaxLines - 3) < MaxItems - 1)
-					  TopPos = ItemSel - (MaxLines - 3);
+				  if(*ItemSelPtr - ((*MaxLinesPtr) - 2) < MaxItemsMenu - 1)
+					  *TopPosPtr = (*ItemSelPtr) - ((*MaxLinesPtr) - 2);
 				  else
-					  TopPos = 0;
+					  *TopPosPtr = 0;
 			  }
 			  else
-				  TopPos = 0;
-			  if(ItemSel >= MaxItems - MaxLines)
+				  *TopPosPtr = 0;
+			  if(*ItemSelPtr >= MaxItemsMenu - *MaxLinesPtr)
 			  {
-				  TopPos = MaxItems - MaxLines;
+				  *TopPosPtr = MaxItemsMenu - *MaxLinesPtr;
 			  }
 		  }
-
 	}
 }
 
