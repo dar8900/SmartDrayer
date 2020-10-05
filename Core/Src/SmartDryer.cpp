@@ -249,6 +249,10 @@ void SmartDryer::navMenu()
 			"On",
 	};
 
+	mainMenu = new MENU_STRUCTURE();
+	thermoMenuCtrl = new MENU_STRUCTURE();
+	fanMenuCtrl = new MENU_STRUCTURE();
+
 	mainMenu->menuTitle = "Menu principale";
 	mainMenu->menuTitleFont = display->displayFonts[NHDST7565_LCD::W_6_H_13_B];
 	mainMenu->menuVoices = mainMenuVoices;
@@ -275,10 +279,10 @@ void SmartDryer::navMenu()
 	thermoMenuCtrl->itemSelected = 0;
 	thermoMenuCtrl->maxMenuLines = 0;
 	thermoMenuCtrl->maxMenuItems = 2;
-	thermoMenuCtrl->withChebox = false;
+	thermoMenuCtrl->withChebox = true;
 	thermoMenuCtrl->itemsChecked = new bool(2);
 	thermoMenuCtrl->paramAssociated = (bool *)&statusFlags.thermoOn;
-	mainMenu->paramType = PARAM_BOOL_TYPE;
+	thermoMenuCtrl->paramType = PARAM_BOOL_TYPE;
 	thermoMenuCtrl->menuSelected = true;
 
 	fanMenuCtrl->menuTitle = "Menu principale";
@@ -291,10 +295,10 @@ void SmartDryer::navMenu()
 	fanMenuCtrl->itemSelected = 0;
 	fanMenuCtrl->maxMenuLines = 0;
 	fanMenuCtrl->maxMenuItems = 2;
-	fanMenuCtrl->withChebox = false;
+	fanMenuCtrl->withChebox = true;
 	fanMenuCtrl->itemsChecked = new bool(2);
 	fanMenuCtrl->paramAssociated = (bool *)&statusFlags.fanOn;
-	mainMenu->paramType = PARAM_BOOL_TYPE;
+	fanMenuCtrl->paramType = PARAM_BOOL_TYPE;
 	fanMenuCtrl->menuSelected = true;
 
 	MENU_STRUCTURE *ActualMenu = mainMenu;
@@ -333,10 +337,14 @@ void SmartDryer::navMenu()
 				  case THERMO_CTRL:
 					  MenuSel = THERMO_CTRL;
 					  ActualMenu = thermoMenuCtrl;
+					  for(int i = 0; i < ActualMenu->maxMenuItems; i++)
+						  ActualMenu->itemsChecked[i] = false;
 					  break;
 				  case FAN_CTRL:
 					  MenuSel = FAN_CTRL;
 					  ActualMenu = fanMenuCtrl;
+					  for(int i = 0; i < ActualMenu->maxMenuItems; i++)
+						  ActualMenu->itemsChecked[i] = false;
 					  break;
 				  default:
 					  break;
@@ -389,14 +397,16 @@ void SmartDryer::navMenu()
 					  ActualMenu->itemSelected = ActualMenu->itemSelected - (ActualMenu->maxMenuLines - 2);
 				  else
 					  ActualMenu->topItemPos = 0;
+				  if(ActualMenu->itemSelected >= ActualMenu->maxMenuItems - ActualMenu->maxMenuLines)
+				  {
+					  ActualMenu->topItemPos = ActualMenu->maxMenuItems - ActualMenu->maxMenuLines;
+				  }
 			  }
 			  else
 				  ActualMenu->topItemPos = 0;
-			  if(ActualMenu->itemSelected >= ActualMenu->maxMenuItems - ActualMenu->maxMenuLines)
-			  {
-				  ActualMenu->topItemPos = ActualMenu->maxMenuItems - ActualMenu->maxMenuLines;
-			  }
+
 		  }
+		  physicalReleCtrl();
 	}
 
 }
@@ -498,7 +508,7 @@ void SmartDryer::run()
 {
 	while(1)
 	{
-
+		navMenu();
 	}
 }
 

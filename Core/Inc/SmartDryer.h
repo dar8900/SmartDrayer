@@ -119,60 +119,6 @@ private:
 	MENU_STRUCTURE *thermoMenuCtrl;
 	MENU_STRUCTURE *fanMenuCtrl;
 
-//	MENU_STRUCTURE mainMenu =
-//	{
-//			"Menu principale",
-//			display->displayFonts[NHDST7565_LCD::W_6_H_13_B],
-//			mainMenuVoices,
-//			5,
-//			14,
-//			display->displayFonts[NHDST7565_LCD::W_5_H_8],
-//			0,
-//			0,
-//			0,
-//			sizeof(mainMenuVoices)/sizeof(mainMenuVoices[0]),
-//			WITHOUT_CHECKBOX,
-//			new bool(2),
-//			NULL,
-//			MENU_SELECTED,
-//	};
-//
-//
-//	MENU_STRUCTURE thermoCtrl =
-//	{
-//			"Ctrl. thermo",
-//			display->displayFonts[NHDST7565_LCD::W_6_H_13_B],
-//			OnOff,
-//			60,
-//			14,
-//			display->displayFonts[NHDST7565_LCD::W_5_H_8],
-//			0,
-//			0,
-//			0,
-//			2,
-//			WITH_CHECKBOX,
-//			new bool(2),
-//			(bool *)&statusFlags.thermoOn,
-//			MENU_UNSELECTED,
-//	};
-
-//	MENU_STRUCTURE fanCtrl =
-//	{
-//			"Ctrl. ventola",
-//			display->displayFonts[NHDST7565_LCD::W_6_H_13_B],
-//			OnOff,
-//			60,
-//			14,
-//			display->displayFonts[NHDST7565_LCD::W_5_H_8],
-//			0,
-//			0,
-//			0,
-//			2,
-//			WITH_CHECKBOX,
-//			new bool(2),
-//			(bool *)&statusFlags.fanOn,
-//			MENU_UNSELECTED,
-//	};
 
 	void blinkLed(uint8_t WichLed, uint16_t BlinkDelay);
 	void toggleLed(uint8_t WichLed);
@@ -187,7 +133,7 @@ private:
 
 
 public:
-	bool enableTest = true;
+	bool enableTest = false;
 	SmartDryer();
 	void run();
 
