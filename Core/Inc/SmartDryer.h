@@ -20,7 +20,11 @@
 #include "Eeprom.h"
 
 
+#define MENU_SELECTED 		true
+#define MENU_UNSELECTED 	false
 
+#define WITH_CHECKBOX		true
+#define WITHOUT_CHECKBOX	false
 
 class SmartDryer
 {
@@ -46,6 +50,15 @@ private:
 		UNKNOWN_STATE
 	};
 
+	enum
+	{
+		NO_TYPE = 0,
+		PARAM_BOOL_TYPE,
+		PARAM_VALUE_UINT_TYPE,
+		PARAM_VALUE_INT_TYPE,
+		MAX_PARAM_TYPE
+	};
+
 	typedef struct
 	{
 		bool thermoOn = false;
@@ -66,9 +79,12 @@ private:
 		uint8_t maxMenuLines;
 		uint8_t maxMenuItems;
 		bool withChebox;
-		CheckVector itemsChecked;
+		bool *itemsChecked;
+		void *paramAssociated;
+		uint8_t paramType;
 		bool menuSelected;
 	}MENU_STRUCTURE;
+
 
 	NHDST7565_LCD *display;
 	DS1307_RTC *clock;
@@ -90,6 +106,73 @@ private:
 	DRYER_FLAG statusFlags;
 	uint16_t ledStatus = UNKNOWN_STATE;
 	uint32_t readedTemperature = 0.0;
+
+	enum
+	{
+		MAIN_MENU = 0,
+		THERMO_CTRL,
+		FAN_CTRL,
+		MAX_MENU
+	};
+
+	MENU_STRUCTURE *mainMenu;
+	MENU_STRUCTURE *thermoMenuCtrl;
+	MENU_STRUCTURE *fanMenuCtrl;
+
+//	MENU_STRUCTURE mainMenu =
+//	{
+//			"Menu principale",
+//			display->displayFonts[NHDST7565_LCD::W_6_H_13_B],
+//			mainMenuVoices,
+//			5,
+//			14,
+//			display->displayFonts[NHDST7565_LCD::W_5_H_8],
+//			0,
+//			0,
+//			0,
+//			sizeof(mainMenuVoices)/sizeof(mainMenuVoices[0]),
+//			WITHOUT_CHECKBOX,
+//			new bool(2),
+//			NULL,
+//			MENU_SELECTED,
+//	};
+//
+//
+//	MENU_STRUCTURE thermoCtrl =
+//	{
+//			"Ctrl. thermo",
+//			display->displayFonts[NHDST7565_LCD::W_6_H_13_B],
+//			OnOff,
+//			60,
+//			14,
+//			display->displayFonts[NHDST7565_LCD::W_5_H_8],
+//			0,
+//			0,
+//			0,
+//			2,
+//			WITH_CHECKBOX,
+//			new bool(2),
+//			(bool *)&statusFlags.thermoOn,
+//			MENU_UNSELECTED,
+//	};
+
+//	MENU_STRUCTURE fanCtrl =
+//	{
+//			"Ctrl. ventola",
+//			display->displayFonts[NHDST7565_LCD::W_6_H_13_B],
+//			OnOff,
+//			60,
+//			14,
+//			display->displayFonts[NHDST7565_LCD::W_5_H_8],
+//			0,
+//			0,
+//			0,
+//			2,
+//			WITH_CHECKBOX,
+//			new bool(2),
+//			(bool *)&statusFlags.fanOn,
+//			MENU_UNSELECTED,
+//	};
 
 	void blinkLed(uint8_t WichLed, uint16_t BlinkDelay);
 	void toggleLed(uint8_t WichLed);

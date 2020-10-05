@@ -397,7 +397,7 @@ void NHDST7565_LCD::drawText(String Text, uint8_t XPos, uint8_t YPos,
 
 
 uint8_t NHDST7565_LCD::drawMenuList(uint8_t FirstItemXPos, uint8_t FirstItemYPos, uint8_t FirsListItem, uint8_t ItemSel, const char **MenuItems, uint8_t MaxItems,
-		bool WithCheckBox, bool MenuSelected, CheckVector &ItemsChecked, const uint8_t *u8g2Font)
+		bool WithCheckBox, bool MenuSelected, bool *ItemsChecked, const uint8_t *u8g2Font)
 {
 	assignTextParams("", u8g2Font);
 	uint8_t MaxLines = (dispParams.high - FirstItemYPos) / (textToWrite.textHigh + MENU_ITEM_INTERLINE);
@@ -424,10 +424,9 @@ uint8_t NHDST7565_LCD::drawMenuList(uint8_t FirstItemXPos, uint8_t FirstItemYPos
 			}
 			else
 			{
-				if(ItemsChecked.at(NextItem))
+				if(ItemsChecked[NextItem])
 				{
 					u8g2_DrawBox(&U8G2_Display, FirstItemXPos + textToWrite.textLen + 2, FirstItemYPos  + (Item * (textToWrite.textHigh + MENU_ITEM_INTERLINE)), 8, 8);
-
 				}
 				else
 				{
