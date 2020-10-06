@@ -9,7 +9,6 @@
 #include "tim.h"
 
 
-
 void DelayNs(uint32_t NsDelay)
 {
 	if(NsDelay < 16)
@@ -209,14 +208,14 @@ uint8_t NHDST7565_LCD::setTextRight()
 uint8_t NHDST7565_LCD::setTextTop()
 {
 	uint8_t NewPos = 0;
-	NewPos = textToWrite.textHigh + 1;
+	NewPos = 1;
 	return NewPos; // @suppress("Return with parenthesis")
 }
 
 uint8_t NHDST7565_LCD::setTextMiddle()
 {
 	uint8_t NewPos = 0;
-	NewPos = ((dispParams.high - textToWrite.textHigh + 1) / 2) + (textToWrite.textHigh / 2);
+	NewPos = ((dispParams.high - textToWrite.textHigh + 1) / 2) + (textToWrite.textHigh / 2) - textToWrite.textHigh;
 	return NewPos; // @suppress("Return with parenthesis")
 }
 
@@ -224,7 +223,7 @@ uint8_t NHDST7565_LCD::setTextBottom()
 {
 	uint8_t NewPos = 0;
 //	NewPos = (DispParams.high - textToWrite.textHigh - 1);
-	NewPos = dispParams.high - 1;
+	NewPos = dispParams.high - 1 - textToWrite.textHigh;
 	return NewPos; // @suppress("Return with parenthesis")
 }
 
@@ -345,7 +344,7 @@ void NHDST7565_LCD::drawString(String Text, uint8_t XPos, uint8_t YPos, const ui
 		}
 	}
 
-	u8g2_DrawStr(&U8G2_Display, NewXPos, NewYPos, textToWrite.text.c_str());
+	u8g2_DrawStr(&U8G2_Display, NewXPos, NewYPos + textToWrite.textHigh, textToWrite.text.c_str());
 }
 
 void NHDST7565_LCD::drawText(String Text, uint8_t XPos, uint8_t YPos,
@@ -360,7 +359,7 @@ void NHDST7565_LCD::drawText(String Text, uint8_t XPos, uint8_t YPos,
 	{
 		int LastChar = 0;
 		int NLines = (Text.length() / MarginLen);
-		for(int NSpace = 0; NSpace < Text.length(); NSpace++)
+		for(uint8_t NSpace = 0; NSpace < Text.length(); NSpace++)
 		{
 			if(Text[NSpace] == ' ')
 				NLines++;
@@ -370,7 +369,7 @@ void NHDST7565_LCD::drawText(String Text, uint8_t XPos, uint8_t YPos,
 			for(int i = 0; i < NLines; i++)
 			{
 				String NewLine = "";
-				int j = 0;
+				uint8_t j = 0;
 				for(j = LastChar; j < MarginLen + LastChar; j++)
 				{
 					if(j < Text.length() && Text[j] != ' ')
@@ -414,7 +413,7 @@ uint8_t NHDST7565_LCD::drawMenuList(uint8_t FirstItemXPos, uint8_t FirstItemYPos
 			assignTextParams(MenuItems[NextItem], u8g2Font);
 			u8g2_SetFontMode(&U8G2_Display, 0);
 			u8g2_SetDrawColor(&U8G2_Display, 0);
-			drawString(MenuItems[NextItem], FirstItemXPos, FirstItemYPos + textToWrite.textHigh + (Item * (textToWrite.textHigh + MENU_ITEM_INTERLINE)), u8g2Font);
+			drawString(MenuItems[NextItem], FirstItemXPos, FirstItemYPos + (Item * (textToWrite.textHigh + MENU_ITEM_INTERLINE)), u8g2Font);
 			u8g2_SetFontMode(&U8G2_Display, 1);
 			u8g2_SetDrawColor(&U8G2_Display, 1);
 			if(!WithCheckBox)
@@ -438,7 +437,7 @@ uint8_t NHDST7565_LCD::drawMenuList(uint8_t FirstItemXPos, uint8_t FirstItemYPos
 		}
 		else
 		{
-			drawString(MenuItems[NextItem], FirstItemXPos, FirstItemYPos + textToWrite.textHigh + (Item * (textToWrite.textHigh + MENU_ITEM_INTERLINE)), u8g2Font);
+			drawString(MenuItems[NextItem], FirstItemXPos, FirstItemYPos + (Item * (textToWrite.textHigh + MENU_ITEM_INTERLINE)), u8g2Font);
 			if(WithCheckBox)
 			{
 				if(ItemsChecked[NextItem])
@@ -468,4 +467,13 @@ uint8_t NHDST7565_LCD::drawMenuList(uint8_t FirstItemXPos, uint8_t FirstItemYPos
 		u8g2_DrawRFrame(&U8G2_Display, FirstItemXPos - 1, FirstItemYPos - 1, dispParams.width - FirstItemXPos - 1, FrameHigh, 3);
 	}
 	return MaxLines;
+}
+
+void NHDST7565_LCD::drawTimeDate(DS1307_RTC *TimeDate)
+{
+	String Time = "", Date = "";
+	Time = TimeDate->getTimeDateStr(DS1307_RTC::ONLY_TIME_NO_SEC);
+	Date = TimeDate->getTimeDateStr(DS1307_RTC::ONLY_DATE_NO_YEAR);
+	drawString(Time, LEFT_POS, TOP_POS, displayFonts[W_3_H_6]);
+	drawString(Date, RIGHT_POS, TOP_POS, displayFonts[W_3_H_6]);
 }

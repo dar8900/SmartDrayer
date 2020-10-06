@@ -13,7 +13,7 @@
 
 typedef std::string String;
 
-const uint8_t daysInMonth[] = {31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30};
+extern const uint8_t daysInMonth[];
 
 class DS1307_RTC
 {

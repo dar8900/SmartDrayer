@@ -9,11 +9,12 @@
 #define INC_DISPLAY_H_
 #include "main.h"
 #include "spi.h"
+#include "DS1307RTC.h"
 #include <string>
 #include <vector>
 
-//typedef std::vector<bool> CheckVector;
 typedef std::string String;
+typedef std::vector<String> StrVector;
 
 class NHDST7565_LCD
 {
@@ -113,6 +114,7 @@ public:
 	void drawText(String Text, uint8_t XPos, uint8_t YPos, uint8_t MarginLen);
 	uint8_t drawMenuList(uint8_t FirstItemXPos, uint8_t FirstItemYPos, uint8_t FirsListItem, uint8_t ItemSel, const char **MenuItems, uint8_t MaxItems,
 			bool WithCheckBox, bool MenuSelected, bool *ItemsChecked, const uint8_t *u8g2Font);
+	void drawTimeDate(DS1307_RTC *TimeDate);
 };
 
 #endif /* INC_DISPLAY_H_ */

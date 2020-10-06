@@ -8,6 +8,8 @@
 #include <DS1307RTC.h>
 #include "string.h"
 
+const uint8_t daysInMonth[] = {31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30};
+
 /**************************************************************************/
 /*!
     @brief  Convert a binary coded decimal value to binary. RTC stores time/date

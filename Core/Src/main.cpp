@@ -73,6 +73,8 @@ int main(void)
 
 	DryerApplication = new SmartDryer();
 
+	DryerApplication->setup();
+
 	if(DryerApplication->enableTest)
 	{
 		DryerApplication->test();
@@ -81,12 +83,6 @@ int main(void)
 	{
 		DryerApplication->run();
 	}
-
-	//  while (1)
-	//  {
-	//
-	//  }
-
 }
 
 /**

@@ -56,20 +56,47 @@ private:
 		PARAM_BOOL_TYPE,
 		PARAM_VALUE_UINT_TYPE,
 		PARAM_VALUE_INT_TYPE,
+		PARAM_FLOAT_TYPE,
 		MAX_PARAM_TYPE
+	};
+
+	enum
+	{
+		MAIN_MENU = 0,
+		THERMO_CTRL,
+		FAN_CTRL,
+		TEMP_CTRL,
+		START_DRYER_CTRL,
+		CHANGE_TIME_MENU,
+		CHANGE_DATE_MENU,
+		CHANGE_PROGRAMS_LIST,
+		START_PROGRAMS_LIST,
+		SHOW_INFO_PAGE,
+		MAX_MENU_ITEMS
+	};
+
+	enum
+	{
+		NAV_MENU = 0,
+		CHANGE_TIME,
+		CHANGE_DATE,
+		SHOW_INFO,
+		CHANGE_PROGRAM_1,
+		START_PROGRAM_1,
+		MAX_SCREENS
 	};
 
 	typedef struct
 	{
+		bool dryerOn = false;
 		bool thermoOn = false;
 		bool fanOn = false;
-
-	}DRYER_FLAG;
+		float temperatureSetted = 0.0;
+	}DRYER_PARAMS;
 
 	typedef struct
 	{
 		String menuTitle;
-		const uint8_t *menuTitleFont;
 		const char **menuVoices;
 		uint8_t XPos;
 		uint8_t YPos;
@@ -85,6 +112,12 @@ private:
 		bool menuSelected;
 	}MENU_STRUCTURE;
 
+	typedef struct
+	{
+		DS1307_RTC::TIME_DATE_T startTime = {0};
+		DS1307_RTC::TIME_DATE_T endTime = {0};
+		float tempSetted = 0.0;
+	}PROGRAM_STRUCURE;
 
 	NHDST7565_LCD *display;
 	DS1307_RTC *clock;
@@ -103,22 +136,29 @@ private:
 
 	SerialDebug *dbgDryer;
 
-	DRYER_FLAG statusFlags;
-	uint16_t ledStatus = UNKNOWN_STATE;
-	uint32_t readedTemperature = 0.0;
+	bool rtcRunning = false;
 
-	enum
-	{
-		MAIN_MENU = 0,
-		THERMO_CTRL,
-		FAN_CTRL,
-		MAX_MENU
-	};
+	DRYER_PARAMS statusParam;
+	PROGRAM_STRUCURE *dryerPrograms;
+
+	uint16_t ledStatus = THERMO_OFF_FAN_OFF;
+	uint32_t readedTemperature = 0;
+
+	uint8_t *paramTemperatures;
+
+
+	StrVector mainMenuHelpMsgs;
 
 	MENU_STRUCTURE *mainMenu;
 	MENU_STRUCTURE *thermoMenuCtrl;
 	MENU_STRUCTURE *fanMenuCtrl;
+	MENU_STRUCTURE *tempMenuCtrl;
+	MENU_STRUCTURE *startDryerMenu;
+	MENU_STRUCTURE *changeProgramsMenu;
+	MENU_STRUCTURE *startProgramsMenu;
 
+
+	uint8_t screen = NAV_MENU;
 
 	void blinkLed(uint8_t WichLed, uint16_t BlinkDelay);
 	void toggleLed(uint8_t WichLed);
@@ -126,15 +166,20 @@ private:
 	void turnOffLed(uint8_t WichLed);
 	void ledControl();
 	void physicalReleCtrl();
-
 	void thermoRegulation(float WichTemp);
+	void peripheralsControl();
 
 	void navMenu();
-
+	void changeTime();
+	void changeDate();
+	void showInfo();
+	void changeProgram(uint8_t WichProgram);
+	void startProgram(uint8_t WichProgram);
 
 public:
 	bool enableTest = false;
 	SmartDryer();
+	void setup();
 	void run();
 
 	void test();
