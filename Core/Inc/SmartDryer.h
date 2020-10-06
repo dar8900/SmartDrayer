@@ -91,7 +91,7 @@ private:
 		bool dryerOn = false;
 		bool thermoOn = false;
 		bool fanOn = false;
-		float temperatureSetted = 0.0;
+		float temperatureSetted = 30.0;
 	}DRYER_PARAMS;
 
 	typedef struct
@@ -138,7 +138,7 @@ private:
 
 	bool rtcRunning = false;
 
-	DRYER_PARAMS statusParam;
+	DRYER_PARAMS *statusParam;
 	PROGRAM_STRUCURE *dryerPrograms;
 
 	uint16_t ledStatus = THERMO_OFF_FAN_OFF;

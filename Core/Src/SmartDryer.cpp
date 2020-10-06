@@ -9,8 +9,9 @@
 
 #define MENU_LEFT_LIST_XPOS			  5
 #define MENU_RIGHT_LIST_XPOS		 60
-#define MENU_LIST_YPOS				 14
+#define MENU_LIST_YPOS				 20
 #define HELP_MESSAGE_MARGIN		     50
+#define HELP_MESSAGE_YPOS		     25
 #define MENU_TITLE_YPOS			 	  7
 
 
@@ -27,7 +28,7 @@ const char *mainMenuVoices[] =
 		"Imposta ora",
 		"Imposta data",
 		"Imposta programma",
-		"Avvia programma"
+		"Avvia programma",
 		"Mostra info",
 };
 
@@ -239,34 +240,34 @@ void SmartDryer::thermoRegulation(float WichTemp)
 	{
 		if(readedTemperature >= TempTarget - TOLLERANCE_DEGREES)
 		{
-			statusParam.fanOn = true;
-			statusParam.thermoOn = true;
+			statusParam->fanOn = true;
+			statusParam->thermoOn = true;
 			ledStatus = THERMO_ON_FAN_ON;
 		}
 		else if(readedTemperature >= TempTarget)
 		{
-			statusParam.fanOn = true;
-			statusParam.thermoOn = false;
+			statusParam->fanOn = true;
+			statusParam->thermoOn = false;
 			ledStatus = THERMO_OFF_FAN_ON;
 		}
 		else if(readedTemperature < TempTarget - TOLLERANCE_DEGREES)
 		{
-			statusParam.fanOn = false;
-			statusParam.thermoOn = true;
+			statusParam->fanOn = false;
+			statusParam->thermoOn = true;
 			ledStatus = THERMO_ON_FAN_OFF;
 		}
 	}
 	else
 	{
-		statusParam.fanOn = false;
-		statusParam.thermoOn = false;
+		statusParam->fanOn = false;
+		statusParam->thermoOn = false;
 		ledStatus = THERMO_OFF_FAN_OFF;
 	}
 }
 
 void SmartDryer::physicalReleCtrl()
 {
-	if(statusParam.fanOn)
+	if(statusParam->fanOn)
 	{
 		fanCtrl->setState(HIGH);
 	}
@@ -274,7 +275,7 @@ void SmartDryer::physicalReleCtrl()
 	{
 		fanCtrl->setState(LOW);
 	}
-	if(statusParam.thermoOn)
+	if(statusParam->thermoOn)
 	{
 		thermoCtrl->setState(HIGH);
 	}
@@ -286,9 +287,9 @@ void SmartDryer::physicalReleCtrl()
 
 void SmartDryer::peripheralsControl()
 {
-	if(statusParam.dryerOn)
+	if(statusParam->dryerOn)
 	{
-		thermoRegulation(statusParam.temperatureSetted);
+		thermoRegulation(statusParam->temperatureSetted);
 		physicalReleCtrl();
 	}
 	ledControl();
@@ -308,10 +309,10 @@ void SmartDryer::navMenu()
 		  ActualMenu->maxMenuLines = display->drawMenuList(ActualMenu->XPos, ActualMenu->YPos, ActualMenu->topItemPos,
 				  ActualMenu->itemSelected, ActualMenu->menuVoices, ActualMenu->maxMenuItems,
 				  ActualMenu->withChebox, ActualMenu->menuSelected, ActualMenu->itemsChecked, ActualMenu->menuFont);
-		  if(MenuSel == MAIN_MENU)
-		  {
-			  display->drawText(mainMenuHelpMsgs.at(ActualMenu->itemSelected), MENU_RIGHT_LIST_XPOS, MENU_LIST_YPOS, HELP_MESSAGE_MARGIN);
-		  }
+//		  if(MenuSel == MAIN_MENU)
+//		  {
+//			  display->drawText(mainMenuHelpMsgs.at(ActualMenu->itemSelected), MENU_RIGHT_LIST_XPOS, HELP_MESSAGE_YPOS, HELP_MESSAGE_MARGIN);
+//		  }
 		  display->sendFrameBuffer();
 		  WichKey = keyboard->checkKey();
 		  switch(WichKey)
@@ -419,6 +420,12 @@ void SmartDryer::navMenu()
 					  }
 				  }
 				  break;
+			  case THERMO_CTRL:
+			  case FAN_CTRL:
+			  case TEMP_CTRL:
+				  MenuSel = MAIN_MENU;
+				  ActualMenu = mainMenu;
+				  break;
 			  case CHANGE_PROGRAMS_LIST:
 				  screen = ActualMenu->itemSelected + CHANGE_PROGRAM_1;
 				  ExitNavMenu = true;
@@ -484,7 +491,7 @@ void SmartDryer::navMenu()
 			  if(ActualMenu->itemSelected > ActualMenu->maxMenuLines - 2)
 			  {
 				  if(ActualMenu->itemSelected - (ActualMenu->maxMenuLines - 2) < ActualMenu->maxMenuItems - 1)
-					  ActualMenu->itemSelected = ActualMenu->itemSelected - (ActualMenu->maxMenuLines - 2);
+					  ActualMenu->topItemPos = ActualMenu->itemSelected - (ActualMenu->maxMenuLines - 2);
 				  else
 					  ActualMenu->topItemPos = 0;
 				  if(ActualMenu->itemSelected >= ActualMenu->maxMenuItems - ActualMenu->maxMenuLines)
@@ -621,6 +628,8 @@ void SmartDryer::setup()
 	changeProgramsMenu = new MENU_STRUCTURE();
 	startProgramsMenu = new MENU_STRUCTURE();
 
+	statusParam = new DRYER_PARAMS();
+
 	mainMenuHelpMsgs.push_back("Accende o spegne la resistenza");
 	mainMenuHelpMsgs.push_back("Accende o spegne la ventola");
 	mainMenuHelpMsgs.push_back("Imposta la temperatura di servizio");
@@ -629,6 +638,15 @@ void SmartDryer::setup()
 	mainMenuHelpMsgs.push_back("Modifica la data di sistema");
 	mainMenuHelpMsgs.push_back("Imposta i programmi");
 	mainMenuHelpMsgs.push_back("Seleziona il programma da avviare");
+	mainMenuHelpMsgs.push_back("Mostra info sistema");
+	if(mainMenuHelpMsgs.size() < MAX_MENU_ITEMS)
+	{
+		mainMenuHelpMsgs.clear();
+		for(int i = 0; i < MAX_MENU_ITEMS; i++)
+		{
+			mainMenuHelpMsgs.push_back("");
+		}
+	}
 
 
 	mainMenu->menuTitle = "Menu principale";
@@ -639,7 +657,7 @@ void SmartDryer::setup()
 	mainMenu->topItemPos = 0;
 	mainMenu->itemSelected = 0;
 	mainMenu->maxMenuLines = 0;
-	mainMenu->maxMenuItems = sizeof(mainMenu->menuVoices)/sizeof(mainMenu->menuVoices[0]);
+	mainMenu->maxMenuItems = sizeof(mainMenuVoices)/sizeof(mainMenuVoices[0]);
 	mainMenu->withChebox = false;
 	mainMenu->itemsChecked = NULL;
 	mainMenu->paramAssociated = NULL;
@@ -654,10 +672,10 @@ void SmartDryer::setup()
 	thermoMenuCtrl->topItemPos = 0;
 	thermoMenuCtrl->itemSelected = 0;
 	thermoMenuCtrl->maxMenuLines = 0;
-	thermoMenuCtrl->maxMenuItems = sizeof(thermoMenuCtrl->menuVoices)/sizeof(thermoMenuCtrl->menuVoices[0]);
+	thermoMenuCtrl->maxMenuItems = sizeof(OnOff)/sizeof(OnOff[0]);
 	thermoMenuCtrl->withChebox = true;
 	thermoMenuCtrl->itemsChecked = new bool(thermoMenuCtrl->maxMenuItems);
-	thermoMenuCtrl->paramAssociated = (bool *)&statusParam.thermoOn;
+	thermoMenuCtrl->paramAssociated = (bool *)&statusParam->thermoOn;
 	thermoMenuCtrl->paramType = PARAM_BOOL_TYPE;
 	thermoMenuCtrl->menuSelected = true;
 
@@ -669,10 +687,10 @@ void SmartDryer::setup()
 	fanMenuCtrl->topItemPos = 0;
 	fanMenuCtrl->itemSelected = 0;
 	fanMenuCtrl->maxMenuLines = 0;
-	fanMenuCtrl->maxMenuItems = sizeof(fanMenuCtrl->menuVoices)/sizeof(fanMenuCtrl->menuVoices[0]);;
+	fanMenuCtrl->maxMenuItems = sizeof(OnOff)/sizeof(OnOff[0]);;
 	fanMenuCtrl->withChebox = true;
 	fanMenuCtrl->itemsChecked = new bool(fanMenuCtrl->maxMenuItems);
-	fanMenuCtrl->paramAssociated = (bool *)&statusParam.fanOn;
+	fanMenuCtrl->paramAssociated = (bool *)&statusParam->fanOn;
 	fanMenuCtrl->paramType = PARAM_BOOL_TYPE;
 	fanMenuCtrl->menuSelected = true;
 
@@ -687,7 +705,7 @@ void SmartDryer::setup()
 	startDryerMenu->maxMenuItems = sizeof(startDryerMenu->menuVoices)/sizeof(startDryerMenu->menuVoices[0]);;
 	startDryerMenu->withChebox = true;
 	startDryerMenu->itemsChecked = new bool(startDryerMenu->maxMenuItems);
-	startDryerMenu->paramAssociated = (bool *)&statusParam.dryerOn;
+	startDryerMenu->paramAssociated = (bool *)&statusParam->dryerOn;
 	startDryerMenu->paramType = PARAM_BOOL_TYPE;
 	startDryerMenu->menuSelected = true;
 
@@ -699,10 +717,10 @@ void SmartDryer::setup()
 	tempMenuCtrl->topItemPos = 0;
 	tempMenuCtrl->itemSelected = 0;
 	tempMenuCtrl->maxMenuLines = 0;
-	tempMenuCtrl->maxMenuItems = sizeof(tempMenuCtrl->menuVoices)/sizeof(tempMenuCtrl->menuVoices[0]);;
+	tempMenuCtrl->maxMenuItems = sizeof(Temps)/sizeof(Temps[0]);;
 	tempMenuCtrl->withChebox = true;
 	tempMenuCtrl->itemsChecked = new bool(tempMenuCtrl->maxMenuItems);
-	tempMenuCtrl->paramAssociated = (float *)&statusParam.temperatureSetted;
+	tempMenuCtrl->paramAssociated = (float *)&statusParam->temperatureSetted;
 	tempMenuCtrl->paramType = PARAM_FLOAT_TYPE;
 	tempMenuCtrl->menuSelected = true;
 
@@ -714,7 +732,7 @@ void SmartDryer::setup()
 	changeProgramsMenu->topItemPos = 0;
 	changeProgramsMenu->itemSelected = 0;
 	changeProgramsMenu->maxMenuLines = 0;
-	changeProgramsMenu->maxMenuItems = sizeof(changeProgramsMenu->menuVoices)/sizeof(changeProgramsMenu->menuVoices[0]);
+	changeProgramsMenu->maxMenuItems = sizeof(programsMenuVoices)/sizeof(programsMenuVoices[0]);
 	changeProgramsMenu->withChebox = false;
 	changeProgramsMenu->itemsChecked = NULL;
 	changeProgramsMenu->paramAssociated = NULL;
@@ -729,7 +747,7 @@ void SmartDryer::setup()
 	startProgramsMenu->topItemPos = 0;
 	startProgramsMenu->itemSelected = 0;
 	startProgramsMenu->maxMenuLines = 0;
-	startProgramsMenu->maxMenuItems = sizeof(startProgramsMenu->menuVoices)/sizeof(startProgramsMenu->menuVoices[0]);
+	startProgramsMenu->maxMenuItems = sizeof(programsMenuVoices)/sizeof(programsMenuVoices[0]);
 	startProgramsMenu->withChebox = false;
 	startProgramsMenu->itemsChecked = NULL;
 	startProgramsMenu->paramAssociated = NULL;
