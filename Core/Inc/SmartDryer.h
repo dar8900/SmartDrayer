@@ -26,6 +26,8 @@
 #define WITH_CHECKBOX		true
 #define WITHOUT_CHECKBOX	false
 
+#define MAX_PROGRAMS	1
+
 class SmartDryer
 {
 private:
@@ -140,7 +142,7 @@ private:
 	bool rtcRunning = false;
 
 	DRYER_PARAMS *statusParam;
-	PROGRAM_STRUCURE *dryerPrograms;
+	PROGRAM_STRUCURE dryerPrograms[MAX_PROGRAMS] = {0};
 
 	uint16_t ledStatus = THERMO_OFF_FAN_OFF;
 	uint32_t readedTemperature = 0;
@@ -160,6 +162,8 @@ private:
 
 
 	uint8_t screen = NAV_MENU;
+
+	bool eepromEnabled = false;
 
 	void blinkLed(uint8_t WichLed, uint16_t BlinkDelay);
 	void toggleLed(uint8_t WichLed);

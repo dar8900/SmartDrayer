@@ -14,6 +14,7 @@
 typedef std::string String;
 
 extern const uint8_t daysInMonth[];
+extern const char *monthNames[];
 
 class DS1307_RTC
 {

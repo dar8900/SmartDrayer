@@ -154,6 +154,86 @@ void NHDST7565_LCD::assignTextParams(String Text, const uint8_t *Font)
 	}
 }
 
+void NHDST7565_LCD::assignNewDrawCoord(uint8_t OldXPos, uint8_t OldYPos,
+		uint8_t &NewXPos, uint8_t &NewYPos)
+{
+	if(OldXPos <= dispParams.width && OldYPos <= dispParams.high)
+	{
+		NewXPos = OldXPos;
+		NewYPos = OldYPos;
+	}
+	else if(OldXPos > dispParams.width && OldYPos <= dispParams.high)
+	{
+		NewYPos = OldYPos;
+		switch(OldXPos)
+		{
+			case LEFT_POS:
+				NewXPos = setTextLeft();
+				break;
+			case CENTER_POS:
+				NewXPos = setTextCenter();
+				break;
+			case RIGHT_POS:
+				NewXPos = setTextRight();
+				break;
+			default:
+				NewXPos = setTextCenter();
+				break;
+		}
+	}
+	else if(OldXPos <= dispParams.width && OldYPos > dispParams.high)
+	{
+		NewXPos = OldXPos;
+		switch(OldYPos)
+		{
+			case TOP_POS:
+				NewYPos = setTextTop();
+				break;
+			case MIDDLE_POS:
+				NewYPos = setTextMiddle();
+				break;
+			case BOTTOM_POS:
+				NewYPos = setTextBottom();
+				break;
+			default:
+				NewYPos = setTextMiddle();
+				break;
+		}
+	}
+	else
+	{
+		switch(OldXPos)
+		{
+			case LEFT_POS:
+				NewXPos = setTextLeft();
+				break;
+			case CENTER_POS:
+				NewXPos = setTextCenter();
+				break;
+			case RIGHT_POS:
+				NewXPos = setTextRight();
+				break;
+			default:
+				NewXPos = setTextCenter();
+				break;
+		}
+		switch(OldYPos)
+		{
+			case TOP_POS:
+				NewYPos = setTextTop();
+				break;
+			case MIDDLE_POS:
+				NewYPos = setTextMiddle();
+				break;
+			case BOTTOM_POS:
+				NewYPos = setTextBottom();
+				break;
+			default:
+				NewYPos = setTextMiddle();
+				break;
+		}
+	}
+}
 
 void NHDST7565_LCD::setupLcd()
 {
@@ -270,83 +350,83 @@ void NHDST7565_LCD::drawString(String Text, uint8_t XPos, uint8_t YPos, const ui
 {
 	uint8_t NewXPos = 0, NewYPos = 0;
 	assignTextParams(Text, u8g2Font);
-
-	if(XPos <= dispParams.width && YPos <= dispParams.high)
-	{
-		NewXPos = XPos;
-		NewYPos = YPos;
-	}
-	else if(XPos > dispParams.width && YPos <= dispParams.high)
-	{
-		NewYPos = YPos;
-		switch(XPos)
-		{
-			case LEFT_POS:
-				NewXPos = setTextLeft();
-				break;
-			case CENTER_POS:
-				NewXPos = setTextCenter();
-				break;
-			case RIGHT_POS:
-				NewXPos = setTextRight();
-				break;
-			default:
-				NewXPos = setTextCenter();
-				break;
-		}
-	}
-	else if(XPos <= dispParams.width && YPos > dispParams.high)
-	{
-		NewXPos = XPos;
-		switch(YPos)
-		{
-			case TOP_POS:
-				NewYPos = setTextTop();
-				break;
-			case MIDDLE_POS:
-				NewYPos = setTextMiddle();
-				break;
-			case BOTTOM_POS:
-				NewYPos = setTextBottom();
-				break;
-			default:
-				NewYPos = setTextMiddle();
-				break;
-		}
-	}
-	else
-	{
-		switch(XPos)
-		{
-			case LEFT_POS:
-				NewXPos = setTextLeft();
-				break;
-			case CENTER_POS:
-				NewXPos = setTextCenter();
-				break;
-			case RIGHT_POS:
-				NewXPos = setTextRight();
-				break;
-			default:
-				NewXPos = setTextCenter();
-				break;
-		}
-		switch(YPos)
-		{
-			case TOP_POS:
-				NewYPos = setTextTop();
-				break;
-			case MIDDLE_POS:
-				NewYPos = setTextMiddle();
-				break;
-			case BOTTOM_POS:
-				NewYPos = setTextBottom();
-				break;
-			default:
-				NewYPos = setTextMiddle();
-				break;
-		}
-	}
+	assignNewDrawCoord(XPos, YPos, NewXPos, NewYPos);
+//	if(XPos <= dispParams.width && YPos <= dispParams.high)
+//	{
+//		NewXPos = XPos;
+//		NewYPos = YPos;
+//	}
+//	else if(XPos > dispParams.width && YPos <= dispParams.high)
+//	{
+//		NewYPos = YPos;
+//		switch(XPos)
+//		{
+//			case LEFT_POS:
+//				NewXPos = setTextLeft();
+//				break;
+//			case CENTER_POS:
+//				NewXPos = setTextCenter();
+//				break;
+//			case RIGHT_POS:
+//				NewXPos = setTextRight();
+//				break;
+//			default:
+//				NewXPos = setTextCenter();
+//				break;
+//		}
+//	}
+//	else if(XPos <= dispParams.width && YPos > dispParams.high)
+//	{
+//		NewXPos = XPos;
+//		switch(YPos)
+//		{
+//			case TOP_POS:
+//				NewYPos = setTextTop();
+//				break;
+//			case MIDDLE_POS:
+//				NewYPos = setTextMiddle();
+//				break;
+//			case BOTTOM_POS:
+//				NewYPos = setTextBottom();
+//				break;
+//			default:
+//				NewYPos = setTextMiddle();
+//				break;
+//		}
+//	}
+//	else
+//	{
+//		switch(XPos)
+//		{
+//			case LEFT_POS:
+//				NewXPos = setTextLeft();
+//				break;
+//			case CENTER_POS:
+//				NewXPos = setTextCenter();
+//				break;
+//			case RIGHT_POS:
+//				NewXPos = setTextRight();
+//				break;
+//			default:
+//				NewXPos = setTextCenter();
+//				break;
+//		}
+//		switch(YPos)
+//		{
+//			case TOP_POS:
+//				NewYPos = setTextTop();
+//				break;
+//			case MIDDLE_POS:
+//				NewYPos = setTextMiddle();
+//				break;
+//			case BOTTOM_POS:
+//				NewYPos = setTextBottom();
+//				break;
+//			default:
+//				NewYPos = setTextMiddle();
+//				break;
+//		}
+//	}
 
 	u8g2_DrawStr(&U8G2_Display, NewXPos, NewYPos + textToWrite.textHigh, textToWrite.text.c_str());
 }
@@ -474,6 +554,15 @@ uint8_t NHDST7565_LCD::drawMenuList(uint8_t FirstItemXPos, uint8_t FirstItemYPos
 	}
 	return MaxLines;
 }
+
+void NHDST7565_LCD::drawSymbol(uint8_t XPos, uint8_t YPos, const uint8_t *SymbolFont, uint16_t SymbolCode)
+{
+	uint8_t NewXPos = 0, NewYPos = 0;
+	assignTextParams("", SymbolFont);
+	assignNewDrawCoord(XPos, YPos, NewXPos, NewYPos);
+	u8g2_DrawGlyph(&U8G2_Display, NewXPos, NewYPos, SymbolCode);
+}
+
 
 void NHDST7565_LCD::drawTimeDate(DS1307_RTC *TimeDate)
 {

@@ -52,6 +52,7 @@ private:
 	uint8_t setTextTop();
 	uint8_t setTextMiddle();
 	uint8_t setTextBottom();
+	void assignNewDrawCoord(uint8_t OldXPos, uint8_t OldYPos, uint8_t &NewXPos, uint8_t &NewYPos);
 
 public:
 	enum
@@ -119,6 +120,7 @@ public:
 	void drawCircle(uint8_t x, uint8_t y, uint8_t r, bool Empty, uint8_t Color);
 	void drawString(String Text, uint8_t XPos, uint8_t YPos, const uint8_t *u8g2Font);
 	void drawText(String Text, uint8_t XPos, uint8_t YPos, uint8_t MarginLen);
+	void drawSymbol(uint8_t XPos, uint8_t YPos, const uint8_t *SymbolFont, uint16_t SymbolCode);
 	uint8_t drawMenuList(uint8_t FirstItemXPos, uint8_t FirstItemYPos, uint8_t FirsListItem, uint8_t ItemSel, const char **MenuItems, uint8_t MaxItems,
 			bool WithCheckBox, bool MenuSelected, bool *ItemsChecked, const uint8_t *u8g2Font);
 	void drawTimeDate(DS1307_RTC *TimeDate);

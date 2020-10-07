@@ -19,6 +19,7 @@
 
 
 
+
 const char *mainMenuVoices[] =
 {
 		"Thermo",
@@ -83,6 +84,7 @@ SmartDryer::SmartDryer()
 	testTimer = new ChronoTimer(ChronoTimer::MILLIS);
 
 	dbgDryer = new SerialDebug();
+
 
 	display->setupLcd();
 }
@@ -657,6 +659,7 @@ void SmartDryer::setup()
 
 	statusParam = new DRYER_PARAMS();
 
+
 	mainMenuHelpMsgs.push_back("Accende o spegne la resistenza");
 	mainMenuHelpMsgs.push_back("Accende o spegne la ventola");
 	mainMenuHelpMsgs.push_back("Imposta la temperatura di servizio");
@@ -781,6 +784,12 @@ void SmartDryer::setup()
 	startProgramsMenu->paramType = NO_TYPE;
 	startProgramsMenu->menuSelected = true;
 
+	// TODO Caricare dalla eeprom se abilitata, i programmi nelle rispettive variabili in ram
+	if(eepromEnabled)
+	{
+
+	}
+
 }
 
 
@@ -809,10 +818,12 @@ void SmartDryer::run()
 			case CHANGE_PROGRAM_1:
 				//TODO aggiungere altri possibili programmi in cascata
 				changeProgram(screen - CHANGE_PROGRAM_1);
+				screen = NAV_MENU;
 				break;
 			case START_PROGRAM_1:
 				//TODO aggiungere altri possibili programmi in cascata
 				startProgram(screen - START_PROGRAM_1);
+				screen = NAV_MENU;
 				break;
 			default:
 				break;
@@ -829,7 +840,7 @@ void SmartDryer::changeTime()
 	while(!ExitChangeTime)
 	{
 		display->clearFrameBuffer();
-		display->drawTimeDate(clock);
+//		display->drawTimeDate(clock);
 		if(IsHours)
 		{
 			Title = "Imposta ora";
@@ -840,9 +851,10 @@ void SmartDryer::changeTime()
 			Title = "Imposta minuto";
 			Number = std::to_string(Minute);
 		}
-		display->drawString(Title, NHDST7565_LCD::CENTER_POS, 12, display->displayFonts[NHDST7565_LCD::W_6_H_13_B]);
-		display->drawString(Number, NHDST7565_LCD::CENTER_POS, 40, display->displayFonts[NHDST7565_LCD::W_9_H_17_B]);
-		// TODO disegnare frecce sopra e sotto la scritta
+		display->drawString(Title, NHDST7565_LCD::CENTER_POS, 5, display->displayFonts[NHDST7565_LCD::W_6_H_13_B]);
+		display->drawString(Number, NHDST7565_LCD::CENTER_POS, 30, display->displayFonts[NHDST7565_LCD::W_9_H_17_B]);
+		display->drawSymbol(NHDST7565_LCD::CENTER_POS, 21, display->displayFonts[NHDST7565_LCD::W_8_H_8_ICON], 0x0070); // triangolo alto
+		display->drawSymbol(NHDST7565_LCD::CENTER_POS, 48, display->displayFonts[NHDST7565_LCD::W_8_H_8_ICON], 0x006D); // triangolo basso
 		// TODO scrivere che si preme ok per andare avanti o long ok per tornare indietro
 		display->sendFrameBuffer();
 		uint8_t WichKey = DryerKey::NO_KEY;
@@ -920,10 +932,30 @@ void SmartDryer::changeDate()
 	bool ExitChangeDate = false;
 	uint8_t Day = 1, Month = 1, Year = 20;
 	uint8_t WichDateVar = 0;
+	String Title = "", Number = "";
 	while(!ExitChangeDate)
 	{
 		display->clearFrameBuffer();
-
+		if(WichDateVar == 0)
+		{
+			Title = "Imposta mese";
+			Number = String(monthNames[Month - 1]);
+		}
+		else if(WichDateVar == 1)
+		{
+			Title = "Imposta giorno";
+			Number = std::to_string(Day);
+		}
+		else
+		{
+			Title = "Imposta anno";
+			Number = std::to_string(Year);
+		}
+		display->drawString(Title, NHDST7565_LCD::CENTER_POS, 5, display->displayFonts[NHDST7565_LCD::W_6_H_13_B]);
+		display->drawString(Number, NHDST7565_LCD::CENTER_POS, 22, display->displayFonts[NHDST7565_LCD::W_9_H_17_B]);
+		display->drawSymbol(NHDST7565_LCD::CENTER_POS, 21, display->displayFonts[NHDST7565_LCD::W_8_H_8_ICON], 0x0070); // triangolo alto
+		display->drawSymbol(NHDST7565_LCD::CENTER_POS, 48, display->displayFonts[NHDST7565_LCD::W_8_H_8_ICON], 0x006D); // triangolo basso
+		// TODO scrivere che si preme ok per andare avanti o long ok per tornare indietro
 		display->sendFrameBuffer();
 		uint8_t WichKey = DryerKey::NO_KEY;
 		WichKey = keyboard->checkKey();
@@ -1015,8 +1047,179 @@ void SmartDryer::showInfo()
 
 void SmartDryer::changeProgram(uint8_t WichProgram)
 {
+	bool ExitChangeProgram = false;
+	uint8_t WichSetting = 0;
+	const uint8_t MAX_SETTINGS = 5;
+	uint8_t StartHour = 0, StartMinute = 0;
+	uint8_t EndHour = 0, EndMinute = 0;
+	uint32_t TemperatureSetted = 0;
+	while(!ExitChangeProgram)
+	{
+		display->clearFrameBuffer();
+
+		display->sendFrameBuffer();
+		uint8_t WichKey = DryerKey::NO_KEY;
+		WichKey = keyboard->checkKey();
+		switch(WichKey)
+		{
+			case DryerKey::UP_KEY:
+			case DryerKey::LONG_UP_KEY:
+				switch(WichSetting)
+				{
+					case 0:
+						if(StartHour > 0)
+							StartHour--;
+						else
+							StartHour = 23;
+						break;
+					case 1:
+						if(StartMinute > 0)
+							StartMinute--;
+						else
+							StartMinute = 59;
+						break;
+					case 2:
+						if(EndHour > 0)
+							EndHour--;
+						else
+							EndHour = 23;
+						break;
+					case 3:
+						if(EndMinute > 0)
+							EndMinute--;
+						else
+							EndMinute = 59;
+						break;
+					case 4:
+						if(TemperatureSetted > 30)
+							TemperatureSetted -= 5;
+						else
+							TemperatureSetted = 90;
+						break;
+					default:
+						break;
+				}
+				break;
+			case DryerKey::DOWN_KEY:
+			case DryerKey::LONG_DOWN_KEY:
+				switch(WichSetting)
+				{
+					case 0:
+						if(StartHour < 23)
+							StartHour++;
+						else
+							StartHour = 0;
+						break;
+					case 1:
+						if(StartMinute < 59)
+							StartMinute++;
+						else
+							StartMinute = 0;
+						break;
+					case 2:
+						if(EndHour < 23)
+							EndHour++;
+						else
+							EndHour = 0;
+						break;
+					case 3:
+						if(EndMinute < 59)
+							EndMinute++;
+						else
+							EndMinute = 0;
+						break;
+					case 4:
+						if(TemperatureSetted < 90)
+							TemperatureSetted += 5;
+						else
+							TemperatureSetted = 30;
+						break;
+					default:
+						break;
+				}
+				break;
+			case DryerKey::OK_KEY:
+				if(WichSetting < MAX_SETTINGS - 1)
+					WichSetting++;
+				else
+				{
+					// TODO Salvare in ram il programma appena modificato, se la eeprom è abilitata salvarlo anche li
+					clock->getTimeDate(dryerPrograms[WichProgram].startTime);
+					clock->getTimeDate(dryerPrograms[WichProgram].endTime);
+					dryerPrograms[WichProgram].tempSetted = (float)TemperatureSetted;
+					dryerPrograms[WichProgram].startTime.minute = StartMinute;
+					dryerPrograms[WichProgram].endTime.minute = EndMinute;
+					dryerPrograms[WichProgram].startTime.hour = StartHour;
+					dryerPrograms[WichProgram].endTime.hour = EndHour;
+					if(EndHour < StartHour)
+					{
+						if(dryerPrograms[WichProgram].endTime.day + 1 < daysInMonth[dryerPrograms[WichProgram].endTime.month - 1])
+							dryerPrograms[WichProgram].endTime.day += 1;
+						else
+						{
+							dryerPrograms[WichProgram].endTime.day = 1;
+							dryerPrograms[WichProgram].endTime.month += 1;
+						}
+					}
+					else if(EndHour == StartHour)
+					{
+						if(StartMinute > EndMinute)
+						{
+							dryerPrograms[WichProgram].endTime.minute = StartMinute + 1;
+						}
+					}
+
+					if(eepromEnabled)
+					{
+
+					}
+					ExitChangeProgram = true;
+				}
+				break;
+			case DryerKey::LEFT_KEY:
+				if(WichSetting > 0)
+					WichSetting--;
+				break;
+			case DryerKey::LONG_OK_KEY:
+
+				break;
+			case DryerKey::LONG_LEFT_KEY:
+				ExitChangeProgram = true;
+				break;
+			default:
+				break;
+		}
+	}
 }
 
 void SmartDryer::startProgram(uint8_t WichProgram)
 {
+	bool ExitStartProgram = false;
+	while(!ExitStartProgram)
+	{
+
+		uint8_t WichKey = DryerKey::NO_KEY;
+		WichKey = keyboard->checkKey();
+		switch(WichKey)
+		{
+			case DryerKey::UP_KEY:
+			case DryerKey::LONG_UP_KEY:
+				break;
+			case DryerKey::DOWN_KEY:
+			case DryerKey::LONG_DOWN_KEY:
+
+				break;
+			case DryerKey::OK_KEY:
+
+				break;
+			case DryerKey::LONG_OK_KEY:
+
+				break;
+			case DryerKey::LONG_LEFT_KEY:
+				ExitStartProgram = true;
+				break;
+			default:
+				break;
+		}
+	}
 }
