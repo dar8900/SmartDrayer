@@ -131,6 +131,7 @@ private:
 	ChronoTimer *getTempTimer;
 	ChronoTimer *blinkRedLedTimer;
 	ChronoTimer *blinkGreenLedTimer;
+	ChronoTimer *showHelpMessageTimer;
 	ChronoTimer *testTimer;
 
 
