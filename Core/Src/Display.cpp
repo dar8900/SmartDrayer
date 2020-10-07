@@ -564,11 +564,8 @@ void NHDST7565_LCD::drawSymbol(uint8_t XPos, uint8_t YPos, const uint8_t *Symbol
 }
 
 
-void NHDST7565_LCD::drawTimeDate(DS1307_RTC *TimeDate)
+void NHDST7565_LCD::drawTimeDate(String Time, String Date)
 {
-	String Time = "", Date = "";
-	Time = TimeDate->getTimeDateStr(DS1307_RTC::ONLY_TIME_NO_SEC);
-	Date = TimeDate->getTimeDateStr(DS1307_RTC::ONLY_DATE_NO_YEAR);
 	drawString(Time, LEFT_POS, TOP_POS, displayFonts[W_3_H_6]);
 	drawString(Date, RIGHT_POS, TOP_POS, displayFonts[W_3_H_6]);
 }

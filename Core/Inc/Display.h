@@ -123,7 +123,7 @@ public:
 	void drawSymbol(uint8_t XPos, uint8_t YPos, const uint8_t *SymbolFont, uint16_t SymbolCode);
 	uint8_t drawMenuList(uint8_t FirstItemXPos, uint8_t FirstItemYPos, uint8_t FirsListItem, uint8_t ItemSel, const char **MenuItems, uint8_t MaxItems,
 			bool WithCheckBox, bool MenuSelected, bool *ItemsChecked, const uint8_t *u8g2Font);
-	void drawTimeDate(DS1307_RTC *TimeDate);
+	void drawTimeDate(String Time, String Date);
 };
 
 #endif /* INC_DISPLAY_H_ */

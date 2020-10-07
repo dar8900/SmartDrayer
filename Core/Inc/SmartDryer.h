@@ -133,7 +133,9 @@ private:
 	ChronoTimer *getTempTimer;
 	ChronoTimer *blinkRedLedTimer;
 	ChronoTimer *blinkGreenLedTimer;
+	ChronoTimer *takeTimeTimer;
 	ChronoTimer *showHelpMessageTimer;
+
 	ChronoTimer *testTimer;
 
 
@@ -173,6 +175,7 @@ private:
 	void physicalReleCtrl();
 	void thermoRegulation(float WichTemp);
 	void peripheralsControl();
+	void showTimeDate(String &Time, String &Date);
 
 	void navMenu();
 	void changeTime();

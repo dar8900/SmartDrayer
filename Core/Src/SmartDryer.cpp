@@ -78,13 +78,14 @@ SmartDryer::SmartDryer()
 
 	blinkRedLedTimer = new ChronoTimer(ChronoTimer::MILLIS);
 	blinkGreenLedTimer = new ChronoTimer(ChronoTimer::MILLIS);
-
+	takeTimeTimer = new ChronoTimer(ChronoTimer::MILLIS);
 	showHelpMessageTimer = new ChronoTimer(ChronoTimer::SECONDS);
 
 	testTimer = new ChronoTimer(ChronoTimer::MILLIS);
 
 	dbgDryer = new SerialDebug();
 
+	statusParam = new DRYER_PARAMS();
 
 	display->setupLcd();
 }
@@ -272,6 +273,7 @@ void SmartDryer::thermoRegulation(float WichTemp)
 	{
 		statusParam->fanOn = false;
 		statusParam->thermoOn = false;
+//		statusParam->dryerOn = false;
 		if(ledStatus != PROGRAM_INIT && ledStatus != PROGRAM_END && ledStatus != TEMP_REACHED)
 			ledStatus = THERMO_OFF_FAN_OFF;
 	}
@@ -307,40 +309,52 @@ void SmartDryer::peripheralsControl()
 	ledControl();
 }
 
+
+void SmartDryer::showTimeDate(String &Time, String &Date)
+{
+	if(takeTimeTimer->isFinished(true, 500))
+	{
+		Time = clock->getTimeDateStr(DS1307_RTC::ONLY_TIME_NO_SEC);
+		Date = clock->getTimeDateStr(DS1307_RTC::ONLY_DATE_NO_YEAR);
+	}
+	display->drawTimeDate(Time, Date);
+}
+
+
 void SmartDryer::navMenu()
 {
 	bool ExitNavMenu = false;
 	MENU_STRUCTURE *ActualMenu = mainMenu;
 	uint8_t MenuSel = MAIN_MENU;
 	showHelpMessageTimer->restart();
+	String Time = "", Date = "";
 	while(!ExitNavMenu)
 	{
 		uint8_t WichKey = DryerKey::NO_KEY;
 		display->clearFrameBuffer();
-
-		display->drawTimeDate(clock);
+		showTimeDate(Time, Date);
 		display->drawString(ActualMenu->menuTitle, NHDST7565_LCD::CENTER_POS, MENU_TITLE_YPOS, display->displayFonts[NHDST7565_LCD::W_6_H_13_B]);
 		ActualMenu->maxMenuLines = display->drawMenuList(ActualMenu->XPos, ActualMenu->YPos, ActualMenu->topItemPos,
 				ActualMenu->itemSelected, ActualMenu->menuVoices, ActualMenu->maxMenuItems,
 				ActualMenu->withChebox, ActualMenu->menuSelected, ActualMenu->itemsChecked, ActualMenu->menuFont);
-		if(showHelpMessageTimer->isFinished(false, 3))
-		{
-			if(MenuSel == MAIN_MENU)
-			{
-				u8g2_DrawFrame(&display->U8G2_Display, MENU_RIGHT_LIST_XPOS - 1, HELP_MESSAGE_YPOS - 1, display->dispParams.width - MENU_RIGHT_LIST_XPOS - 1
-						, display->dispParams.high - HELP_MESSAGE_YPOS - 1);
-				display->drawBox(MENU_RIGHT_LIST_XPOS, HELP_MESSAGE_YPOS, display->dispParams.width - MENU_RIGHT_LIST_XPOS,
-						display->dispParams.high - HELP_MESSAGE_YPOS, WHITE_COLOR);
-				//				  u8g2_SetDrawColor(&display->U8G2_Display, 0);
-				//				  u8g2_DrawBox(&display->U8G2_Display, MENU_RIGHT_LIST_XPOS, HELP_MESSAGE_YPOS, display->dispParams.width - MENU_RIGHT_LIST_XPOS, display->dispParams.high - HELP_MESSAGE_YPOS);
-				//				  u8g2_SetDrawColor(&display->U8G2_Display, 1);
-				display->drawText(mainMenuHelpMsgs.at(ActualMenu->itemSelected), MENU_RIGHT_LIST_XPOS, HELP_MESSAGE_YPOS, HELP_MESSAGE_MARGIN);
-			}
-			else
-			{
-				showHelpMessageTimer->restart();
-			}
-		}
+//		if(showHelpMessageTimer->isFinished(false, 3))
+//		{
+//			if(MenuSel == MAIN_MENU)
+//			{
+//				u8g2_DrawFrame(&display->U8G2_Display, MENU_RIGHT_LIST_XPOS - 1, HELP_MESSAGE_YPOS - 1, display->dispParams.width - MENU_RIGHT_LIST_XPOS - 1
+//						, display->dispParams.high - HELP_MESSAGE_YPOS - 1);
+//				display->drawBox(MENU_RIGHT_LIST_XPOS, HELP_MESSAGE_YPOS, display->dispParams.width - MENU_RIGHT_LIST_XPOS,
+//						display->dispParams.high - HELP_MESSAGE_YPOS, WHITE_COLOR);
+//				//				  u8g2_SetDrawColor(&display->U8G2_Display, 0);
+//				//				  u8g2_DrawBox(&display->U8G2_Display, MENU_RIGHT_LIST_XPOS, HELP_MESSAGE_YPOS, display->dispParams.width - MENU_RIGHT_LIST_XPOS, display->dispParams.high - HELP_MESSAGE_YPOS);
+//				//				  u8g2_SetDrawColor(&display->U8G2_Display, 1);
+//				display->drawText(mainMenuHelpMsgs.at(ActualMenu->itemSelected), MENU_RIGHT_LIST_XPOS, HELP_MESSAGE_YPOS, HELP_MESSAGE_MARGIN);
+//			}
+//			else
+//			{
+//				showHelpMessageTimer->restart();
+//			}
+//		}
 
 		display->sendFrameBuffer();
 		WichKey = keyboard->checkKey();
@@ -387,7 +401,7 @@ void SmartDryer::navMenu()
 								ExitNavMenu = true;
 								break;
 							case CHANGE_DATE_MENU:
-								screen = CHANGE_TIME;
+								screen = CHANGE_DATE;
 								ExitNavMenu = true;
 								break;
 							case CHANGE_PROGRAMS_LIST:
@@ -466,10 +480,10 @@ void SmartDryer::navMenu()
 				{
 					for(int i = 0; i < ActualMenu->maxMenuItems; i++)
 						ActualMenu->itemsChecked[i] = false;
+					ActualMenu->itemsChecked[ActualMenu->itemSelected] = true;
 					switch(ActualMenu->paramType)
 					{
 						case PARAM_BOOL_TYPE:
-							ActualMenu->itemsChecked[ActualMenu->itemSelected] = true;
 							if(ActualMenu->itemSelected == 0)
 								*(bool *)ActualMenu->paramAssociated = false;
 							else
@@ -536,7 +550,6 @@ void SmartDryer::navMenu()
 	}
 
 }
-
 
 
 void SmartDryer::test()
@@ -837,10 +850,11 @@ void SmartDryer::changeTime()
 	uint8_t Hour = 0, Minute = 0;
 	bool IsHours = true;
 	String Title = "", Number = "";
+	String Time = "", Date = "";
 	while(!ExitChangeTime)
 	{
 		display->clearFrameBuffer();
-//		display->drawTimeDate(clock);
+		showTimeDate(Time, Date);
 		if(IsHours)
 		{
 			Title = "Imposta ora";
@@ -853,8 +867,8 @@ void SmartDryer::changeTime()
 		}
 		display->drawString(Title, NHDST7565_LCD::CENTER_POS, 5, display->displayFonts[NHDST7565_LCD::W_6_H_13_B]);
 		display->drawString(Number, NHDST7565_LCD::CENTER_POS, 30, display->displayFonts[NHDST7565_LCD::W_9_H_17_B]);
-		display->drawSymbol(NHDST7565_LCD::CENTER_POS, 21, display->displayFonts[NHDST7565_LCD::W_8_H_8_ICON], 0x0070); // triangolo alto
-		display->drawSymbol(NHDST7565_LCD::CENTER_POS, 48, display->displayFonts[NHDST7565_LCD::W_8_H_8_ICON], 0x006D); // triangolo basso
+		display->drawSymbol(60, 30, display->displayFonts[NHDST7565_LCD::W_8_H_8_ICON], 0x0070); // triangolo alto
+		display->drawSymbol(60, 55, display->displayFonts[NHDST7565_LCD::W_8_H_8_ICON], 0x006D); // triangolo basso
 		// TODO scrivere che si preme ok per andare avanti o long ok per tornare indietro
 		display->sendFrameBuffer();
 		uint8_t WichKey = DryerKey::NO_KEY;
@@ -933,9 +947,11 @@ void SmartDryer::changeDate()
 	uint8_t Day = 1, Month = 1, Year = 20;
 	uint8_t WichDateVar = 0;
 	String Title = "", Number = "";
+	String Time = "", Date = "";
 	while(!ExitChangeDate)
 	{
 		display->clearFrameBuffer();
+		showTimeDate(Time, Date);
 		if(WichDateVar == 0)
 		{
 			Title = "Imposta mese";
@@ -952,9 +968,9 @@ void SmartDryer::changeDate()
 			Number = std::to_string(Year);
 		}
 		display->drawString(Title, NHDST7565_LCD::CENTER_POS, 5, display->displayFonts[NHDST7565_LCD::W_6_H_13_B]);
-		display->drawString(Number, NHDST7565_LCD::CENTER_POS, 22, display->displayFonts[NHDST7565_LCD::W_9_H_17_B]);
-		display->drawSymbol(NHDST7565_LCD::CENTER_POS, 21, display->displayFonts[NHDST7565_LCD::W_8_H_8_ICON], 0x0070); // triangolo alto
-		display->drawSymbol(NHDST7565_LCD::CENTER_POS, 48, display->displayFonts[NHDST7565_LCD::W_8_H_8_ICON], 0x006D); // triangolo basso
+		display->drawString(Number, NHDST7565_LCD::CENTER_POS, 30, display->displayFonts[NHDST7565_LCD::W_9_H_17_B]);
+		display->drawSymbol(60, 30, display->displayFonts[NHDST7565_LCD::W_8_H_8_ICON], 0x0070); // triangolo alto
+		display->drawSymbol(60, 55, display->displayFonts[NHDST7565_LCD::W_8_H_8_ICON], 0x006D); // triangolo basso
 		// TODO scrivere che si preme ok per andare avanti o long ok per tornare indietro
 		display->sendFrameBuffer();
 		uint8_t WichKey = DryerKey::NO_KEY;
@@ -1053,9 +1069,11 @@ void SmartDryer::changeProgram(uint8_t WichProgram)
 	uint8_t StartHour = 0, StartMinute = 0;
 	uint8_t EndHour = 0, EndMinute = 0;
 	uint32_t TemperatureSetted = 0;
+	String Time = "", Date = "";
 	while(!ExitChangeProgram)
 	{
 		display->clearFrameBuffer();
+		showTimeDate(Time, Date);
 
 		display->sendFrameBuffer();
 		uint8_t WichKey = DryerKey::NO_KEY;
