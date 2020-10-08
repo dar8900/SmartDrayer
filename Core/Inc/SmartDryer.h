@@ -121,6 +121,7 @@ private:
 
 	typedef struct
 	{
+		bool programSetted = false;
 		DS1307_RTC::TIME_DATE_T startTime = {0};
 		DS1307_RTC::TIME_DATE_T endTime = {0};
 		float tempSetted = 0.0;
