@@ -152,6 +152,21 @@ bool DS1307_RTC::isRunning()
 	{
 		Live = true;
 	}
+	if(Live)
+	{
+		TIME_DATE_T ReadTime;
+		getTimeDate(ReadTime);
+		if(ReadTime.year == 0  && ReadTime.month == 0  && ReadTime.day == 0)
+		{
+			ReadTime.hour = 0;
+			ReadTime.minute = 0;
+			ReadTime.second = 0;
+			ReadTime.day = 1;
+			ReadTime.month = 1;
+			ReadTime.year = 2020;
+			adjustTimeDate(ReadTime);
+		}
+	}
 	return Live;
 }
 

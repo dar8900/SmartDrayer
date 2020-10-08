@@ -124,6 +124,7 @@ public:
 	uint8_t drawMenuList(uint8_t FirstItemXPos, uint8_t FirstItemYPos, uint8_t FirsListItem, uint8_t ItemSel, const char **MenuItems, uint8_t MaxItems,
 			bool WithCheckBox, bool MenuSelected, bool *ItemsChecked, const uint8_t *u8g2Font);
 	void drawTimeDate(String Time, String Date);
+	void drawFullScreenPopUp(String Text, uint16_t Delay);
 };
 
 #endif /* INC_DISPLAY_H_ */

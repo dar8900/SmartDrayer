@@ -149,8 +149,10 @@ void NHDST7565_LCD::assignTextParams(String Text, const uint8_t *Font)
 	}
 	else
 	{
-		textToWrite.textFont = u8g2_font_5x8_mf;
-		textToWrite.text = "STRING ERROR!";
+		textToWrite.textFont = displayFonts[W_5_H_8];
+		u8g2_SetFont(&U8G2_Display, textToWrite.textFont);
+		textToWrite.textLen = u8g2_GetStrWidth(&U8G2_Display, Text.c_str());
+		textToWrite.textHigh = u8g2_GetAscent(&U8G2_Display);
 	}
 }
 
@@ -568,4 +570,13 @@ void NHDST7565_LCD::drawTimeDate(String Time, String Date)
 {
 	drawString(Time, LEFT_POS, TOP_POS, displayFonts[W_3_H_6]);
 	drawString(Date, RIGHT_POS, TOP_POS, displayFonts[W_3_H_6]);
+}
+
+void NHDST7565_LCD::drawFullScreenPopUp(String Text, uint16_t Delay)
+{
+	clearFrameBuffer();
+	u8g2_DrawRFrame(&U8G2_Display, 1, 1, dispParams.width - 1, dispParams.high - 1, 2);
+	drawString(Text, CENTER_POS, MIDDLE_POS, displayFonts[W_6_H_13_B]);
+	sendFrameBuffer();
+	HAL_Delay(Delay);
 }

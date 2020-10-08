@@ -26,7 +26,7 @@
 #define WITH_CHECKBOX		true
 #define WITHOUT_CHECKBOX	false
 
-#define MAX_PROGRAMS	1
+#define MAX_PROGRAMS	3
 
 class SmartDryer
 {
@@ -84,7 +84,11 @@ private:
 		CHANGE_DATE,
 		SHOW_INFO,
 		CHANGE_PROGRAM_1,
+		CHANGE_PROGRAM_2,
+		CHANGE_PROGRAM_3,
 		START_PROGRAM_1,
+		START_PROGRAM_2,
+		START_PROGRAM_3,
 		MAX_SCREENS
 	};
 
@@ -94,6 +98,7 @@ private:
 		bool thermoOn = false;
 		bool fanOn = false;
 		float temperatureSetted = 30.0;
+		bool programStarted;
 	}DRYER_PARAMS;
 
 	typedef struct
@@ -121,6 +126,12 @@ private:
 		float tempSetted = 0.0;
 	}PROGRAM_STRUCURE;
 
+	typedef union
+	{
+		uint32_t readedTemperatureInt;
+		float 	readedTemperatureFL;
+	}SENSOR_TEMP;
+
 	NHDST7565_LCD *display;
 	DS1307_RTC *clock;
 	DryerKey *keyboard;
@@ -135,6 +146,7 @@ private:
 	ChronoTimer *blinkGreenLedTimer;
 	ChronoTimer *takeTimeTimer;
 	ChronoTimer *showHelpMessageTimer;
+	ChronoTimer *programStartedTimer;
 
 	ChronoTimer *testTimer;
 
@@ -147,7 +159,7 @@ private:
 	PROGRAM_STRUCURE dryerPrograms[MAX_PROGRAMS] = {0};
 
 	uint16_t ledStatus = THERMO_OFF_FAN_OFF;
-	uint32_t readedTemperature = 0;
+	SENSOR_TEMP chamberTemperature;
 
 	uint8_t *paramTemperatures;
 
