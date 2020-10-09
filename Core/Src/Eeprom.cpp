@@ -17,7 +17,7 @@
 #define   _EEPROM_F1_MEDIUM_DESTINY
 //#define   _EEPROM_F1_HIGH_DESTINY
 
-#define		_EEPROM_USE_FLASH_PAGE				                 124
+#define		_EEPROM_USE_FLASH_PAGE				                 125
 
 #ifdef  _EEPROM_F1_MEDIUM_DESTINY
 #define		_EEPROM_FLASH_PAGE_SIZE								1024
@@ -172,38 +172,24 @@ bool STM32_EEPROM::memoryEmpty()
     return true;
 }
 
-//void STM32_EEPROM::saveValue(uint32_t NewVal, uint8_t ValType)
-//{
-//	transferRamToMem(eepromArray);
-//}
-
-
-void STM32_EEPROM::saveValue(uint8_t NewVal)
-{
-
-}
-
-void STM32_EEPROM::saveValue(uint16_t NewVal)
-{
-}
-
-void STM32_EEPROM::saveValue(uint32_t NewVal)
-{
-}
-
-void STM32_EEPROM::saveValue(uint64_t NewVal)
-{
-}
-
-void STM32_EEPROM::saveValue(float NewVal)
-{
-}
-
-void STM32_EEPROM::saveValue(double NewVal)
-{
-}
 
 STM32_EEPROM::STM32_EEPROM()
 {
 	eepromArray = new uint32_t[MAX_DIM_EEPROM_ARRAY];
+	tranferMemToRam(eepromArray);
+}
+
+void STM32_EEPROM::writeToMemory(uint16_t Address, uint32_t Val, bool Transfer)
+{
+	eepromArray[Address] = Val;
+	if(Transfer)
+	{
+		transferRamToMem(eepromArray);
+	}
+}
+
+void STM32_EEPROM::loadMemory(uint16_t Address, uint32_t *Val)
+{
+	tranferMemToRam(eepromArray);
+	*Val = eepromArray[Address];
 }

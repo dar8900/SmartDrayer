@@ -92,6 +92,65 @@ private:
 		MAX_SCREENS
 	};
 
+	enum
+	{
+		DRYER_PROGRAM_1 = 0,
+		DRYER_PROGRAM_2,
+		DRYER_PROGRAM_3,
+		MAX_DRYER_PROGRAMS
+	};
+
+	enum
+	{
+		FIRST_BOOT = 0,
+		SETTED_PROGRAM_1,
+		START_SECOND_PROGRAM_1,
+		START_MINUTE_PROGRAM_1,
+		START_HOUR_PROGRAM_1,
+		START_DAY_PROGRAM_1,
+		START_MONTH_PROGRAM_1,
+		START_YEAR_PROGRAM_1,
+		END_SECOND_PROGRAM_1,
+		END_MINUTE_PROGRAM_1,
+		END_HOUR_PROGRAM_1,
+		END_DAY_PROGRAM_1,
+		END_MONTH_PROGRAM_1,
+		END_YEAR_PROGRAM_1,
+		TEMP_PROGRAM_1,
+
+		SETTED_PROGRAM_2,
+		START_SECOND_PROGRAM_2,
+		START_MINUTE_PROGRAM_2,
+		START_HOUR_PROGRAM_2,
+		START_DAY_PROGRAM_2,
+		START_MONTH_PROGRAM_2,
+		START_YEAR_PROGRAM_2,
+		END_SECOND_PROGRAM_2,
+		END_MINUTE_PROGRAM_2,
+		END_HOUR_PROGRAM_2,
+		END_DAY_PROGRAM_2,
+		END_MONTH_PROGRAM_2,
+		END_YEAR_PROGRAM_2,
+		TEMP_PROGRAM_2,
+
+		SETTED_PROGRAM_3,
+		START_SECOND_PROGRAM_3,
+		START_MINUTE_PROGRAM_3,
+		START_HOUR_PROGRAM_3,
+		START_DAY_PROGRAM_3,
+		START_MONTH_PROGRAM_3,
+		START_YEAR_PROGRAM_3,
+		END_SECOND_PROGRAM_3,
+		END_MINUTE_PROGRAM_3,
+		END_HOUR_PROGRAM_3,
+		END_DAY_PROGRAM_3,
+		END_MONTH_PROGRAM_3,
+		END_YEAR_PROGRAM_3,
+		TEMP_PROGRAM_3,
+
+		MAX_PROGRAM_ADDRESS
+	};
+
 	typedef struct
 	{
 		bool dryerOn = false;
@@ -157,7 +216,7 @@ private:
 	bool rtcRunning = false;
 
 	DRYER_PARAMS *statusParam;
-	PROGRAM_STRUCURE dryerPrograms[MAX_PROGRAMS] = {0};
+	PROGRAM_STRUCURE dryerPrograms[MAX_DRYER_PROGRAMS] = {0};
 
 	uint16_t ledStatus = THERMO_OFF_FAN_OFF;
 	SENSOR_TEMP chamberTemperature;
@@ -178,7 +237,8 @@ private:
 
 	uint8_t screen = NAV_MENU;
 
-	bool eepromEnabled = false;
+	bool eepromEnabled = true;
+	bool resetMemory = false;
 
 	void blinkLed(uint8_t WichLed, uint16_t BlinkDelay);
 	void toggleLed(uint8_t WichLed);
@@ -189,6 +249,9 @@ private:
 	void thermoRegulation(float WichTemp);
 	void peripheralsControl();
 	void showTimeDate(String &Time, String &Date);
+	void writeDefaultsDryerProgram(uint8_t WichProgram);
+	void saveDryerProgram(uint8_t WichProgram);
+	void loadDryerProgram(uint8_t WichProgram);
 
 	void navMenu();
 	void changeTime();

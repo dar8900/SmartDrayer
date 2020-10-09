@@ -10,7 +10,8 @@
 
 #include "main.h"
 
-
+#define NO_MEM_TRANSFER false
+#define MEM_TRANSFER    true
 
 class STM32_EEPROM
 {
@@ -29,12 +30,9 @@ public:
 	STM32_EEPROM();
 	void eraseMemory();
 	bool memoryEmpty();
-	void saveValue(uint8_t NewVal);
-	void saveValue(uint16_t NewVal);
-	void saveValue(uint32_t NewVal);
-	void saveValue(uint64_t NewVal);
-	void saveValue(float NewVal);
-	void saveValue(double NewVal);
+	void writeToMemory(uint16_t Address, uint32_t Val, bool Transfer);
+	void loadMemory(uint16_t Address, uint32_t *Val);
+
 };
 
 

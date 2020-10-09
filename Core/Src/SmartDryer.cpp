@@ -344,6 +344,67 @@ void SmartDryer::showTimeDate(String &Time, String &Date)
 	display->drawTimeDate(Time, Date);
 }
 
+void SmartDryer::writeDefaultsDryerProgram(uint8_t WichProgram)
+{
+	dryerPrograms[WichProgram].programSetted = false;
+	dryerPrograms[WichProgram].startTime.second = 0;
+	dryerPrograms[WichProgram].startTime.minute = 0;
+	dryerPrograms[WichProgram].startTime.hour = 0;
+	dryerPrograms[WichProgram].startTime.day = 1;
+	dryerPrograms[WichProgram].startTime.month = 1;
+	dryerPrograms[WichProgram].startTime.year = 2020;
+	dryerPrograms[WichProgram].endTime.second = 0;
+	dryerPrograms[WichProgram].endTime.minute = 10;
+	dryerPrograms[WichProgram].endTime.hour = 0;
+	dryerPrograms[WichProgram].endTime.day = 1;
+	dryerPrograms[WichProgram].endTime.month = 1;
+	dryerPrograms[WichProgram].endTime.year = 2020;
+	dryerPrograms[WichProgram].tempSetted = 30.0;
+}
+
+void SmartDryer::saveDryerProgram(uint8_t WichProgram)
+{
+	const uint8_t MAX_DRYER_VAR = 14;
+	uint32_t TempToSave = 0;
+	TempToSave = (uint32_t)dryerPrograms[WichProgram].tempSetted;
+	memory->writeToMemory(SETTED_PROGRAM_1 + (MAX_DRYER_VAR * WichProgram), dryerPrograms[WichProgram].programSetted, NO_MEM_TRANSFER);
+	memory->writeToMemory(START_SECOND_PROGRAM_1 + (MAX_DRYER_VAR * WichProgram), dryerPrograms[WichProgram].startTime.second, NO_MEM_TRANSFER);
+	memory->writeToMemory(START_MINUTE_PROGRAM_1 + (MAX_DRYER_VAR * WichProgram), dryerPrograms[WichProgram].startTime.minute, NO_MEM_TRANSFER);
+	memory->writeToMemory(START_HOUR_PROGRAM_1 + (MAX_DRYER_VAR * WichProgram), dryerPrograms[WichProgram].startTime.hour, NO_MEM_TRANSFER);
+	memory->writeToMemory(START_DAY_PROGRAM_1 + (MAX_DRYER_VAR * WichProgram), dryerPrograms[WichProgram].startTime.day, NO_MEM_TRANSFER);
+	memory->writeToMemory(START_MONTH_PROGRAM_1 + (MAX_DRYER_VAR * WichProgram), dryerPrograms[WichProgram].startTime.month, NO_MEM_TRANSFER);
+	memory->writeToMemory(START_YEAR_PROGRAM_1 + (MAX_DRYER_VAR * WichProgram), dryerPrograms[WichProgram].startTime.year, NO_MEM_TRANSFER);
+	memory->writeToMemory(END_SECOND_PROGRAM_1 + (MAX_DRYER_VAR * WichProgram), dryerPrograms[WichProgram].endTime.second, NO_MEM_TRANSFER);
+	memory->writeToMemory(END_MINUTE_PROGRAM_1 + (MAX_DRYER_VAR * WichProgram), dryerPrograms[WichProgram].endTime.minute, NO_MEM_TRANSFER);
+	memory->writeToMemory(END_HOUR_PROGRAM_1 + (MAX_DRYER_VAR * WichProgram), dryerPrograms[WichProgram].endTime.hour, NO_MEM_TRANSFER);
+	memory->writeToMemory(END_DAY_PROGRAM_1 + (MAX_DRYER_VAR * WichProgram), dryerPrograms[WichProgram].endTime.day, NO_MEM_TRANSFER);
+	memory->writeToMemory(END_MONTH_PROGRAM_1 + (MAX_DRYER_VAR * WichProgram), dryerPrograms[WichProgram].endTime.month, NO_MEM_TRANSFER);
+	memory->writeToMemory(END_YEAR_PROGRAM_1 + (MAX_DRYER_VAR * WichProgram), dryerPrograms[WichProgram].endTime.year, NO_MEM_TRANSFER);
+	memory->writeToMemory(TEMP_PROGRAM_1 + (MAX_DRYER_VAR * WichProgram), TempToSave, MEM_TRANSFER);
+
+}
+
+void SmartDryer::loadDryerProgram(uint8_t WichProgram)
+{
+	const uint8_t MAX_DRYER_VAR = 14;
+	uint32_t TempSaved = 0;
+	memory->loadMemory(SETTED_PROGRAM_1 + (MAX_DRYER_VAR * WichProgram), (uint32_t *)&dryerPrograms[WichProgram].programSetted);
+	memory->loadMemory(START_SECOND_PROGRAM_1 + (MAX_DRYER_VAR * WichProgram), (uint32_t *)&dryerPrograms[WichProgram].startTime.second);
+	memory->loadMemory(START_MINUTE_PROGRAM_1 + (MAX_DRYER_VAR * WichProgram), (uint32_t *)&dryerPrograms[WichProgram].startTime.minute);
+	memory->loadMemory(START_HOUR_PROGRAM_1 + (MAX_DRYER_VAR * WichProgram), (uint32_t *)&dryerPrograms[WichProgram].startTime.hour);
+	memory->loadMemory(START_DAY_PROGRAM_1 + (MAX_DRYER_VAR * WichProgram), (uint32_t *)&dryerPrograms[WichProgram].startTime.day);
+	memory->loadMemory(START_MONTH_PROGRAM_1 + (MAX_DRYER_VAR * WichProgram), (uint32_t *)&dryerPrograms[WichProgram].startTime.month);
+	memory->loadMemory(START_YEAR_PROGRAM_1 + (MAX_DRYER_VAR * WichProgram), (uint32_t *)&dryerPrograms[WichProgram].startTime.year);
+	memory->loadMemory(END_SECOND_PROGRAM_1 + (MAX_DRYER_VAR * WichProgram), (uint32_t *)&dryerPrograms[WichProgram].endTime.second);
+	memory->loadMemory(END_MINUTE_PROGRAM_1 + (MAX_DRYER_VAR * WichProgram), (uint32_t *)&dryerPrograms[WichProgram].endTime.minute);
+	memory->loadMemory(END_HOUR_PROGRAM_1 + (MAX_DRYER_VAR * WichProgram), (uint32_t *)&dryerPrograms[WichProgram].endTime.hour);
+	memory->loadMemory(END_DAY_PROGRAM_1 + (MAX_DRYER_VAR * WichProgram), (uint32_t *)&dryerPrograms[WichProgram].endTime.day);
+	memory->loadMemory(END_MONTH_PROGRAM_1 + (MAX_DRYER_VAR * WichProgram), (uint32_t *)&dryerPrograms[WichProgram].endTime.month);
+	memory->loadMemory(END_YEAR_PROGRAM_1 + (MAX_DRYER_VAR * WichProgram), (uint32_t *)&dryerPrograms[WichProgram].endTime.year);
+	memory->loadMemory(TEMP_PROGRAM_1 + (MAX_DRYER_VAR * WichProgram), (uint32_t *)&TempSaved);
+	dryerPrograms[WichProgram].tempSetted = (float)TempSaved;
+}
+
 
 void SmartDryer::navMenu()
 {
@@ -581,102 +642,15 @@ void SmartDryer::navMenu()
 }
 
 
+
 void SmartDryer::test()
 {
-	testTimer->setTimer(5000);
-	std::string Time = "";
-	//	display->setupLcd();
 
-	uint8_t TopPos1 = 0, ItemSel1 = 0, TopPos2 = 0, ItemSel2 = 0, MaxLines1 = 0, MaxLines2 = 0, MaxItemsMenu1 = 8, MaxItemsMenu2 = 8;
-	uint8_t *TopPosPtr = &TopPos1;
-	uint8_t *ItemSelPtr = &ItemSel1;
-	uint8_t *MaxLinesPtr = &MaxLines1;
-	uint8_t MaxItemsMenu = MaxItemsMenu1;
-	bool SwitchMenu = true;
-
-	while(1)
-	{
-		uint8_t WichKey = DryerKey::NO_KEY;
-		display->clearFrameBuffer();
-		if(SwitchMenu)
-		{
-			//			  MaxLines1 = display->drawMenuList(1, 12, TopPos1, ItemSel1, MenuList1, MaxItemsMenu1, false, SwitchMenu, display->displayFonts[NHDST7565_LCD::W_5_H_8]);
-		}
-		else
-		{
-			//			  MaxLines2 = display->drawMenuList(40, 12, TopPos2, ItemSel2, MenuList2, MaxItemsMenu2, true, !SwitchMenu, display->displayFonts[NHDST7565_LCD::W_5_H_8]);
-		}
-		display->sendFrameBuffer();
-		WichKey = keyboard->checkKey();
-		switch(WichKey)
-		{
-			case DryerKey::UP_KEY:
-			case DryerKey::LONG_UP_KEY:
-				if(*ItemSelPtr > 0)
-					(*ItemSelPtr)--;
-				else
-					(*ItemSelPtr) = MaxItemsMenu - 1;
-				break;
-			case DryerKey::DOWN_KEY:
-			case DryerKey::LONG_DOWN_KEY:
-				if(*ItemSelPtr < MaxItemsMenu - 1)
-					(*ItemSelPtr)++;
-				else
-					(*ItemSelPtr) = 0;
-				break;
-			case DryerKey::LEFT_KEY:
-				SwitchMenu = !SwitchMenu;
-				if(!SwitchMenu)
-				{
-					TopPosPtr = &TopPos2;
-					ItemSelPtr = &ItemSel2;
-					MaxLinesPtr = &MaxLines2;
-					MaxItemsMenu = MaxItemsMenu2;
-				}
-				else
-				{
-					TopPos2 = 0;
-					ItemSel2  =0;
-					MaxLines2 = 0;
-					TopPosPtr = &TopPos1;
-					ItemSelPtr = &ItemSel1;
-					MaxLinesPtr = &MaxLines1;
-					MaxItemsMenu = MaxItemsMenu1;
-
-				}
-				break;
-			case DryerKey::OK_KEY:
-				break;
-			case DryerKey::LONG_LEFT_KEY:
-
-				break;
-			case DryerKey::LONG_OK_KEY:
-				break;
-			default:
-				break;
-		}
-		if(WichKey != DryerKey::NO_KEY && WichKey != DryerKey::LEFT_KEY)
-		{
-			if(*ItemSelPtr > *MaxLinesPtr - 2)
-			{
-				if(*ItemSelPtr - ((*MaxLinesPtr) - 2) < MaxItemsMenu - 1)
-					*TopPosPtr = (*ItemSelPtr) - ((*MaxLinesPtr) - 2);
-				else
-					*TopPosPtr = 0;
-			}
-			else
-				*TopPosPtr = 0;
-			if(*ItemSelPtr >= MaxItemsMenu - *MaxLinesPtr)
-			{
-				*TopPosPtr = MaxItemsMenu - *MaxLinesPtr;
-			}
-		}
-	}
 }
 
 void SmartDryer::setup()
 {
-
+	uint32_t FirstBootVal = 0;
 	display->setupLcd();
 	clock->setup();
 	rtcRunning = clock->isRunning();
@@ -819,7 +793,54 @@ void SmartDryer::setup()
 	// TODO Caricare dalla eeprom se abilitata, i programmi nelle rispettive variabili in ram
 	if(eepromEnabled)
 	{
-
+		if(resetMemory)
+		{
+			FirstBootVal = 500;
+			memory->writeToMemory(FIRST_BOOT, FirstBootVal, MEM_TRANSFER);
+			ResetSystem;
+		}
+		if(!memory->memoryEmpty())
+		{
+			memory->loadMemory(FIRST_BOOT, &FirstBootVal);
+			if(FirstBootVal == 200)
+			{
+				for(int i = 0; i < MAX_DRYER_PROGRAMS; i++)
+				{
+					loadDryerProgram(i);
+				}
+			}
+			else
+			{
+				FirstBootVal = 200;
+				for(int i = 0; i < MAX_DRYER_PROGRAMS; i++)
+				{
+					writeDefaultsDryerProgram(i);
+				}
+				memory->eraseMemory();
+				memory->writeToMemory(FIRST_BOOT, FirstBootVal, NO_MEM_TRANSFER);
+				for(int i = 0; i < MAX_DRYER_PROGRAMS; i++)
+				{
+					saveDryerProgram(i);
+					HAL_Delay(500);
+				}
+				ResetSystem;
+			}
+		}
+		else
+		{
+			FirstBootVal = 200;
+			memory->writeToMemory(FIRST_BOOT, FirstBootVal, NO_MEM_TRANSFER);
+			for(int i = 0; i < MAX_DRYER_PROGRAMS; i++)
+			{
+				writeDefaultsDryerProgram(i);
+			}
+			for(int i = 0; i < MAX_DRYER_PROGRAMS; i++)
+			{
+				saveDryerProgram(i);
+				HAL_Delay(500);
+			}
+			ResetSystem;
+		}
 	}
 
 }
@@ -1047,9 +1068,9 @@ void SmartDryer::changeProgram(uint8_t WichProgram)
 	bool ExitChangeProgram = false;
 	uint8_t WichSetting = 0;
 	const uint8_t MAX_SETTINGS = 5;
-	uint8_t StartHour = 0, StartMinute = 0;
-	uint8_t EndHour = 0, EndMinute = 0;
-	uint32_t TemperatureSetted = 30;
+	uint8_t StartHour = dryerPrograms[WichProgram].startTime.hour, StartMinute = dryerPrograms[WichProgram].startTime.minute;
+	uint8_t EndHour = dryerPrograms[WichProgram].endTime.hour, EndMinute = dryerPrograms[WichProgram].endTime.minute;
+	uint32_t TemperatureSetted = (uint32_t)dryerPrograms[WichProgram].tempSetted;
 	String Time = "", Date = "";
 	String Title = "", SubTitle = "", Number = "";
 	while(!ExitChangeProgram)
@@ -1219,7 +1240,7 @@ void SmartDryer::changeProgram(uint8_t WichProgram)
 					dryerPrograms[WichProgram].programSetted = true;
 					if(eepromEnabled)
 					{
-
+						saveDryerProgram(WichProgram);
 					}
 					ExitChangeProgram = true;
 				}

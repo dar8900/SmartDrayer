@@ -36,6 +36,7 @@ extern "C" {
 #include "stdint.h"
 #include "stdbool.h"
 
+#define ResetSystem		(HAL_NVIC_SystemReset())
 
 typedef enum
 {
