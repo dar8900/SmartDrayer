@@ -101,7 +101,7 @@ SmartDryer::SmartDryer()
 
 	statusParam = new DRYER_PARAMS();
 
-	chamberTemperature.readedTemperatureInt = 0;
+	chamberTemperature.readedValueInt = 0;
 }
 
 String SmartDryer::floatString(float Number, uint8_t NDecimal)
@@ -261,14 +261,17 @@ void SmartDryer::thermoRegulation(float WichTemp)
 {
 	uint32_t ReadedTemp = 0;
 	uint32_t TempTarget = (uint32_t)roundf(WichTemp * 10);
+	bool Reading = false;
 	if(statusParam->dryerOn)
 	{
 		if(getTempTimer->isFinished(true, 750))
 		{
-			chamberTemperature.readedTemperatureFL = tempSens->getTemperature();
-			ReadedTemp = (uint32_t)roundf(chamberTemperature.readedTemperatureFL * 10);
+			chamberTemperature.readedValueFL = tempSens->getTemperature();
+			chamberHumity.readedValueFL = tempSens->getHumidity();
+			ReadedTemp = (uint32_t)roundf(chamberTemperature.readedValueFL * 10);
+			Reading = true;
 		}
-		if(ReadedTemp != 0)
+		if(ReadedTemp != 0 && Reading)
 		{
 			if(ReadedTemp >= TempTarget - TOLLERANCE_DEGREES)
 			{
@@ -293,18 +296,26 @@ void SmartDryer::thermoRegulation(float WichTemp)
 					ledStatus = THERMO_ON_FAN_OFF;
 			}
 		}
-		else
-		{
-			statusParam->fanOn = false;
-			statusParam->thermoOn = false;
-	//		statusParam->dryerOn = false;
-			if(ledStatus != PROGRAM_INIT && ledStatus != PROGRAM_END && ledStatus != TEMP_REACHED)
-				ledStatus = THERMO_OFF_FAN_OFF;
-		}
+//		else
+//		{
+//			statusParam->fanOn = false;
+//			statusParam->thermoOn = false;
+//	//		statusParam->dryerOn = false;
+//			if(ledStatus != PROGRAM_INIT && ledStatus != PROGRAM_END && ledStatus != TEMP_REACHED)
+//				ledStatus = THERMO_OFF_FAN_OFF;
+//		}
 	}
 	else
 	{
-		getTempTimer->restart();
+		statusParam->fanOn = false;
+		statusParam->thermoOn = false;
+		if(ledStatus != PROGRAM_INIT && ledStatus != PROGRAM_END && ledStatus != TEMP_REACHED)
+			ledStatus = THERMO_OFF_FAN_OFF;
+		if(getTempTimer->isFinished(true, 750))
+		{
+			chamberTemperature.readedValueFL = tempSens->getTemperature();
+			chamberHumity.readedValueFL = tempSens->getHumidity();
+		}
 	}
 }
 
@@ -1072,11 +1083,12 @@ void SmartDryer::showInfo()
 	String Time = "", Date = "";
 	while(!ExitShowInfo)
 	{
-		String TempReaded = floatString(chamberTemperature.readedTemperatureFL, 1);
+		String TempReaded = floatString(chamberTemperature.readedValueFL, 1) + "C";
+		String HumidityReaded = floatString(chamberHumity.readedValueFL, 1) + "%";
 		display->clearFrameBuffer();
 		showTimeDate(Time, Date);
-		display->drawString("Temperatura camera", NHDST7565_LCD::CENTER_POS, 8, display->displayFonts[NHDST7565_LCD::W_5_H_8]);
-		display->drawString(TempReaded, NHDST7565_LCD::CENTER_POS, 20, display->displayFonts[NHDST7565_LCD::W_6_H_13_B]);
+		display->drawString("Condizioni camera", NHDST7565_LCD::CENTER_POS, 8, display->displayFonts[NHDST7565_LCD::W_5_H_8]);
+		display->drawString(TempReaded + "    " + HumidityReaded, NHDST7565_LCD::CENTER_POS, 20, display->displayFonts[NHDST7565_LCD::W_6_H_13_B]);
 		display->drawString("Versione SW", NHDST7565_LCD::CENTER_POS, 40, display->displayFonts[NHDST7565_LCD::W_5_H_8]);
 		display->drawString(String(SW_VERSION), NHDST7565_LCD::CENTER_POS, 50, display->displayFonts[NHDST7565_LCD::W_6_H_13_B]);
 		display->sendFrameBuffer();
@@ -1311,7 +1323,7 @@ void SmartDryer::startProgram(uint8_t WichProgram)
 		{
 			clock->getTimeDate(ActualTime);
 		}
-		TempRead = floatString(chamberTemperature.readedTemperatureFL, 1) + "C";
+		TempRead = floatString(chamberTemperature.readedValueFL, 1) + "C";
 		display->clearFrameBuffer();
 		showTimeDate(Time, Date);
 		display->drawString("Temp. letta", NHDST7565_LCD::LEFT_POS, 10, display->displayFonts[NHDST7565_LCD::W_3_H_6]);

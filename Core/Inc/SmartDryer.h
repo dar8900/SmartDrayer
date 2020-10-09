@@ -188,8 +188,8 @@ private:
 
 	typedef union
 	{
-		uint32_t readedTemperatureInt;
-		float 	readedTemperatureFL;
+		uint32_t readedValueInt;
+		float 	readedValueFL;
 	}SENSOR_TEMP;
 
 	NHDST7565_LCD *display;
@@ -220,6 +220,7 @@ private:
 
 	uint16_t ledStatus = THERMO_OFF_FAN_OFF;
 	SENSOR_TEMP chamberTemperature;
+	SENSOR_TEMP chamberHumity;
 
 	uint8_t *paramTemperatures;
 
