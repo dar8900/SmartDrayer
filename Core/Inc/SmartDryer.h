@@ -240,6 +240,7 @@ private:
 	bool eepromEnabled = true;
 	bool resetMemory = false;
 
+	String floatString(float Number, uint8_t NDecimal);
 	void blinkLed(uint8_t WichLed, uint16_t BlinkDelay);
 	void toggleLed(uint8_t WichLed);
 	void turnOnLed(uint8_t WichLed);

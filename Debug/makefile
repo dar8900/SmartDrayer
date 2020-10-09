@@ -63,7 +63,7 @@ all: SmartDrayer.elf secondary-outputs
 
 # Tool invocations
 SmartDrayer.elf: $(OBJS) $(USER_OBJS) C:\Users\deo\Documents\STM32IDE\SmartDryer\STM32F103C8TX_FLASH.ld
-	arm-none-eabi-g++ -o "SmartDrayer.elf" @"objects.list" $(USER_OBJS) $(LIBS) -mcpu=cortex-m3 -T"C:\Users\deo\Documents\STM32IDE\SmartDryer\STM32F103C8TX_FLASH.ld" -Wl,-Map="SmartDrayer.map" -Wl,--gc-sections -static --specs=nano.specs -mfloat-abi=soft -mthumb -Wl,--start-group -lc -lm -lstdc++ -lsupc++ -Wl,--end-group
+	arm-none-eabi-g++ -o "SmartDrayer.elf" @"objects.list" $(USER_OBJS) $(LIBS) -mcpu=cortex-m3 -T"C:\Users\deo\Documents\STM32IDE\SmartDryer\STM32F103C8TX_FLASH.ld" -Wl,-Map="SmartDrayer.map" -Wl,--gc-sections -static --specs=nano.specs -mfloat-abi=soft -mthumb -u _printf_float -Wl,--start-group -lc -lm -lstdc++ -lsupc++ -Wl,--end-group
 	@echo 'Finished building target: $@'
 	@echo ' '
 
