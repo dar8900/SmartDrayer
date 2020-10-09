@@ -8,6 +8,6 @@
 #ifndef INC_VERSION_INFO_H_
 #define INC_VERSION_INFO_H_
 
-#define SW_VERSION	"0.05"
+#define SW_VERSION	"0.06"
 
 #endif /* INC_VERSION_INFO_H_ */
