@@ -100,7 +100,7 @@
 "Core/Src/Eeprom.o"
 "Core/Src/Keyboard.o"
 "Core/Src/RELE.o"
-"Core/Src/SerialDebug.o"
+"Core/Src/SerialMessages.o"
 "Core/Src/SmartDryer.o"
 "Core/Src/adc.o"
 "Core/Src/gpio.o"

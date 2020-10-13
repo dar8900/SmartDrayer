@@ -15,7 +15,7 @@
 #include "Keyboard.h"
 #include "RELE.h"
 #include "thermoSensor.h"
-#include "SerialDebug.h"
+#include "SerialMessages.h"
 
 #include "Eeprom.h"
 
@@ -211,7 +211,7 @@ private:
 	ChronoTimer *testTimer;
 
 
-	SerialDebug *dbgDryer;
+	SerialMessage *externalCommand;
 
 	bool rtcRunning = false;
 
@@ -254,6 +254,8 @@ private:
 	void writeDefaultsDryerProgram(uint8_t WichProgram);
 	void saveDryerProgram(uint8_t WichProgram);
 	void loadDryerProgram(uint8_t WichProgram);
+
+	void serialComunicationCtrl();
 
 	void navMenu();
 	void changeTime();

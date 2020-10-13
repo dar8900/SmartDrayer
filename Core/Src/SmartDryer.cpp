@@ -87,7 +87,7 @@ SmartDryer::SmartDryer()
 
 	testTimer = new ChronoTimer(ChronoTimer::MILLIS);
 
-	dbgDryer = new SerialDebug();
+	externalCommand = new SerialMessage();
 
 	clock = new DS1307_RTC();
 
@@ -426,6 +426,78 @@ void SmartDryer::loadDryerProgram(uint8_t WichProgram)
 	dryerPrograms[WichProgram].tempSetted = (float)TempSaved;
 }
 
+void SmartDryer::serialComunicationCtrl()
+{
+	int16_t Command = 0;
+	Command = externalCommand->receiveSerialCommand();
+	if(Command != SerialMessage::NO_COMMANDS && Command != SerialMessage::INVALID_MESSAGE)
+	{
+		switch(Command)
+		{
+			case SerialMessage::SET_TEMP:
+				break;
+			case SerialMessage::SET_FAN:
+				break;
+			case SerialMessage::SET_START_MINUTE_PROG_1:
+				break;
+			case SerialMessage::SET_START_HOUR_PROG_1:
+				break;
+			case SerialMessage::SET_END_MINUTE_PROG_1:
+				break;
+			case SerialMessage::SET_END_HOUR_PROG_1:
+				break;
+			case SerialMessage::SET_TEMP_PROG_1:
+				break;
+			case SerialMessage::SET_START_MINUTE_PROG_2:
+				break;
+			case SerialMessage::SET_START_HOUR_PROG_2:
+				break;
+			case SerialMessage::SET_END_MINUTE_PROG_2:
+				break;
+			case SerialMessage::SET_END_HOUR_PROG_2:
+				break;
+			case SerialMessage::SET_TEMP_PROG_2:
+				break;
+			case SerialMessage::SET_START_MINUTE_PROG_3:
+				break;
+			case SerialMessage::SET_START_HOUR_PROG_3:
+				break;
+			case SerialMessage::SET_END_MINUTE_PROG_3:
+				break;
+			case SerialMessage::SET_END_HOUR_PROG_3:
+				break;
+			case SerialMessage::SET_TEMP_PROG_3:
+				break;
+
+
+			case SerialMessage::DRYER_ON:
+				break;
+			case SerialMessage::DRYER_OFF:
+				break;
+			case SerialMessage::START_PROG_1:
+				break;
+			case SerialMessage::STOP_PROG_1:
+				break;
+			case SerialMessage::START_PROG_2:
+				break;
+			case SerialMessage::STOP_PROG_2:
+				break;
+			case SerialMessage::START_PROG_3:
+				break;
+			case SerialMessage::STOP_PROG_3:
+				break;
+
+			default:
+				break;
+		}
+	}
+	else if(Command == SerialMessage::INVALID_MESSAGE)
+	{
+		externalCommand->sendMessage("Comando invalido, ricevuto: " + externalCommand->getCommandReceived());
+	}
+}
+
+
 
 void SmartDryer::navMenu()
 {
@@ -661,7 +733,6 @@ void SmartDryer::navMenu()
 	}
 
 }
-
 
 
 void SmartDryer::test()
