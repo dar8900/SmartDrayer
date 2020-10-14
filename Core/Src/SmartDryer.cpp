@@ -432,11 +432,10 @@ void SmartDryer::serialComunicationCtrl()
 	Command = externalCommand->receiveSerialCommand();
 	if(Command != SerialMessage::NO_COMMANDS && Command != SerialMessage::INVALID_MESSAGE)
 	{
+		statusParam->serialCommandReceived = true;
 		switch(Command)
 		{
 			case SerialMessage::SET_TEMP:
-				break;
-			case SerialMessage::SET_FAN:
 				break;
 			case SerialMessage::SET_START_MINUTE_PROG_1:
 				break;
@@ -471,8 +470,16 @@ void SmartDryer::serialComunicationCtrl()
 
 
 			case SerialMessage::DRYER_ON:
+				statusParam->dryerOn = true;
 				break;
 			case SerialMessage::DRYER_OFF:
+				statusParam->dryerOn = false;
+				break;
+			case SerialMessage::FAN_ON:
+				statusParam->fanOn = true;
+				break;
+			case SerialMessage::FAN_OFF:
+				statusParam->fanOn = false;
 				break;
 			case SerialMessage::START_PROG_1:
 				break;
@@ -494,6 +501,11 @@ void SmartDryer::serialComunicationCtrl()
 	else if(Command == SerialMessage::INVALID_MESSAGE)
 	{
 		externalCommand->sendMessage("Comando invalido, ricevuto: " + externalCommand->getCommandReceived());
+		statusParam->serialCommandReceived = true;
+	}
+	else
+	{
+		statusParam->serialCommandReceived = false;
 	}
 }
 

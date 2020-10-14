@@ -157,7 +157,8 @@ private:
 		bool thermoOn = false;
 		bool fanOn = false;
 		float temperatureSetted = 30.0;
-		bool programStarted;
+		bool programStarted = false;
+		bool serialCommandReceived = false;
 	}DRYER_PARAMS;
 
 	typedef struct
