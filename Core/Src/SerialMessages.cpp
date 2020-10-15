@@ -190,5 +190,7 @@ uint32_t SerialMessage::getValueSetted()
 
 std::string SerialMessage::getCommandReceived()
 {
-	return commandReceived;
+	String RetCommand = commandReceived;
+	commandReceived = "";
+	return RetCommand;
 }

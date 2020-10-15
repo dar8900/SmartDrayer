@@ -84,6 +84,7 @@ SmartDryer::SmartDryer()
 	takeTimeTimer = new ChronoTimer(ChronoTimer::MILLIS);
 	showHelpMessageTimer = new ChronoTimer(ChronoTimer::SECONDS);
 	programStartedTimer = new ChronoTimer(ChronoTimer::MILLIS);
+	blinkSerialIconTimer = new ChronoTimer(ChronoTimer::MILLIS);
 
 	testTimer = new ChronoTimer(ChronoTimer::MILLIS);
 
@@ -426,9 +427,66 @@ void SmartDryer::loadDryerProgram(uint8_t WichProgram)
 	dryerPrograms[WichProgram].tempSetted = (float)TempSaved;
 }
 
+
+void SmartDryer::checkSettedProgramTime(uint8_t WichProgram, PROGRAM_STRUCURE ProgramToSet)
+{
+	clock->getTimeDate(dryerPrograms[WichProgram].startTime);
+	HAL_Delay(250);
+	clock->getTimeDate(dryerPrograms[WichProgram].endTime);
+	dryerPrograms[WichProgram].startTime.minute = ProgramToSet.startTime.minute;
+	dryerPrograms[WichProgram].endTime.minute = ProgramToSet.endTime.minute;
+	dryerPrograms[WichProgram].startTime.hour = ProgramToSet.startTime.hour;
+	dryerPrograms[WichProgram].endTime.hour = ProgramToSet.endTime.hour;
+	if(ProgramToSet.startTime.hour > ProgramToSet.endTime.hour)
+	{
+		if(dryerPrograms[WichProgram].endTime.day + 1 < daysInMonth[dryerPrograms[WichProgram].endTime.month - 1])
+			dryerPrograms[WichProgram].endTime.day += 1;
+		else
+		{
+			dryerPrograms[WichProgram].endTime.day = 1;
+			dryerPrograms[WichProgram].endTime.month += 1;
+		}
+	}
+	else if(ProgramToSet.endTime.hour == ProgramToSet.startTime.hour)
+	{
+		if(ProgramToSet.startTime.minute > ProgramToSet.endTime.minute)
+		{
+			if(ProgramToSet.endTime.minute + (ProgramToSet.startTime.minute  - ProgramToSet.endTime.minute) < 50)
+			{
+				dryerPrograms[WichProgram].endTime.minute = ProgramToSet.endTime.minute + (ProgramToSet.startTime.minute  - ProgramToSet.endTime.minute);
+			}
+			else
+			{
+				dryerPrograms[WichProgram].endTime.minute = ProgramToSet.endTime.minute;
+				dryerPrograms[WichProgram].endTime.hour = ProgramToSet.startTime.hour + 1;
+				if(ProgramToSet.startTime.hour > ProgramToSet.endTime.hour)
+				{
+					if(dryerPrograms[WichProgram].endTime.day + 1 < daysInMonth[dryerPrograms[WichProgram].endTime.month - 1])
+						dryerPrograms[WichProgram].endTime.day += 1;
+					else
+					{
+						dryerPrograms[WichProgram].endTime.day = 1;
+						dryerPrograms[WichProgram].endTime.month += 1;
+					}
+				}
+			}
+		}
+	}
+//	dryerPrograms[WichProgram].programSetted = true;
+//	if(eepromEnabled)
+//	{
+//		saveDryerProgram(WichProgram);
+//	}
+}
+
 void SmartDryer::serialComunicationCtrl()
 {
 	int16_t Command = 0;
+	bool TempFound = false;
+	bool SetProgramTime = false;
+	float OldTemp = 0.0;
+	uint8_t WichProgram = 0;
+	PROGRAM_STRUCURE ProgramToSet;
 	Command = externalCommand->receiveSerialCommand();
 	if(Command != SerialMessage::NO_COMMANDS && Command != SerialMessage::INVALID_MESSAGE)
 	{
@@ -436,36 +494,140 @@ void SmartDryer::serialComunicationCtrl()
 		switch(Command)
 		{
 			case SerialMessage::SET_TEMP:
+				OldTemp = statusParam->temperatureSetted;
+				statusParam->temperatureSetted = externalCommand->getValueSetted();
+				for(int i = 0; i < NTemps; i++)
+				{
+					if((uint8_t)statusParam->temperatureSetted == paramTemperatures[i])
+					{
+						TempFound = true;
+						break;
+					}
+				}
+				if(!TempFound)
+				{
+					statusParam->temperatureSetted = OldTemp;
+				}
 				break;
 			case SerialMessage::SET_START_MINUTE_PROG_1:
+				clock->getTimeDate(ProgramToSet.startTime);
+				ProgramToSet.startTime.minute = externalCommand->getValueSetted();
+				WichProgram = DRYER_PROGRAM_1;
+				SetProgramTime = true;
 				break;
 			case SerialMessage::SET_START_HOUR_PROG_1:
+				clock->getTimeDate(ProgramToSet.startTime);
+				ProgramToSet.startTime.hour = externalCommand->getValueSetted();
+				WichProgram = DRYER_PROGRAM_1;
+				SetProgramTime = true;
 				break;
 			case SerialMessage::SET_END_MINUTE_PROG_1:
+				clock->getTimeDate(ProgramToSet.endTime);
+				ProgramToSet.endTime.minute = externalCommand->getValueSetted();
+				WichProgram = DRYER_PROGRAM_1;
+				SetProgramTime = true;
 				break;
 			case SerialMessage::SET_END_HOUR_PROG_1:
+				clock->getTimeDate(ProgramToSet.endTime);
+				ProgramToSet.endTime.hour = externalCommand->getValueSetted();
+				WichProgram = DRYER_PROGRAM_1;
+				SetProgramTime = true;
 				break;
 			case SerialMessage::SET_TEMP_PROG_1:
+				OldTemp = dryerPrograms[DRYER_PROGRAM_1].tempSetted;
+				statusParam->temperatureSetted = externalCommand->getValueSetted();
+				for(int i = 0; i < NTemps; i++)
+				{
+					if((uint8_t)statusParam->temperatureSetted == paramTemperatures[i])
+					{
+						TempFound = true;
+						break;
+					}
+				}
+				if(!TempFound)
+				{
+					dryerPrograms[DRYER_PROGRAM_1].tempSetted = OldTemp;
+				}
 				break;
 			case SerialMessage::SET_START_MINUTE_PROG_2:
+				clock->getTimeDate(ProgramToSet.startTime);
+				ProgramToSet.startTime.minute = externalCommand->getValueSetted();
+				WichProgram = DRYER_PROGRAM_2;
+				SetProgramTime = true;
 				break;
 			case SerialMessage::SET_START_HOUR_PROG_2:
+				clock->getTimeDate(ProgramToSet.startTime);
+				ProgramToSet.startTime.hour = externalCommand->getValueSetted();
+				WichProgram = DRYER_PROGRAM_2;
+				SetProgramTime = true;
 				break;
 			case SerialMessage::SET_END_MINUTE_PROG_2:
+				clock->getTimeDate(ProgramToSet.endTime);
+				ProgramToSet.endTime.minute = externalCommand->getValueSetted();
+				WichProgram = DRYER_PROGRAM_2;
+				SetProgramTime = true;
 				break;
 			case SerialMessage::SET_END_HOUR_PROG_2:
+				clock->getTimeDate(ProgramToSet.endTime);
+				ProgramToSet.endTime.hour = externalCommand->getValueSetted();
+				WichProgram = DRYER_PROGRAM_2;
+				SetProgramTime = true;
 				break;
 			case SerialMessage::SET_TEMP_PROG_2:
+				OldTemp = dryerPrograms[DRYER_PROGRAM_2].tempSetted;
+				statusParam->temperatureSetted = externalCommand->getValueSetted();
+				for(int i = 0; i < NTemps; i++)
+				{
+					if((uint8_t)statusParam->temperatureSetted == paramTemperatures[i])
+					{
+						TempFound = true;
+						break;
+					}
+				}
+				if(!TempFound)
+				{
+					dryerPrograms[DRYER_PROGRAM_2].tempSetted = OldTemp;
+				}
 				break;
 			case SerialMessage::SET_START_MINUTE_PROG_3:
+				clock->getTimeDate(ProgramToSet.startTime);
+				ProgramToSet.startTime.minute = externalCommand->getValueSetted();
+				WichProgram = DRYER_PROGRAM_3;
+				SetProgramTime = true;
 				break;
 			case SerialMessage::SET_START_HOUR_PROG_3:
+				clock->getTimeDate(ProgramToSet.startTime);
+				ProgramToSet.startTime.hour = externalCommand->getValueSetted();
+				WichProgram = DRYER_PROGRAM_3;
+				SetProgramTime = true;
 				break;
 			case SerialMessage::SET_END_MINUTE_PROG_3:
+				clock->getTimeDate(ProgramToSet.endTime);
+				ProgramToSet.endTime.minute = externalCommand->getValueSetted();
+				WichProgram = DRYER_PROGRAM_3;
+				SetProgramTime = true;
 				break;
 			case SerialMessage::SET_END_HOUR_PROG_3:
+				clock->getTimeDate(ProgramToSet.endTime);
+				ProgramToSet.endTime.hour = externalCommand->getValueSetted();
+				WichProgram = DRYER_PROGRAM_3;
+				SetProgramTime = true;
 				break;
 			case SerialMessage::SET_TEMP_PROG_3:
+				OldTemp = dryerPrograms[DRYER_PROGRAM_3].tempSetted;
+				statusParam->temperatureSetted = externalCommand->getValueSetted();
+				for(int i = 0; i < NTemps; i++)
+				{
+					if((uint8_t)statusParam->temperatureSetted == paramTemperatures[i])
+					{
+						TempFound = true;
+						break;
+					}
+				}
+				if(!TempFound)
+				{
+					dryerPrograms[DRYER_PROGRAM_3].tempSetted = OldTemp;
+				}
 				break;
 
 
@@ -506,6 +668,15 @@ void SmartDryer::serialComunicationCtrl()
 	else
 	{
 		statusParam->serialCommandReceived = false;
+	}
+	if(SetProgramTime)
+	{
+		checkSettedProgramTime(WichProgram, ProgramToSet);
+		dryerPrograms[WichProgram].programSetted = true;
+		if(eepromEnabled)
+		{
+			saveDryerProgram(WichProgram);
+		}
 	}
 }
 
@@ -759,7 +930,7 @@ void SmartDryer::setup()
 	clock->setup();
 	rtcRunning = clock->isRunning();
 
-	const uint8_t NTemps =  sizeof(Temps)/sizeof(Temps[0]);
+
 	paramTemperatures = new uint8_t[NTemps];
 	for(int i = 0; i < NTemps; i++)
 	{
@@ -1194,8 +1365,9 @@ void SmartDryer::changeProgram(uint8_t WichProgram)
 	bool ExitChangeProgram = false;
 	uint8_t WichSetting = 0;
 	const uint8_t MAX_SETTINGS = 5;
-	uint8_t StartHour = dryerPrograms[WichProgram].startTime.hour, StartMinute = dryerPrograms[WichProgram].startTime.minute;
-	uint8_t EndHour = dryerPrograms[WichProgram].endTime.hour, EndMinute = dryerPrograms[WichProgram].endTime.minute;
+	PROGRAM_STRUCURE NewProgram = dryerPrograms[WichProgram];
+//	uint8_t StartHour = dryerPrograms[WichProgram].startTime.hour, StartMinute = dryerPrograms[WichProgram].startTime.minute;
+//	uint8_t EndHour = dryerPrograms[WichProgram].endTime.hour, EndMinute = dryerPrograms[WichProgram].endTime.minute;
 	uint32_t TemperatureSetted = (uint32_t)dryerPrograms[WichProgram].tempSetted;
 	String Time = "", Date = "";
 	String Title = "", SubTitle = "", Number = "";
@@ -1206,19 +1378,19 @@ void SmartDryer::changeProgram(uint8_t WichProgram)
 		{
 			case 0:
 				SubTitle = "Ora di inizio";
-				Number = std::to_string(StartHour);
+				Number = std::to_string(NewProgram.startTime.hour);
 				break;
 			case 1:
 				SubTitle = "Minuto di inizio";
-				Number = std::to_string(StartMinute);
+				Number = std::to_string(NewProgram.startTime.minute);
 				break;
 			case 2:
 				SubTitle = "Ora di fine";
-				Number = std::to_string(EndHour);
+				Number = std::to_string(NewProgram.endTime.hour);
 				break;
 			case 3:
 				SubTitle = "Minuto di fine";
-				Number = std::to_string(EndMinute);
+				Number = std::to_string(NewProgram.endTime.minute);
 				break;
 			case 4:
 				SubTitle = "Temperatura";
@@ -1244,28 +1416,28 @@ void SmartDryer::changeProgram(uint8_t WichProgram)
 				switch(WichSetting)
 				{
 					case 0:
-						if(StartHour > 0)
-							StartHour--;
+						if(NewProgram.startTime.hour > 0)
+							NewProgram.startTime.hour--;
 						else
-							StartHour = 23;
+							NewProgram.startTime.hour = 23;
 						break;
 					case 1:
-						if(StartMinute > 0)
-							StartMinute -= 10;
+						if(NewProgram.startTime.minute > 0)
+							NewProgram.startTime.minute -= 10;
 						else
-							StartMinute = 50;
+							NewProgram.startTime.minute = 50;
 						break;
 					case 2:
-						if(EndHour > 0)
-							EndHour--;
+						if(NewProgram.endTime.hour > 0)
+							NewProgram.endTime.hour--;
 						else
-							EndHour = 23;
+							NewProgram.endTime.hour = 23;
 						break;
 					case 3:
-						if(EndMinute > 0)
-							EndMinute -= 10;
+						if(NewProgram.endTime.minute > 0)
+							NewProgram.endTime.minute -= 10;
 						else
-							EndMinute = 50;
+							NewProgram.endTime.minute = 50;
 						break;
 					case 4:
 						if(TemperatureSetted > 30)
@@ -1282,28 +1454,28 @@ void SmartDryer::changeProgram(uint8_t WichProgram)
 				switch(WichSetting)
 				{
 					case 0:
-						if(StartHour < 23)
-							StartHour++;
+						if(NewProgram.startTime.hour < 23)
+							NewProgram.startTime.hour++;
 						else
-							StartHour = 0;
+							NewProgram.startTime.hour = 0;
 						break;
 					case 1:
-						if(StartMinute < 50)
-							StartMinute += 10;
+						if(NewProgram.startTime.minute < 50)
+							NewProgram.startTime.minute += 10;
 						else
-							StartMinute = 0;
+							NewProgram.startTime.minute = 0;
 						break;
 					case 2:
-						if(EndHour < 23)
-							EndHour++;
+						if(NewProgram.endTime.hour < 23)
+							NewProgram.endTime.hour++;
 						else
-							EndHour = 0;
+							NewProgram.endTime.hour = 0;
 						break;
 					case 3:
-						if(EndMinute < 50)
-							EndMinute += 10;
+						if(NewProgram.endTime.minute < 50)
+							NewProgram.endTime.minute += 10;
 						else
-							EndMinute = 0;
+							NewProgram.endTime.minute = 0;
 						break;
 					case 4:
 						if(TemperatureSetted < 90)
@@ -1320,48 +1492,50 @@ void SmartDryer::changeProgram(uint8_t WichProgram)
 					WichSetting++;
 				else
 				{
-					clock->getTimeDate(dryerPrograms[WichProgram].startTime);
-					clock->getTimeDate(dryerPrograms[WichProgram].endTime);
+					checkSettedProgramTime(WichProgram, NewProgram);
+//					clock->getTimeDate(dryerPrograms[WichProgram].startTime);
+//					HAL_Delay(250);
+//					clock->getTimeDate(dryerPrograms[WichProgram].endTime);
 					dryerPrograms[WichProgram].tempSetted = (float)TemperatureSetted;
-					dryerPrograms[WichProgram].startTime.minute = StartMinute;
-					dryerPrograms[WichProgram].endTime.minute = EndMinute;
-					dryerPrograms[WichProgram].startTime.hour = StartHour;
-					dryerPrograms[WichProgram].endTime.hour = EndHour;
-					if(StartHour > EndHour)
-					{
-						if(dryerPrograms[WichProgram].endTime.day + 1 < daysInMonth[dryerPrograms[WichProgram].endTime.month - 1])
-							dryerPrograms[WichProgram].endTime.day += 1;
-						else
-						{
-							dryerPrograms[WichProgram].endTime.day = 1;
-							dryerPrograms[WichProgram].endTime.month += 1;
-						}
-					}
-					else if(EndHour == StartHour)
-					{
-						if(StartMinute > EndMinute)
-						{
-							if(EndMinute + (StartMinute  - EndMinute) < 50)
-							{
-								dryerPrograms[WichProgram].endTime.minute = EndMinute + (StartMinute  - EndMinute);
-							}
-							else
-							{
-								dryerPrograms[WichProgram].endTime.minute = EndMinute;
-								dryerPrograms[WichProgram].endTime.hour = EndHour + 1;
-								if(StartHour > EndHour)
-								{
-									if(dryerPrograms[WichProgram].endTime.day + 1 < daysInMonth[dryerPrograms[WichProgram].endTime.month - 1])
-										dryerPrograms[WichProgram].endTime.day += 1;
-									else
-									{
-										dryerPrograms[WichProgram].endTime.day = 1;
-										dryerPrograms[WichProgram].endTime.month += 1;
-									}
-								}
-							}
-						}
-					}
+//					dryerPrograms[WichProgram].startTime.minute = StartMinute;
+//					dryerPrograms[WichProgram].endTime.minute = EndMinute;
+//					dryerPrograms[WichProgram].startTime.hour = StartHour;
+//					dryerPrograms[WichProgram].endTime.hour = EndHour;
+//					if(StartHour > EndHour)
+//					{
+//						if(dryerPrograms[WichProgram].endTime.day + 1 < daysInMonth[dryerPrograms[WichProgram].endTime.month - 1])
+//							dryerPrograms[WichProgram].endTime.day += 1;
+//						else
+//						{
+//							dryerPrograms[WichProgram].endTime.day = 1;
+//							dryerPrograms[WichProgram].endTime.month += 1;
+//						}
+//					}
+//					else if(EndHour == StartHour)
+//					{
+//						if(StartMinute > EndMinute)
+//						{
+//							if(EndMinute + (StartMinute  - EndMinute) < 50)
+//							{
+//								dryerPrograms[WichProgram].endTime.minute = EndMinute + (StartMinute  - EndMinute);
+//							}
+//							else
+//							{
+//								dryerPrograms[WichProgram].endTime.minute = EndMinute;
+//								dryerPrograms[WichProgram].endTime.hour = EndHour + 1;
+//								if(StartHour > EndHour)
+//								{
+//									if(dryerPrograms[WichProgram].endTime.day + 1 < daysInMonth[dryerPrograms[WichProgram].endTime.month - 1])
+//										dryerPrograms[WichProgram].endTime.day += 1;
+//									else
+//									{
+//										dryerPrograms[WichProgram].endTime.day = 1;
+//										dryerPrograms[WichProgram].endTime.month += 1;
+//									}
+//								}
+//							}
+//						}
+//					}
 					dryerPrograms[WichProgram].programSetted = true;
 					if(eepromEnabled)
 					{

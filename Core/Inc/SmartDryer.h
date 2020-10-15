@@ -208,6 +208,7 @@ private:
 	ChronoTimer *takeTimeTimer;
 	ChronoTimer *showHelpMessageTimer;
 	ChronoTimer *programStartedTimer;
+	ChronoTimer *blinkSerialIconTimer;
 
 	ChronoTimer *testTimer;
 
@@ -223,6 +224,7 @@ private:
 	SENSOR_TEMP chamberTemperature;
 	SENSOR_TEMP chamberHumity;
 
+	static const uint8_t NTemps =  13;
 	uint8_t *paramTemperatures;
 
 
@@ -255,6 +257,8 @@ private:
 	void writeDefaultsDryerProgram(uint8_t WichProgram);
 	void saveDryerProgram(uint8_t WichProgram);
 	void loadDryerProgram(uint8_t WichProgram);
+
+	void checkSettedProgramTime(uint8_t WichProgram, PROGRAM_STRUCURE ProgramToSet);
 
 	void serialComunicationCtrl();
 
