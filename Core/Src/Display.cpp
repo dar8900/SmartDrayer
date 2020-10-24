@@ -327,6 +327,10 @@ void NHDST7565_LCD::clearScreen()
 	sendFrameBuffer();
 }
 
+void NHDST7565_LCD::drawBox(uint8_t x, uint8_t y, uint8_t w, uint8_t h)
+{
+	u8g2_DrawBox(&U8G2_Display, x, y, w, h);
+}
 
 void NHDST7565_LCD::drawBox(uint8_t x, uint8_t y, uint8_t w, uint8_t h, uint8_t Color)
 {

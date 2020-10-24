@@ -116,6 +116,7 @@ public:
 	void clearFrameBuffer();
 	void sendFrameBuffer();
 	void clearScreen();
+	void drawBox(uint8_t x, uint8_t y, uint8_t w, uint8_t h);
 	void drawBox(uint8_t x, uint8_t y, uint8_t w, uint8_t h, uint8_t Color);
 	void drawCircle(uint8_t x, uint8_t y, uint8_t r, bool Empty, uint8_t Color);
 	void drawString(String Text, uint8_t XPos, uint8_t YPos, const uint8_t *u8g2Font);

@@ -29,7 +29,7 @@ private:
 		START_STOP_COMMAND,
 		MAX_COMMAND_TYPE
 	};
-	static const uint8_t SEARCH_DEVICE_TIMEOUT_MS = 100;
+	static const uint8_t SEARCH_DEVICE_TIMEOUT_MS = 250;
 	static const uint8_t MAX_REQ_LEN = 2;
 	std::string serialBuffer = "";
 	std::string commandReceived = "";

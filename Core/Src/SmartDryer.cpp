@@ -700,6 +700,10 @@ void SmartDryer::navMenu()
 		ActualMenu->maxMenuLines = display->drawMenuList(ActualMenu->XPos, ActualMenu->YPos, ActualMenu->topItemPos,
 				ActualMenu->itemSelected, ActualMenu->menuVoices, ActualMenu->maxMenuItems,
 				ActualMenu->withChebox, ActualMenu->menuSelected, ActualMenu->itemsChecked, ActualMenu->menuFont);
+		if(statusParam->serialDeviceAttached)
+		{
+			display->drawBox(50, 0, 6, 6);
+		}
 //		if(showHelpMessageTimer->isFinished(false, 3))
 //		{
 //			if(MenuSel == MAIN_MENU)

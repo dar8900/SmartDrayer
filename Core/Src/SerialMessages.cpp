@@ -151,7 +151,7 @@ bool SerialMessage::isDeviceConnected()
 	sendMessage("$?$", false);
 	while(Timeout > 0)
 	{
-		HAL_UART_Receive(&huart1, rxBuffer, RECEIVE_BUFFER_LEN, 10);
+		HAL_UART_Receive(&huart1, rxBuffer, RECEIVE_BUFFER_LEN, 200);
 		if(rxBuffer[0] != 0x00)
 		{
 			GetSomething = true;
