@@ -85,6 +85,7 @@ SmartDryer::SmartDryer()
 	showHelpMessageTimer = new ChronoTimer(ChronoTimer::SECONDS);
 	programStartedTimer = new ChronoTimer(ChronoTimer::MILLIS);
 	blinkSerialIconTimer = new ChronoTimer(ChronoTimer::MILLIS);
+	checkSerialDeviceTimer = new ChronoTimer(ChronoTimer::MILLIS);
 
 	testTimer = new ChronoTimer(ChronoTimer::MILLIS);
 
@@ -689,6 +690,7 @@ void SmartDryer::navMenu()
 	uint8_t MenuSel = MAIN_MENU;
 	showHelpMessageTimer->restart();
 	String Time = "", Date = "";
+	checkSerialDeviceTimer->restart();
 	while(!ExitNavMenu)
 	{
 		uint8_t WichKey = DryerKey::NO_KEY;
@@ -913,6 +915,14 @@ void SmartDryer::navMenu()
 			showHelpMessageTimer->restart();
 		}
 		peripheralsControl();
+		if(checkSerialDeviceTimer->isFinished(true, 500))
+		{
+			statusParam->serialDeviceAttached = externalCommand->isDeviceConnected();
+		}
+		if(statusParam->serialDeviceAttached)
+		{
+			serialComunicationCtrl();
+		}
 	}
 
 }
@@ -1127,6 +1137,7 @@ void SmartDryer::changeTime()
 	bool IsHours = true;
 	String Title = "", Number = "";
 	String Time = "", Date = "";
+	checkSerialDeviceTimer->restart();
 	while(!ExitChangeTime)
 	{
 		display->clearFrameBuffer();
@@ -1213,6 +1224,14 @@ void SmartDryer::changeTime()
 				break;
 		}
 		peripheralsControl();
+		if(checkSerialDeviceTimer->isFinished(true, 500))
+		{
+			statusParam->serialDeviceAttached = externalCommand->isDeviceConnected();
+		}
+		if(statusParam->serialDeviceAttached)
+		{
+			serialComunicationCtrl();
+		}
 	}
 }
 
@@ -1223,6 +1242,7 @@ void SmartDryer::changeDate()
 	uint8_t WichDateVar = 0;
 	String Title = "", Number = "";
 	String Time = "", Date = "";
+	checkSerialDeviceTimer->restart();
 	while(!ExitChangeDate)
 	{
 		display->clearFrameBuffer();
@@ -1328,6 +1348,14 @@ void SmartDryer::changeDate()
 				break;
 		}
 		peripheralsControl();
+		if(checkSerialDeviceTimer->isFinished(true, 500))
+		{
+			statusParam->serialDeviceAttached = externalCommand->isDeviceConnected();
+		}
+		if(statusParam->serialDeviceAttached)
+		{
+			serialComunicationCtrl();
+		}
 	}
 }
 
@@ -1335,6 +1363,7 @@ void SmartDryer::showInfo()
 {
 	bool ExitShowInfo = false;
 	String Time = "", Date = "";
+	checkSerialDeviceTimer->restart();
 	while(!ExitShowInfo)
 	{
 		String TempReaded = floatString(chamberTemperature.readedValueFL, 1) + "C";
@@ -1357,6 +1386,14 @@ void SmartDryer::showInfo()
 				break;
 		}
 		peripheralsControl();
+		if(checkSerialDeviceTimer->isFinished(true, 500))
+		{
+			statusParam->serialDeviceAttached = externalCommand->isDeviceConnected();
+		}
+		if(statusParam->serialDeviceAttached)
+		{
+			serialComunicationCtrl();
+		}
 	}
 }
 
@@ -1371,6 +1408,7 @@ void SmartDryer::changeProgram(uint8_t WichProgram)
 	uint32_t TemperatureSetted = (uint32_t)dryerPrograms[WichProgram].tempSetted;
 	String Time = "", Date = "";
 	String Title = "", SubTitle = "", Number = "";
+	checkSerialDeviceTimer->restart();
 	while(!ExitChangeProgram)
 	{
 		Title = "Programma " + std::to_string(WichProgram + 1);
@@ -1558,6 +1596,14 @@ void SmartDryer::changeProgram(uint8_t WichProgram)
 				break;
 		}
 		peripheralsControl();
+		if(checkSerialDeviceTimer->isFinished(true, 500))
+		{
+			statusParam->serialDeviceAttached = externalCommand->isDeviceConnected();
+		}
+		if(statusParam->serialDeviceAttached)
+		{
+			serialComunicationCtrl();
+		}
 	}
 }
 
@@ -1569,6 +1615,7 @@ void SmartDryer::startProgram(uint8_t WichProgram)
 	String StartHour = "", StartMinute = "", EndHour = "", EndMinute = "";
 	String TempRead = "0C", TempSet = "0";
 	DS1307_RTC::TIME_DATE_T ActualTime;
+	checkSerialDeviceTimer->restart();
 	StartHour = dryerPrograms[WichProgram].startTime.hour > 9 ? std::to_string(dryerPrograms[WichProgram].startTime.hour) : "0" + std::to_string(dryerPrograms[WichProgram].startTime.hour);
 	StartMinute = dryerPrograms[WichProgram].startTime.minute > 9 ? std::to_string(dryerPrograms[WichProgram].startTime.minute) : "0" + std::to_string(dryerPrograms[WichProgram].startTime.minute);
 	EndHour = dryerPrograms[WichProgram].endTime.hour > 9 ? std::to_string(dryerPrograms[WichProgram].endTime.hour) : "0" + std::to_string(dryerPrograms[WichProgram].endTime.hour);
@@ -1671,6 +1718,14 @@ void SmartDryer::startProgram(uint8_t WichProgram)
 			}
 		}
 		peripheralsControl();
+		if(checkSerialDeviceTimer->isFinished(true, 500))
+		{
+			statusParam->serialDeviceAttached = externalCommand->isDeviceConnected();
+		}
+		if(statusParam->serialDeviceAttached)
+		{
+			serialComunicationCtrl();
+		}
 	}
 }
 

@@ -158,6 +158,7 @@ private:
 		bool fanOn = false;
 		float temperatureSetted = 30.0;
 		bool programStarted = false;
+		bool serialDeviceAttached = false;
 		bool serialCommandReceived = false;
 	}DRYER_PARAMS;
 
@@ -209,6 +210,7 @@ private:
 	ChronoTimer *showHelpMessageTimer;
 	ChronoTimer *programStartedTimer;
 	ChronoTimer *blinkSerialIconTimer;
+	ChronoTimer *checkSerialDeviceTimer;
 
 	ChronoTimer *testTimer;
 

@@ -29,6 +29,7 @@ private:
 		START_STOP_COMMAND,
 		MAX_COMMAND_TYPE
 	};
+	static const uint8_t SEARCH_DEVICE_TIMEOUT_MS = 100;
 	static const uint8_t MAX_REQ_LEN = 2;
 	std::string serialBuffer = "";
 	std::string commandReceived = "";
@@ -38,6 +39,7 @@ private:
 	uint32_t valueSetted = UINT32_MAX;
 	void writeSerial();
 	bool readSerialPolling();
+	void clearRxBuff();
 	int16_t getStartStopReq(char *Req);
 	int16_t getSetReq(char *Req, std::string Command);
 
@@ -46,8 +48,9 @@ public:
 	{
 		INVALID_MESSAGE = -2,
 		NO_COMMANDS = -1,
+		SERIAL_DEVICE_ATTACHED,
 
-		SET_COMMAND_START = 0,
+		SET_COMMAND_START = 10,
 		SET_TEMP,
 		SET_START_MINUTE_PROG_1,
 		SET_START_HOUR_PROG_1,
@@ -66,7 +69,7 @@ public:
 		SET_TEMP_PROG_3,
 		MAX_SET_COMMANDS,
 
-		START_STOP_COMMANDS_START = 100,
+		START_STOP_COMMANDS_START = 200,
 		DRYER_ON,
 		DRYER_OFF,
 		FAN_ON,
@@ -81,6 +84,11 @@ public:
 	};
 	SerialMessage();
 	void sendMessage(std::string DbgStr);
+	// La richiesta per capire se il device è collegato è nella forma $?$
+	// Se la risposta è nella forma $!$ allora il device è collegato
+	bool isDeviceConnected();
+	// Trama del messaggio: ${numero comando}$ richiesta di start/stop
+	// Trama del messaggio: ${numero comando}={valore}$ richiesta di settaggio
 	int16_t receiveSerialCommand();
 	uint32_t getValueSetted();
 	std::string getCommandReceived();

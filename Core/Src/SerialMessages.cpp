@@ -28,18 +28,23 @@ SerialMessage::SerialMessage()
 	rxBuffer = new uint8_t[RECEIVE_BUFFER_LEN];
 }
 
+void SerialMessage::clearRxBuff()
+{
+	memset(rxBuffer, 0x00, RECEIVE_BUFFER_LEN);
+}
+
 
 void SerialMessage::sendMessage(String Message)
 {
 	if(!Message.empty())
 	{
 		serialBuffer = Message + "\n";
+		writeSerial();
 	}
 	else
 	{
 		serialBuffer = "Errore: messaggio mancante";
 	}
-	writeSerial();
 }
 
 bool SerialMessage::readSerialPolling()
@@ -58,7 +63,7 @@ bool SerialMessage::readSerialPolling()
 			CommandStr.push_back(rxBuffer[i]);
 		}
 		commandReceived = CommandStr;
-		memset(rxBuffer, 0x00, RECEIVE_BUFFER_LEN);
+		clearRxBuff();
 		Ready = false;
 	}
 	return Ready;
@@ -134,6 +139,34 @@ int16_t SerialMessage::getSetReq(char *Req, String Command)
 }
 
 
+bool SerialMessage::isDeviceConnected()
+{
+	bool Connected = false, GetSomething = false;
+	uint8_t Timeout = SEARCH_DEVICE_TIMEOUT_MS;
+	clearRxBuff();
+	sendMessage("$?$");
+	while(Timeout > 0)
+	{
+		HAL_UART_Receive(&huart1, rxBuffer, RECEIVE_BUFFER_LEN, 10);
+		if(rxBuffer[0] != 0x00)
+		{
+			GetSomething = true;
+			break;
+		}
+		Timeout--;
+		HAL_Delay(1);
+	}
+	if(GetSomething)
+	{
+		if(rxBuffer[0] == '$' && rxBuffer[1] == '!' && rxBuffer[2] == '$')
+		{
+			Connected = true;
+		}
+	}
+	return Connected;
+}
+
+
 int16_t SerialMessage::receiveSerialCommand()
 {
 	String CommandStr = "";
@@ -155,7 +188,9 @@ int16_t SerialMessage::receiveSerialCommand()
 			}
 			CommandStr.push_back(rxBuffer[i]);
 			if(EndMsg)
+			{
 				break;
+			}
 		}
 		commandReceived = CommandStr;
 		memset(rxBuffer, 0x00, RECEIVE_BUFFER_LEN);
@@ -187,6 +222,8 @@ uint32_t SerialMessage::getValueSetted()
 	valueSetted = UINT32_MAX;
 	return RetVal;
 }
+
+
 
 std::string SerialMessage::getCommandReceived()
 {
