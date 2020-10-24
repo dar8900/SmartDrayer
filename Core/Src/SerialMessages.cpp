@@ -34,11 +34,14 @@ void SerialMessage::clearRxBuff()
 }
 
 
-void SerialMessage::sendMessage(String Message)
+void SerialMessage::sendMessage(String Message, bool NewLine)
 {
 	if(!Message.empty())
 	{
-		serialBuffer = Message + "\n";
+		if(NewLine)
+			serialBuffer = Message + "\n";
+		else
+			serialBuffer = Message;
 		writeSerial();
 	}
 	else
@@ -51,6 +54,7 @@ bool SerialMessage::readSerialPolling()
 {
 	bool Ready = false;
 	String CommandStr = "";
+	clearRxBuff();
 	HAL_UART_Receive(&huart1, rxBuffer, RECEIVE_BUFFER_LEN, 100);
 	if(rxBuffer[0] == '$' && (rxBuffer[3] == '=' || rxBuffer[3] == '$'))
 	{
@@ -144,7 +148,7 @@ bool SerialMessage::isDeviceConnected()
 	bool Connected = false, GetSomething = false;
 	uint8_t Timeout = SEARCH_DEVICE_TIMEOUT_MS;
 	clearRxBuff();
-	sendMessage("$?$");
+	sendMessage("$?$", false);
 	while(Timeout > 0)
 	{
 		HAL_UART_Receive(&huart1, rxBuffer, RECEIVE_BUFFER_LEN, 10);
@@ -189,6 +193,7 @@ int16_t SerialMessage::receiveSerialCommand()
 			CommandStr.push_back(rxBuffer[i]);
 			if(EndMsg)
 			{
+				InvalidMsg = false;
 				break;
 			}
 		}
@@ -211,6 +216,10 @@ int16_t SerialMessage::receiveSerialCommand()
 				Command = getSetReq(Req, CommandStr);
 			}
 
+		}
+		if(!InvalidMsg)
+		{
+			sendMessage("$!$", false);
 		}
 	}
 	return Command;

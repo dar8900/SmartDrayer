@@ -83,7 +83,7 @@ public:
 		MAX_START_STOP_COMMANDS
 	};
 	SerialMessage();
-	void sendMessage(std::string DbgStr);
+	void sendMessage(std::string DbgStr, bool NewLine = true);
 	// La richiesta per capire se il device è collegato è nella forma $?$
 	// Se la risposta è nella forma $!$ allora il device è collegato
 	bool isDeviceConnected();

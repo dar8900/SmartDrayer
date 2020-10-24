@@ -18,7 +18,7 @@
 
 
 #define TOLLERANCE_DEGREES	55
-
+#define DELAY_SERIAL_ALIVE_TIMER	5000
 
 
 
@@ -915,7 +915,7 @@ void SmartDryer::navMenu()
 			showHelpMessageTimer->restart();
 		}
 		peripheralsControl();
-		if(checkSerialDeviceTimer->isFinished(true, 500))
+		if(checkSerialDeviceTimer->isFinished(true, DELAY_SERIAL_ALIVE_TIMER))
 		{
 			statusParam->serialDeviceAttached = externalCommand->isDeviceConnected();
 		}
@@ -1224,7 +1224,7 @@ void SmartDryer::changeTime()
 				break;
 		}
 		peripheralsControl();
-		if(checkSerialDeviceTimer->isFinished(true, 500))
+		if(checkSerialDeviceTimer->isFinished(true, DELAY_SERIAL_ALIVE_TIMER))
 		{
 			statusParam->serialDeviceAttached = externalCommand->isDeviceConnected();
 		}
@@ -1348,7 +1348,7 @@ void SmartDryer::changeDate()
 				break;
 		}
 		peripheralsControl();
-		if(checkSerialDeviceTimer->isFinished(true, 500))
+		if(checkSerialDeviceTimer->isFinished(true, DELAY_SERIAL_ALIVE_TIMER))
 		{
 			statusParam->serialDeviceAttached = externalCommand->isDeviceConnected();
 		}
@@ -1386,7 +1386,7 @@ void SmartDryer::showInfo()
 				break;
 		}
 		peripheralsControl();
-		if(checkSerialDeviceTimer->isFinished(true, 500))
+		if(checkSerialDeviceTimer->isFinished(true, DELAY_SERIAL_ALIVE_TIMER))
 		{
 			statusParam->serialDeviceAttached = externalCommand->isDeviceConnected();
 		}
@@ -1596,7 +1596,7 @@ void SmartDryer::changeProgram(uint8_t WichProgram)
 				break;
 		}
 		peripheralsControl();
-		if(checkSerialDeviceTimer->isFinished(true, 500))
+		if(checkSerialDeviceTimer->isFinished(true, DELAY_SERIAL_ALIVE_TIMER))
 		{
 			statusParam->serialDeviceAttached = externalCommand->isDeviceConnected();
 		}
@@ -1718,7 +1718,7 @@ void SmartDryer::startProgram(uint8_t WichProgram)
 			}
 		}
 		peripheralsControl();
-		if(checkSerialDeviceTimer->isFinished(true, 500))
+		if(checkSerialDeviceTimer->isFinished(true, DELAY_SERIAL_ALIVE_TIMER))
 		{
 			statusParam->serialDeviceAttached = externalCommand->isDeviceConnected();
 		}
