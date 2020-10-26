@@ -7,34 +7,45 @@
 
 #include "SerialMessages.h"
 
+
 typedef std::string String;
 
-bool RxReady = false;
-//void HAL_UART_RxCpltCallback(UART_HandleTypeDef *huart)
-//{
-//	RxReady = true;
-//}
+volatile bool RxReady = false;
+uint8_t RxBuffer[RECEIVE_BUFFER_LEN], RxBufferCopy[RECEIVE_BUFFER_LEN];
+
+
+void HAL_UART_RxCpltCallback(UART_HandleTypeDef *huart)
+{
+	if(huart == &huart1)
+	{
+		RxReady = true;
+		memcpy(RxBufferCopy, RxBuffer, RECEIVE_BUFFER_LEN);
+		memset(RxBuffer, 0x00, RECEIVE_BUFFER_LEN);
+		HAL_UART_Receive_IT(&huart1, RxBuffer, RECEIVE_BUFFER_LEN);
+	}
+}
+
 
 void SerialMessage::writeSerial()
 {
 	uint16_t BufferLen = serialBuffer.size();
-	HAL_UART_Transmit(&huart1, (uint8_t *)serialBuffer.c_str(), BufferLen, SEND_TIMEOUT);
+	if(!RxReady)
+		HAL_UART_Transmit(&huart1, (uint8_t *)serialBuffer.c_str(), BufferLen, SEND_TIMEOUT);
 }
 
 
 SerialMessage::SerialMessage()
 {
-//	HAL_UART_Receive_IT(&huart1, rxBuffer, RECEIVE_BUFFER_LEN);
-	rxBuffer = new uint8_t[RECEIVE_BUFFER_LEN];
+//	rxBuffer = new uint8_t[RECEIVE_BUFFER_LEN];
 }
 
 void SerialMessage::clearRxBuff()
 {
-	memset(rxBuffer, 0x00, RECEIVE_BUFFER_LEN);
+	memset(RxBufferCopy, 0x00, RECEIVE_BUFFER_LEN);
 }
 
 
-void SerialMessage::sendMessage(String Message, bool NewLine)
+void SerialMessage::sendMessage(String Message, bool NewLine, uint32_t SendDelay)
 {
 	if(!Message.empty())
 	{
@@ -43,6 +54,10 @@ void SerialMessage::sendMessage(String Message, bool NewLine)
 		else
 			serialBuffer = Message;
 		writeSerial();
+		if(SendDelay != 0)
+		{
+			HAL_Delay(SendDelay);
+		}
 	}
 	else
 	{
@@ -54,21 +69,27 @@ bool SerialMessage::readSerialPolling()
 {
 	bool Ready = false;
 	String CommandStr = "";
-	clearRxBuff();
-	HAL_UART_Receive(&huart1, rxBuffer, RECEIVE_BUFFER_LEN, 100);
-	if(rxBuffer[0] == '$' && (rxBuffer[3] == '=' || rxBuffer[3] == '$'))
+
+//	HAL_UART_Receive(&huart1, rxBuffer, RECEIVE_BUFFER_LEN, 100);
+	if(RxReady)
 	{
-		Ready = true;
-	}
-	else
-	{
-		for(int i = 0; i < RECEIVE_BUFFER_LEN; i++)
+		if(RxBufferCopy[0] == '$' && (RxBufferCopy[3] == '=' || RxBufferCopy[3] == '$'))
 		{
-			CommandStr.push_back(rxBuffer[i]);
+			Ready = true;
 		}
-		commandReceived = CommandStr;
+		else
+		{
+			for(int i = 0; i < RECEIVE_BUFFER_LEN; i++)
+			{
+				CommandStr.push_back(RxBufferCopy[i]);
+			}
+			commandReceived = CommandStr;
+//			clearRxBuff();
+			Ready = false;
+		}
+		RxReady = false;
+		HAL_UART_Receive_IT(&huart1, RxBuffer, RECEIVE_BUFFER_LEN);
 		clearRxBuff();
-		Ready = false;
 	}
 	return Ready;
 }
@@ -146,27 +167,38 @@ int16_t SerialMessage::getSetReq(char *Req, String Command)
 bool SerialMessage::isDeviceConnected()
 {
 	bool Connected = false, GetSomething = false;
-	uint8_t Timeout = SEARCH_DEVICE_TIMEOUT_MS;
-	clearRxBuff();
-	sendMessage("$?$", false);
-	while(Timeout > 0)
+//	uint8_t Timeout = SEARCH_DEVICE_TIMEOUT_MS;
+//	clearRxBuff();
+	sendMessage("$?$", false, 50);
+
+//	while(Timeout > 0)
+//	{
+//		HAL_UART_Receive(&huart1, rxBuffer, RECEIVE_BUFFER_LEN, 200);
+//		if(rxBuffer[0] != 0x00)
+//		{
+//			GetSomething = true;
+//			break;
+//		}
+//		Timeout--;
+//		HAL_Delay(1);
+//	}
+	if(RxReady)
 	{
-		HAL_UART_Receive(&huart1, rxBuffer, RECEIVE_BUFFER_LEN, 200);
-		if(rxBuffer[0] != 0x00)
+		if(RxBufferCopy[0] != 0x00)
 		{
 			GetSomething = true;
-			break;
 		}
-		Timeout--;
-		HAL_Delay(1);
+		RxReady = false;
+		HAL_UART_Receive_IT(&huart1, RxBuffer, RECEIVE_BUFFER_LEN);
 	}
 	if(GetSomething)
 	{
-		if(rxBuffer[0] == '$' && rxBuffer[1] == '!' && rxBuffer[2] == '$')
+		if(RxBufferCopy[0] == '$' && RxBufferCopy[1] == '!' && RxBufferCopy[2] == '$')
 		{
 			Connected = true;
 		}
 	}
+	clearRxBuff();
 	return Connected;
 }
 
@@ -182,7 +214,7 @@ int16_t SerialMessage::receiveSerialCommand()
 		for(int i = 0; i < RECEIVE_BUFFER_LEN; i++)
 		{
 			bool EndMsg = false;
-			if(rxBuffer[i] == '$' && i > 0)
+			if(RxBufferCopy[i] == '$' && i > 0)
 			{
 				EndMsg = true;
 			}
@@ -190,7 +222,7 @@ int16_t SerialMessage::receiveSerialCommand()
 			{
 				InvalidMsg = true;
 			}
-			CommandStr.push_back(rxBuffer[i]);
+			CommandStr.push_back(RxBufferCopy[i]);
 			if(EndMsg)
 			{
 				InvalidMsg = false;
@@ -198,7 +230,8 @@ int16_t SerialMessage::receiveSerialCommand()
 			}
 		}
 		commandReceived = CommandStr;
-		memset(rxBuffer, 0x00, RECEIVE_BUFFER_LEN);
+//		memset(RxBuffer, 0x00, RECEIVE_BUFFER_LEN);
+		clearRxBuff();
 		if(InvalidMsg)
 		{
 			Command = INVALID_MESSAGE;

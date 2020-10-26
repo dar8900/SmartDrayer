@@ -18,7 +18,7 @@
 
 #define SEND_TIMEOUT		100
 #define DBG_BUFFER			500
-#define RECEIVE_BUFFER_LEN	 25
+#define RECEIVE_BUFFER_LEN	 10
 
 class SerialMessage
 {
@@ -29,14 +29,15 @@ private:
 		START_STOP_COMMAND,
 		MAX_COMMAND_TYPE
 	};
-	static const uint8_t SEARCH_DEVICE_TIMEOUT_MS = 250;
+//	static const uint8_t SEARCH_DEVICE_TIMEOUT_MS = 250;
 	static const uint8_t MAX_REQ_LEN = 2;
 	std::string serialBuffer = "";
 	std::string commandReceived = "";
 	uint16_t serialBufferLen;
-	uint8_t *rxBuffer;
-	bool rxReady = false;
+//	volatile uint8_t *rxBuffer;
+//	volatile bool rxReady = false;
 	uint32_t valueSetted = UINT32_MAX;
+	void ENABLE_USART_RX();
 	void writeSerial();
 	bool readSerialPolling();
 	void clearRxBuff();
@@ -83,7 +84,7 @@ public:
 		MAX_START_STOP_COMMANDS
 	};
 	SerialMessage();
-	void sendMessage(std::string DbgStr, bool NewLine = true);
+	void sendMessage(std::string DbgStr, bool NewLine = true, uint32_t SendDelay = 0);
 	// La richiesta per capire se il device è collegato è nella forma $?$
 	// Se la risposta è nella forma $!$ allora il device è collegato
 	bool isDeviceConnected();

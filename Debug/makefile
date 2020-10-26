@@ -62,8 +62,8 @@ SmartDrayer.bin \
 all: SmartDrayer.elf secondary-outputs
 
 # Tool invocations
-SmartDrayer.elf: $(OBJS) $(USER_OBJS) C:\Users\Deo_Garage\Documents\PROGETTI\SmartDrayer\STM32F103C8TX_FLASH.ld
-	arm-none-eabi-g++ -o "SmartDrayer.elf" @"objects.list" $(USER_OBJS) $(LIBS) -mcpu=cortex-m3 -T"C:\Users\Deo_Garage\Documents\PROGETTI\SmartDrayer\STM32F103C8TX_FLASH.ld" -Wl,-Map="SmartDrayer.map" -Wl,--gc-sections -static --specs=nano.specs -mfloat-abi=soft -mthumb -u _printf_float -u _scanf_float -Wl,--start-group -lc -lm -lstdc++ -lsupc++ -Wl,--end-group
+SmartDrayer.elf: $(OBJS) $(USER_OBJS) C:\Users\dar89\OneDrive\Documenti\DARIO\STM\ IDE\SmartDrayer\STM32F103C8TX_FLASH.ld
+	arm-none-eabi-g++ -o "SmartDrayer.elf" @"objects.list" $(USER_OBJS) $(LIBS) -mcpu=cortex-m3 -T"C:\Users\dar89\OneDrive\Documenti\DARIO\STM IDE\SmartDrayer\STM32F103C8TX_FLASH.ld" -Wl,-Map="SmartDrayer.map" -Wl,--gc-sections -static --specs=nano.specs -mfloat-abi=soft -mthumb -Wl,--start-group -lc -lm -lstdc++ -lsupc++ -Wl,--end-group
 	@echo 'Finished building target: $@'
 	@echo ' '
 
