@@ -11,7 +11,8 @@
 typedef std::string String;
 
 volatile bool RxReady = false;
-uint8_t RxBuffer[RECEIVE_BUFFER_LEN], RxBufferCopy[RECEIVE_BUFFER_LEN];
+uint8_t RxBuffer[RECEIVE_BUFFER_LEN];
+uint8_t RxBufferCopy[RECEIVE_BUFFER_LEN];
 
 
 void HAL_UART_RxCpltCallback(UART_HandleTypeDef *huart)
@@ -21,7 +22,7 @@ void HAL_UART_RxCpltCallback(UART_HandleTypeDef *huart)
 		RxReady = true;
 		memcpy(RxBufferCopy, RxBuffer, RECEIVE_BUFFER_LEN);
 		memset(RxBuffer, 0x00, RECEIVE_BUFFER_LEN);
-		HAL_UART_Receive_IT(&huart1, RxBuffer, RECEIVE_BUFFER_LEN);
+//		HAL_UART_Receive_IT(&huart1, RxBuffer, RECEIVE_BUFFER_LEN);
 	}
 }
 
@@ -37,6 +38,7 @@ void SerialMessage::writeSerial()
 SerialMessage::SerialMessage()
 {
 //	rxBuffer = new uint8_t[RECEIVE_BUFFER_LEN];
+	HAL_UART_Receive_IT(&huart1, RxBuffer, RECEIVE_BUFFER_LEN);
 }
 
 void SerialMessage::clearRxBuff()
@@ -88,8 +90,8 @@ bool SerialMessage::readSerialPolling()
 			Ready = false;
 		}
 		RxReady = false;
-		HAL_UART_Receive_IT(&huart1, RxBuffer, RECEIVE_BUFFER_LEN);
 		clearRxBuff();
+		HAL_UART_Receive_IT(&huart1, RxBuffer, RECEIVE_BUFFER_LEN);
 	}
 	return Ready;
 }
