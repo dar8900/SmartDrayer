@@ -7,8 +7,9 @@
 
 #include "SerialMessages.h"
 
-
 typedef std::string String;
+
+#define DELAY_SERIAL_ALIVE_TIMER	5000
 
 volatile bool RxReady = false;
 uint8_t RxBuffer[RECEIVE_BUFFER_LEN];
@@ -26,6 +27,15 @@ void HAL_UART_RxCpltCallback(UART_HandleTypeDef *huart)
 	}
 }
 
+void HAL_UART_ErrorCallback(UART_HandleTypeDef *huart)
+{
+	if(huart == &huart1)
+	{
+		memset(RxBuffer, 0x00, RECEIVE_BUFFER_LEN);
+		memset(RxBufferCopy, 0x00, RECEIVE_BUFFER_LEN);
+		HAL_UART_Receive_IT(&huart1, RxBuffer, RECEIVE_BUFFER_LEN);
+	}
+}
 
 void SerialMessage::writeSerial()
 {
@@ -38,6 +48,7 @@ void SerialMessage::writeSerial()
 SerialMessage::SerialMessage()
 {
 //	rxBuffer = new uint8_t[RECEIVE_BUFFER_LEN];
+	checkSerialDeviceTimer = new ChronoTimer(ChronoTimer::MILLIS);
 	HAL_UART_Receive_IT(&huart1, RxBuffer, RECEIVE_BUFFER_LEN);
 }
 
@@ -90,7 +101,6 @@ bool SerialMessage::readSerialPolling()
 			Ready = false;
 		}
 		RxReady = false;
-		clearRxBuff();
 		HAL_UART_Receive_IT(&huart1, RxBuffer, RECEIVE_BUFFER_LEN);
 	}
 	return Ready;
@@ -112,7 +122,7 @@ int16_t SerialMessage::getStartStopReq(char *Req)
 				RetVal = START_STOP_COMMANDS_START + (((Req[0] - '0') * 10) + (Req[1] - '0'));
 			}
 		}
-		if(RetVal >= MAX_START_STOP_COMMANDS && RetVal == START_STOP_COMMANDS_START)
+		if((RetVal >= MAX_START_STOP_COMMANDS && RetVal == START_STOP_COMMANDS_START) || RetVal == INVALID_MESSAGE)
 		{
 			RetVal = INVALID_MESSAGE;
 		}
@@ -136,31 +146,34 @@ int16_t SerialMessage::getSetReq(char *Req, String Command)
 				RetVal = SET_COMMAND_START + (((Req[0] - '0') * 10) + (Req[1] - '0'));
 			}
 		}
-		if(RetVal >= MAX_SET_COMMANDS && RetVal == SET_COMMAND_START)
+		if((RetVal >= MAX_SET_COMMANDS && RetVal == SET_COMMAND_START) || RetVal == INVALID_MESSAGE)
 		{
 			RetVal = INVALID_MESSAGE;
 		}
-		String ValStr = "";
-		bool ZeroChecked = false;
-		for(int i = 4; i < Command.length() - 1; i++)
+		if(RetVal != INVALID_MESSAGE)
 		{
-			int ValLen = Command.length() - 5;
-			if(ValLen > 1)
+			String ValStr = "";
+			bool ZeroChecked = false;
+			for(int i = 4; i < Command.length() - 1; i++)
 			{
-				while(i < Command.length() && !ZeroChecked)
+				int ValLen = Command.length() - 5;
+				if(ValLen > 1)
 				{
-					if(Command[i] == '0')
-						i++;
-					else
+					while(i < Command.length() && !ZeroChecked)
 					{
-						ZeroChecked = true;
-						break;
+						if(Command[i] == '0')
+							i++;
+						else
+						{
+							ZeroChecked = true;
+							break;
+						}
 					}
 				}
+				ValStr.push_back(Command[i]);
 			}
-			ValStr.push_back(Command[i]);
+			valueSetted = std::stoul(ValStr);
 		}
-		valueSetted = std::stoul(ValStr);
 	}
 	return RetVal;
 }
@@ -168,10 +181,16 @@ int16_t SerialMessage::getSetReq(char *Req, String Command)
 
 bool SerialMessage::isDeviceConnected()
 {
-	bool Connected = false, GetSomething = false;
+//	bool Connected = false, GetSomething = false;
 //	uint8_t Timeout = SEARCH_DEVICE_TIMEOUT_MS;
 //	clearRxBuff();
-	sendMessage("$?$", false, 50);
+	if(checkSerialDeviceTimer->isFinished(true, DELAY_SERIAL_ALIVE_TIMER))
+	{
+		sendMessage("$?$", true, 10);
+		if(connectionRetries < MAX_CONNECTION_RETRIES)
+			connectionRetries++;
+	}
+
 
 //	while(Timeout > 0)
 //	{
@@ -186,22 +205,47 @@ bool SerialMessage::isDeviceConnected()
 //	}
 	if(RxReady)
 	{
-		if(RxBufferCopy[0] != 0x00)
-		{
-			GetSomething = true;
-		}
-		RxReady = false;
-		HAL_UART_Receive_IT(&huart1, RxBuffer, RECEIVE_BUFFER_LEN);
-	}
-	if(GetSomething)
-	{
 		if(RxBufferCopy[0] == '$' && RxBufferCopy[1] == '!' && RxBufferCopy[2] == '$')
 		{
-			Connected = true;
+//			GetSomething = true;
+			devConnected = true;
+			RxReady = false;
+			sendMessage("Thanks!", true, 10);
+			HAL_UART_Receive_IT(&huart1, RxBuffer, RECEIVE_BUFFER_LEN);
+			clearRxBuff();
+			connectionRetries = 0;
+		}
+		else if(RxBufferCopy[0] == '$' && (RxBufferCopy[3] == '=' || RxBufferCopy[3] == '$'))
+		{
+			devConnected = true;
+			connectionRetries = 0;
+		}
+		else
+		{
+			RxReady = false;
+			sendMessage("Who are you??", true, 10);
+			HAL_UART_Receive_IT(&huart1, RxBuffer, RECEIVE_BUFFER_LEN);
+			clearRxBuff();
 		}
 	}
-	clearRxBuff();
-	return Connected;
+	if(connectionRetries == MAX_CONNECTION_RETRIES)
+	{
+		devConnected = false;
+	}
+//	if(GetSomething)
+//	{
+//		if(RxBufferCopy[0] == '$' && RxBufferCopy[1] == '!' && RxBufferCopy[2] == '$')
+//		{
+//			devConnected = true;
+//			clearRxBuff();
+//		}
+//		else
+//		{
+//			devConnected = false;
+//		}
+//	}
+
+	return devConnected;
 }
 
 
@@ -252,9 +296,9 @@ int16_t SerialMessage::receiveSerialCommand()
 			}
 
 		}
-		if(!InvalidMsg)
+		if(!InvalidMsg && Command != INVALID_MESSAGE)
 		{
-			sendMessage("$!$", false);
+			sendMessage("$!$", true);
 		}
 	}
 	return Command;

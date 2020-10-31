@@ -210,7 +210,6 @@ private:
 	ChronoTimer *showHelpMessageTimer;
 	ChronoTimer *programStartedTimer;
 	ChronoTimer *blinkSerialIconTimer;
-	ChronoTimer *checkSerialDeviceTimer;
 
 	ChronoTimer *testTimer;
 

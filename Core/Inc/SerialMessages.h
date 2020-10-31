@@ -12,6 +12,7 @@
 
 #include "string.h"
 #include <string>
+#include "ChronoTimer.h"
 
 
 
@@ -29,20 +30,24 @@ private:
 		START_STOP_COMMAND,
 		MAX_COMMAND_TYPE
 	};
-//	static const uint8_t SEARCH_DEVICE_TIMEOUT_MS = 250;
+	static const uint8_t MAX_CONNECTION_RETRIES = 3;
 	static const uint8_t MAX_REQ_LEN = 2;
 	std::string serialBuffer = "";
 	std::string commandReceived = "";
 	uint16_t serialBufferLen;
 //	volatile uint8_t *rxBuffer;
 //	volatile bool rxReady = false;
+	bool devConnected = false;
 	uint32_t valueSetted = UINT32_MAX;
+	ChronoTimer *checkSerialDeviceTimer;
+	uint8_t connectionRetries = 0;
 	void ENABLE_USART_RX();
 	void writeSerial();
 	bool readSerialPolling();
 	void clearRxBuff();
 	int16_t getStartStopReq(char *Req);
 	int16_t getSetReq(char *Req, std::string Command);
+
 
 public:
 	enum
