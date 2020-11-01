@@ -584,3 +584,9 @@ void NHDST7565_LCD::drawFullScreenPopUp(String Text, uint16_t Delay)
 	sendFrameBuffer();
 	HAL_Delay(Delay);
 }
+
+void NHDST7565_LCD::drawIcon(uint8_t XPos, uint8_t YPos, uint8_t IconW,
+		uint8_t IconH, const uint8_t *IconBits)
+{
+	u8g2_DrawXBM(&U8G2_Display, XPos, YPos, IconW, IconH, IconBits);
+}

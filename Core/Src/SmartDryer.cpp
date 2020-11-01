@@ -20,7 +20,13 @@
 #define TOLLERANCE_DEGREES	55
 
 
-
+#define SerialIcon_width 20
+#define SerialIcon_height 8
+const uint8_t SerialIcon_bits[] =
+{
+   0xfe, 0xff, 0x07, 0x03, 0x00, 0x08, 0xf9, 0xff, 0x09, 0xab, 0x2a, 0x0d,
+   0x5b, 0x95, 0x0d, 0xf1, 0xff, 0x08, 0x01, 0x00, 0x0c, 0xfe, 0xff, 0x07
+};
 
 const char *mainMenuVoices[] =
 {
@@ -690,7 +696,6 @@ void SmartDryer::navMenu()
 	uint8_t MenuSel = MAIN_MENU;
 	showHelpMessageTimer->restart();
 	String Time = "", Date = "";
-
 	while(!ExitNavMenu)
 	{
 		uint8_t WichKey = DryerKey::NO_KEY;
@@ -702,27 +707,8 @@ void SmartDryer::navMenu()
 				ActualMenu->withChebox, ActualMenu->menuSelected, ActualMenu->itemsChecked, ActualMenu->menuFont);
 		if(statusParam->serialDeviceAttached)
 		{
-			display->drawBox(50, 0, 6, 6);
+			display->drawIcon(50, 0, SerialIcon_width, SerialIcon_height, SerialIcon_bits);
 		}
-//		if(showHelpMessageTimer->isFinished(false, 3))
-//		{
-//			if(MenuSel == MAIN_MENU)
-//			{
-//				u8g2_DrawFrame(&display->U8G2_Display, MENU_RIGHT_LIST_XPOS - 1, HELP_MESSAGE_YPOS - 1, display->dispParams.width - MENU_RIGHT_LIST_XPOS - 1
-//						, display->dispParams.high - HELP_MESSAGE_YPOS - 1);
-//				display->drawBox(MENU_RIGHT_LIST_XPOS, HELP_MESSAGE_YPOS, display->dispParams.width - MENU_RIGHT_LIST_XPOS,
-//						display->dispParams.high - HELP_MESSAGE_YPOS, WHITE_COLOR);
-//				//				  u8g2_SetDrawColor(&display->U8G2_Display, 0);
-//				//				  u8g2_DrawBox(&display->U8G2_Display, MENU_RIGHT_LIST_XPOS, HELP_MESSAGE_YPOS, display->dispParams.width - MENU_RIGHT_LIST_XPOS, display->dispParams.high - HELP_MESSAGE_YPOS);
-//				//				  u8g2_SetDrawColor(&display->U8G2_Display, 1);
-//				display->drawText(mainMenuHelpMsgs.at(ActualMenu->itemSelected), MENU_RIGHT_LIST_XPOS, HELP_MESSAGE_YPOS, HELP_MESSAGE_MARGIN);
-//			}
-//			else
-//			{
-//				showHelpMessageTimer->restart();
-//			}
-//		}
-
 		display->sendFrameBuffer();
 		WichKey = keyboard->checkKey();
 		switch(WichKey)
@@ -1156,6 +1142,10 @@ void SmartDryer::changeTime()
 		display->drawString(Number, NHDST7565_LCD::CENTER_POS, 30, display->displayFonts[NHDST7565_LCD::W_9_H_17_B]);
 		display->drawSymbol(60, 30, display->displayFonts[NHDST7565_LCD::W_8_H_8_ICON], 0x0070); // triangolo alto
 		display->drawSymbol(60, 55, display->displayFonts[NHDST7565_LCD::W_8_H_8_ICON], 0x006D); // triangolo basso
+		if(statusParam->serialDeviceAttached)
+		{
+			display->drawIcon(50, 0, SerialIcon_width, SerialIcon_height, SerialIcon_bits);
+		}
 		display->sendFrameBuffer();
 		uint8_t WichKey = DryerKey::NO_KEY;
 		WichKey = keyboard->checkKey();
@@ -1262,6 +1252,10 @@ void SmartDryer::changeDate()
 		display->drawString(Number, NHDST7565_LCD::CENTER_POS, 30, display->displayFonts[NHDST7565_LCD::W_9_H_17_B]);
 		display->drawSymbol(60, 30, display->displayFonts[NHDST7565_LCD::W_8_H_8_ICON], 0x0070); // triangolo alto
 		display->drawSymbol(60, 55, display->displayFonts[NHDST7565_LCD::W_8_H_8_ICON], 0x006D); // triangolo basso
+		if(statusParam->serialDeviceAttached)
+		{
+			display->drawIcon(50, 0, SerialIcon_width, SerialIcon_height, SerialIcon_bits);
+		}
 		display->sendFrameBuffer();
 		uint8_t WichKey = DryerKey::NO_KEY;
 		WichKey = keyboard->checkKey();
@@ -1366,6 +1360,10 @@ void SmartDryer::showInfo()
 		display->drawString(TempReaded + "    " + HumidityReaded, NHDST7565_LCD::CENTER_POS, 20, display->displayFonts[NHDST7565_LCD::W_6_H_13_B]);
 		display->drawString("Versione SW", NHDST7565_LCD::CENTER_POS, 40, display->displayFonts[NHDST7565_LCD::W_5_H_8]);
 		display->drawString(String(SW_VERSION), NHDST7565_LCD::CENTER_POS, 50, display->displayFonts[NHDST7565_LCD::W_6_H_13_B]);
+		if(statusParam->serialDeviceAttached)
+		{
+			display->drawIcon(50, 0, SerialIcon_width, SerialIcon_height, SerialIcon_bits);
+		}
 		display->sendFrameBuffer();
 		uint8_t WichKey = DryerKey::NO_KEY;
 		WichKey = keyboard->checkKey();
@@ -1432,6 +1430,10 @@ void SmartDryer::changeProgram(uint8_t WichProgram)
 		display->drawString(Number, NHDST7565_LCD::CENTER_POS, 41, display->displayFonts[NHDST7565_LCD::W_6_H_13_B]);
 		display->drawSymbol(60, 40, display->displayFonts[NHDST7565_LCD::W_8_H_8_ICON], 0x0070); // triangolo alto
 		display->drawSymbol(60, 60, display->displayFonts[NHDST7565_LCD::W_8_H_8_ICON], 0x006D); // triangolo basso
+		if(statusParam->serialDeviceAttached)
+		{
+			display->drawIcon(50, 0, SerialIcon_width, SerialIcon_height, SerialIcon_bits);
+		}
 		display->sendFrameBuffer();
 		uint8_t WichKey = DryerKey::NO_KEY;
 		WichKey = keyboard->checkKey();
@@ -1622,6 +1624,10 @@ void SmartDryer::startProgram(uint8_t WichProgram)
 		display->drawString("Fine programma", NHDST7565_LCD::RIGHT_POS, 40, display->displayFonts[NHDST7565_LCD::W_3_H_6]);
 		display->drawString(StartHour + ":" + StartMinute, NHDST7565_LCD::LEFT_POS, 50, display->displayFonts[NHDST7565_LCD::W_6_H_13_B]);
 		display->drawString(EndHour + ":" + EndMinute, NHDST7565_LCD::RIGHT_POS, 50, display->displayFonts[NHDST7565_LCD::W_6_H_13_B]);
+		if(statusParam->serialDeviceAttached)
+		{
+			display->drawIcon(50, 0, SerialIcon_width, SerialIcon_height, SerialIcon_bits);
+		}
 		display->sendFrameBuffer();
 		uint8_t WichKey = DryerKey::NO_KEY;
 		WichKey = keyboard->checkKey();

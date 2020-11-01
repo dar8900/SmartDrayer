@@ -30,11 +30,6 @@
 
 SmartDryer *DryerApplication;
 
-//SerialDebug Dbg;
-//ST7920_LCD Display;
-//DryerKey Keyboard;
-//DS1307_RTC RtcClock;
-//ChronoTimer GetTimeTimer(ChronoTimer::MILLIS);
 
 
 

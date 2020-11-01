@@ -64,6 +64,8 @@ void Error_Handler(void);
 #define LcdReset_GPIO_Port GPIOA
 #define Mosi_Pin GPIO_PIN_7
 #define Mosi_GPIO_Port GPIOA
+#define LCD_Led_Pin GPIO_PIN_10
+#define LCD_Led_GPIO_Port GPIOB
 #define UpButton_Pin GPIO_PIN_12
 #define UpButton_GPIO_Port GPIOB
 #define DownButton_Pin GPIO_PIN_13

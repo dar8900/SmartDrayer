@@ -126,6 +126,7 @@ public:
 			bool WithCheckBox, bool MenuSelected, bool *ItemsChecked, const uint8_t *u8g2Font);
 	void drawTimeDate(String Time, String Date);
 	void drawFullScreenPopUp(String Text, uint16_t Delay);
+	void drawIcon(uint8_t XPos, uint8_t YPos, uint8_t IconW, uint8_t IconH, const uint8_t *IconBits);
 };
 
 #endif /* INC_DISPLAY_H_ */
