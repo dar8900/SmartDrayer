@@ -38,6 +38,7 @@ const char *mainMenuVoices[] =
 		"Imposta data",
 		"Imposta programma",
 		"Avvia programma",
+		"Lcd backlight",
 		"Mostra info",
 };
 
@@ -45,6 +46,13 @@ const char *OnOff[] =
 {
 		"Off",
 		"On",
+};
+
+const char *BackLightLabels[] =
+{
+		"Off",
+		"On",
+		"Auto",
 };
 
 const char *Temps[] =
@@ -91,6 +99,7 @@ SmartDryer::SmartDryer()
 	showHelpMessageTimer = new ChronoTimer(ChronoTimer::SECONDS);
 	programStartedTimer = new ChronoTimer(ChronoTimer::MILLIS);
 	blinkSerialIconTimer = new ChronoTimer(ChronoTimer::MILLIS);
+	lcdLedAutoOffTimer = new ChronoTimer(ChronoTimer::SECONDS);
 
 
 	testTimer = new ChronoTimer(ChronoTimer::MILLIS);
@@ -106,6 +115,7 @@ SmartDryer::SmartDryer()
 	startDryerMenu = new MENU_STRUCTURE();
 	changeProgramsMenu = new MENU_STRUCTURE();
 	startProgramsMenu = new MENU_STRUCTURE();
+	backlightCtrl = new MENU_STRUCTURE();
 
 	statusParam = new DRYER_PARAMS();
 
@@ -261,6 +271,29 @@ void SmartDryer::ledControl()
 		default:
 			blinkLed(RED_LED, 1000);
 			blinkLed(GREEN_LED, 1000);
+			break;
+	}
+	switch (statusParam->backlightStatus)
+	{
+		case BACKLIGHT_OFF:
+			HAL_GPIO_WritePin(LCD_Led_GPIO_Port, LCD_Led_Pin, GPIO_PIN_RESET);
+			lcdLedAutoOffTimer->restart();
+			break;
+		case BACKLIGHT_ON:
+			HAL_GPIO_WritePin(LCD_Led_GPIO_Port, LCD_Led_Pin, GPIO_PIN_SET);
+			lcdLedAutoOffTimer->restart();
+			break;
+		case BACKLIGHT_AUTO:
+			if(lcdLedAutoOffTimer->isFinished(false, 10))
+			{
+				HAL_GPIO_WritePin(LCD_Led_GPIO_Port, LCD_Led_Pin, GPIO_PIN_RESET);
+			}
+			else
+			{
+				HAL_GPIO_WritePin(LCD_Led_GPIO_Port, LCD_Led_Pin, GPIO_PIN_SET);
+			}
+			break;
+		default:
 			break;
 	}
 }
@@ -689,230 +722,6 @@ void SmartDryer::serialComunicationCtrl()
 
 
 
-void SmartDryer::navMenu()
-{
-	bool ExitNavMenu = false;
-	MENU_STRUCTURE *ActualMenu = mainMenu;
-	uint8_t MenuSel = MAIN_MENU;
-	showHelpMessageTimer->restart();
-	String Time = "", Date = "";
-	while(!ExitNavMenu)
-	{
-		uint8_t WichKey = DryerKey::NO_KEY;
-		display->clearFrameBuffer();
-		showTimeDate(Time, Date);
-		display->drawString(ActualMenu->menuTitle, NHDST7565_LCD::CENTER_POS, MENU_TITLE_YPOS, display->displayFonts[NHDST7565_LCD::W_6_H_13_B]);
-		ActualMenu->maxMenuLines = display->drawMenuList(ActualMenu->XPos, ActualMenu->YPos, ActualMenu->topItemPos,
-				ActualMenu->itemSelected, ActualMenu->menuVoices, ActualMenu->maxMenuItems,
-				ActualMenu->withChebox, ActualMenu->menuSelected, ActualMenu->itemsChecked, ActualMenu->menuFont);
-		if(statusParam->serialDeviceAttached)
-		{
-			display->drawIcon(50, 0, SerialIcon_width, SerialIcon_height, SerialIcon_bits);
-		}
-		display->sendFrameBuffer();
-		WichKey = keyboard->checkKey();
-		switch(WichKey)
-		{
-			case DryerKey::UP_KEY:
-			case DryerKey::LONG_UP_KEY:
-				if(ActualMenu->itemSelected > 0)
-					ActualMenu->itemSelected--;
-				else
-					ActualMenu->itemSelected = ActualMenu->maxMenuItems - 1;
-				break;
-			case DryerKey::DOWN_KEY:
-			case DryerKey::LONG_DOWN_KEY:
-				if(ActualMenu->itemSelected < ActualMenu->maxMenuItems - 1)
-					ActualMenu->itemSelected++;
-				else
-					ActualMenu->itemSelected = 0;
-				break;
-			case DryerKey::LEFT_KEY:
-				switch(MenuSel)
-				{
-					case MAIN_MENU:
-						switch(ActualMenu->itemSelected + 1)
-						{
-							case THERMO_CTRL:
-								MenuSel = THERMO_CTRL;
-								ActualMenu = thermoMenuCtrl;
-								break;
-							case FAN_CTRL:
-								MenuSel = FAN_CTRL;
-								ActualMenu = fanMenuCtrl;
-								break;
-							case TEMP_CTRL:
-								MenuSel = TEMP_CTRL;
-								ActualMenu = tempMenuCtrl;
-								break;
-							case START_DRYER_CTRL:
-								MenuSel = START_DRYER_CTRL;
-								ActualMenu = startDryerMenu;
-								break;
-							case CHANGE_TIME_MENU:
-								screen = CHANGE_TIME;
-								ExitNavMenu = true;
-								break;
-							case CHANGE_DATE_MENU:
-								screen = CHANGE_DATE;
-								ExitNavMenu = true;
-								break;
-							case CHANGE_PROGRAMS_LIST:
-								MenuSel = CHANGE_PROGRAMS_LIST;
-								ActualMenu = changeProgramsMenu;
-								break;
-							case START_PROGRAMS_LIST:
-								MenuSel = START_PROGRAMS_LIST;
-								ActualMenu = startProgramsMenu;
-								break;
-							case SHOW_INFO_PAGE:
-								screen = SHOW_INFO;
-								ExitNavMenu = true;
-								break;
-							default:
-								break;
-						}
-						if(ActualMenu->withChebox)
-						{
-							for(int i = 0; i < ActualMenu->maxMenuItems; i++)
-							{
-								ActualMenu->itemsChecked[i] = false;
-							}
-							switch(ActualMenu->paramType)
-							{
-								case PARAM_BOOL_TYPE:
-									if(*(bool *)ActualMenu->paramAssociated)
-									{
-										ActualMenu->itemsChecked[0] = false;
-										ActualMenu->itemsChecked[1] = true;
-									}
-									else
-									{
-										ActualMenu->itemsChecked[0] = true;
-										ActualMenu->itemsChecked[1] = false;
-									}
-									break;
-								case PARAM_FLOAT_TYPE:
-									switch(MenuSel)
-									{
-										case TEMP_CTRL:
-											for(int i = 0; i < ActualMenu->maxMenuItems; i++)
-											{
-												uint32_t TempSetted = (uint32_t)*(float *)ActualMenu->paramAssociated;
-												if(TempSetted == (uint32_t)paramTemperatures[i])
-												{
-													ActualMenu->itemsChecked[i] = true;
-												}
-												else
-													ActualMenu->itemsChecked[i] = false;
-											}
-											break;
-										default:
-											break;
-									}
-									break;
-								default:
-									break;
-							}
-						}
-						break; // case MAIN_MENU
-					case CHANGE_PROGRAMS_LIST:
-						screen = ActualMenu->itemSelected + CHANGE_PROGRAM_1;
-						ExitNavMenu = true;
-						break;
-					case START_PROGRAMS_LIST:
-						if(dryerPrograms[ ActualMenu->itemSelected].programSetted)
-						{
-							screen = ActualMenu->itemSelected + START_PROGRAM_1;
-							ExitNavMenu = true;
-						}
-						break;
-					default:
-						break;
-				}
-			break;// case LEFT_KEY
-			case DryerKey::OK_KEY:
-				if(ActualMenu->withChebox)
-				{
-					for(int i = 0; i < ActualMenu->maxMenuItems; i++)
-						ActualMenu->itemsChecked[i] = false;
-					ActualMenu->itemsChecked[ActualMenu->itemSelected] = true;
-					switch(ActualMenu->paramType)
-					{
-						case PARAM_BOOL_TYPE:
-							if(ActualMenu->itemSelected == 0)
-								*(bool *)ActualMenu->paramAssociated = false;
-							else
-								*(bool *)ActualMenu->paramAssociated = true;
-							break;
-						case PARAM_FLOAT_TYPE:
-							switch(MenuSel)
-							{
-								case TEMP_CTRL:
-									*(float *)ActualMenu->paramAssociated = (float)paramTemperatures[ActualMenu->itemSelected];
-									break;
-								default:
-									break;
-							}
-							break;
-						default:
-							break;
-					}
-					MenuSel = MAIN_MENU;
-					ActualMenu = mainMenu;
-				}
-				break;
-			case DryerKey::LONG_LEFT_KEY:
-				switch(MenuSel)
-				{
-					case THERMO_CTRL:
-					case FAN_CTRL:
-					case TEMP_CTRL:
-					case START_DRYER_CTRL:
-					case CHANGE_PROGRAMS_LIST:
-					case START_PROGRAMS_LIST:
-						MenuSel = MAIN_MENU;
-						ActualMenu = mainMenu;
-						break;
-					default:
-						break;
-				}
-				break;
-			case DryerKey::LONG_OK_KEY:
-				break;
-			default:
-				break;
-		}
-		if(WichKey != DryerKey::NO_KEY && WichKey != DryerKey::LEFT_KEY)
-		{
-			if(ActualMenu->itemSelected > ActualMenu->maxMenuLines - 2)
-			{
-				if(ActualMenu->itemSelected - (ActualMenu->maxMenuLines - 2) < ActualMenu->maxMenuItems - 1)
-					ActualMenu->topItemPos = ActualMenu->itemSelected - (ActualMenu->maxMenuLines - 2);
-				else
-					ActualMenu->topItemPos = 0;
-				if(ActualMenu->itemSelected >= ActualMenu->maxMenuItems - ActualMenu->maxMenuLines)
-				{
-					ActualMenu->topItemPos = ActualMenu->maxMenuItems - ActualMenu->maxMenuLines;
-				}
-			}
-			else
-				ActualMenu->topItemPos = 0;
-
-		}
-		else if(WichKey != DryerKey::NO_KEY)
-		{
-			showHelpMessageTimer->restart();
-		}
-		peripheralsControl();
-		statusParam->serialDeviceAttached = externalCommand->isDeviceConnected();
-		if(statusParam->serialDeviceAttached)
-		{
-			serialComunicationCtrl();
-		}
-	}
-
-}
 
 
 void SmartDryer::test()
@@ -946,6 +755,7 @@ void SmartDryer::setup()
 	mainMenuHelpMsgs.push_back("Modifica la data di sistema");
 	mainMenuHelpMsgs.push_back("Imposta i programmi");
 	mainMenuHelpMsgs.push_back("Seleziona il programma da avviare");
+	mainMenuHelpMsgs.push_back("Backlight");
 	mainMenuHelpMsgs.push_back("Mostra info sistema");
 	if(mainMenuHelpMsgs.size() < MAX_MENU_ITEMS)
 	{
@@ -1062,6 +872,21 @@ void SmartDryer::setup()
 	startProgramsMenu->paramType = NO_TYPE;
 	startProgramsMenu->menuSelected = true;
 
+	backlightCtrl->menuTitle = "BackLight";
+	backlightCtrl->menuVoices = BackLightLabels;
+	backlightCtrl->XPos = MENU_RIGHT_LIST_XPOS;
+	backlightCtrl->YPos = MENU_LIST_YPOS;
+	backlightCtrl->menuFont = display->displayFonts[NHDST7565_LCD::W_5_H_8];
+	backlightCtrl->topItemPos = 0;
+	backlightCtrl->itemSelected = 0;
+	backlightCtrl->maxMenuLines = 0;
+	backlightCtrl->maxMenuItems = sizeof(BackLightLabels)/sizeof(BackLightLabels[0]);
+	backlightCtrl->withChebox = true;
+	backlightCtrl->itemsChecked = new bool(backlightCtrl->maxMenuItems);
+	backlightCtrl->paramAssociated = (uint8_t *)&statusParam->backlightStatus;
+	backlightCtrl->paramType = PARAM_VALUE_UINT_TYPE;
+	backlightCtrl->menuSelected = true;
+
 	if(eepromEnabled)
 	{
 		if(resetMemory)
@@ -1111,6 +936,262 @@ void SmartDryer::setup()
 				HAL_Delay(500);
 			}
 			ResetSystem;
+		}
+	}
+
+}
+
+void SmartDryer::navMenu()
+{
+	bool ExitNavMenu = false;
+	MENU_STRUCTURE *ActualMenu = mainMenu;
+	uint8_t MenuSel = MAIN_MENU;
+	showHelpMessageTimer->restart();
+	String Time = "", Date = "";
+	while(!ExitNavMenu)
+	{
+		uint8_t WichKey = DryerKey::NO_KEY;
+		display->clearFrameBuffer();
+		showTimeDate(Time, Date);
+		display->drawString(ActualMenu->menuTitle, NHDST7565_LCD::CENTER_POS, MENU_TITLE_YPOS, display->displayFonts[NHDST7565_LCD::W_6_H_13_B]);
+		ActualMenu->maxMenuLines = display->drawMenuList(ActualMenu->XPos, ActualMenu->YPos, ActualMenu->topItemPos,
+				ActualMenu->itemSelected, ActualMenu->menuVoices, ActualMenu->maxMenuItems,
+				ActualMenu->withChebox, ActualMenu->menuSelected, ActualMenu->itemsChecked, ActualMenu->menuFont);
+		if(statusParam->serialDeviceAttached)
+		{
+			display->drawIcon(50, 0, SerialIcon_width, SerialIcon_height, SerialIcon_bits);
+		}
+		display->sendFrameBuffer();
+		WichKey = keyboard->checkKey();
+		switch(WichKey)
+		{
+			case DryerKey::UP_KEY:
+			case DryerKey::LONG_UP_KEY:
+				if(ActualMenu->itemSelected > 0)
+					ActualMenu->itemSelected--;
+				else
+					ActualMenu->itemSelected = ActualMenu->maxMenuItems - 1;
+				break;
+			case DryerKey::DOWN_KEY:
+			case DryerKey::LONG_DOWN_KEY:
+				if(ActualMenu->itemSelected < ActualMenu->maxMenuItems - 1)
+					ActualMenu->itemSelected++;
+				else
+					ActualMenu->itemSelected = 0;
+				break;
+			case DryerKey::LEFT_KEY:
+				switch(MenuSel)
+				{
+					case MAIN_MENU:
+						switch(ActualMenu->itemSelected + 1)
+						{
+							case THERMO_CTRL:
+								MenuSel = THERMO_CTRL;
+								ActualMenu = thermoMenuCtrl;
+								break;
+							case FAN_CTRL:
+								MenuSel = FAN_CTRL;
+								ActualMenu = fanMenuCtrl;
+								break;
+							case TEMP_CTRL:
+								MenuSel = TEMP_CTRL;
+								ActualMenu = tempMenuCtrl;
+								break;
+							case START_DRYER_CTRL:
+								MenuSel = START_DRYER_CTRL;
+								ActualMenu = startDryerMenu;
+								break;
+							case CHANGE_TIME_MENU:
+								screen = CHANGE_TIME;
+								ExitNavMenu = true;
+								break;
+							case CHANGE_DATE_MENU:
+								screen = CHANGE_DATE;
+								ExitNavMenu = true;
+								break;
+							case CHANGE_PROGRAMS_LIST:
+								MenuSel = CHANGE_PROGRAMS_LIST;
+								ActualMenu = changeProgramsMenu;
+								break;
+							case START_PROGRAMS_LIST:
+								MenuSel = START_PROGRAMS_LIST;
+								ActualMenu = startProgramsMenu;
+								break;
+							case BACKLIGHT_CTRL:
+								MenuSel = BACKLIGHT_CTRL;
+								ActualMenu = backlightCtrl;
+								break;
+							case SHOW_INFO_PAGE:
+								screen = SHOW_INFO;
+								ExitNavMenu = true;
+								break;
+							default:
+								break;
+						}
+						if(ActualMenu->withChebox)
+						{
+							for(int i = 0; i < ActualMenu->maxMenuItems; i++)
+							{
+								ActualMenu->itemsChecked[i] = false;
+							}
+							switch(ActualMenu->paramType)
+							{
+								case PARAM_BOOL_TYPE:
+									if(*(bool *)ActualMenu->paramAssociated)
+									{
+										ActualMenu->itemsChecked[0] = false;
+										ActualMenu->itemsChecked[1] = true;
+									}
+									else
+									{
+										ActualMenu->itemsChecked[0] = true;
+										ActualMenu->itemsChecked[1] = false;
+									}
+									break;
+								case PARAM_VALUE_UINT_TYPE:
+									switch(MenuSel)
+									{
+									case BACKLIGHT_CTRL:
+										for(int i = 0; i < ActualMenu->maxMenuItems; i++)
+										{
+											if(*(uint8_t*)ActualMenu->paramAssociated == i)
+											{
+												ActualMenu->itemsChecked[i] = true;
+												break;
+											}
+										}
+										break;
+									default:
+										break;
+									}
+									break;
+								case PARAM_FLOAT_TYPE:
+									switch(MenuSel)
+									{
+										case TEMP_CTRL:
+											for(int i = 0; i < ActualMenu->maxMenuItems; i++)
+											{
+												uint32_t TempSetted = (uint32_t)*(float *)ActualMenu->paramAssociated;
+												if(TempSetted == (uint32_t)paramTemperatures[i])
+												{
+													ActualMenu->itemsChecked[i] = true;
+													break;
+												}
+											}
+											break;
+										default:
+											break;
+									}
+									break;
+								default:
+									break;
+							}
+						}
+						break; // case MAIN_MENU
+					case CHANGE_PROGRAMS_LIST:
+						screen = ActualMenu->itemSelected + CHANGE_PROGRAM_1;
+						ExitNavMenu = true;
+						break;
+					case START_PROGRAMS_LIST:
+						if(dryerPrograms[ ActualMenu->itemSelected].programSetted)
+						{
+							screen = ActualMenu->itemSelected + START_PROGRAM_1;
+							ExitNavMenu = true;
+						}
+						break;
+					default:
+						break;
+				}
+			break;// case LEFT_KEY
+			case DryerKey::OK_KEY:
+				if(ActualMenu->withChebox)
+				{
+					for(int i = 0; i < ActualMenu->maxMenuItems; i++)
+						ActualMenu->itemsChecked[i] = false;
+					ActualMenu->itemsChecked[ActualMenu->itemSelected] = true;
+					switch(ActualMenu->paramType)
+					{
+						case PARAM_BOOL_TYPE:
+							if(ActualMenu->itemSelected == 0)
+								*(bool *)ActualMenu->paramAssociated = false;
+							else
+								*(bool *)ActualMenu->paramAssociated = true;
+							break;
+						case PARAM_VALUE_UINT_TYPE:
+							switch(MenuSel)
+							{
+							case BACKLIGHT_CTRL:
+								*(uint8_t*)ActualMenu->paramAssociated = ActualMenu->itemSelected;
+								break;
+							default:
+								break;
+							}
+							break;
+						case PARAM_FLOAT_TYPE:
+							switch(MenuSel)
+							{
+								case TEMP_CTRL:
+									*(float *)ActualMenu->paramAssociated = (float)paramTemperatures[ActualMenu->itemSelected];
+									break;
+								default:
+									break;
+							}
+							break;
+						default:
+							break;
+					}
+					MenuSel = MAIN_MENU;
+					ActualMenu = mainMenu;
+				}
+				break;
+			case DryerKey::LONG_LEFT_KEY:
+				switch(MenuSel)
+				{
+					case THERMO_CTRL:
+					case FAN_CTRL:
+					case TEMP_CTRL:
+					case START_DRYER_CTRL:
+					case CHANGE_PROGRAMS_LIST:
+					case START_PROGRAMS_LIST:
+					case BACKLIGHT_CTRL:
+						MenuSel = MAIN_MENU;
+						ActualMenu = mainMenu;
+						break;
+					default:
+						break;
+				}
+				break;
+			case DryerKey::LONG_OK_KEY:
+				break;
+			default:
+				break;
+		}
+		if(WichKey != DryerKey::NO_KEY && WichKey != DryerKey::LEFT_KEY)
+		{
+			if(ActualMenu->itemSelected > ActualMenu->maxMenuLines - 2)
+			{
+				if(ActualMenu->itemSelected - (ActualMenu->maxMenuLines - 2) < ActualMenu->maxMenuItems - 1)
+					ActualMenu->topItemPos = ActualMenu->itemSelected - (ActualMenu->maxMenuLines - 2);
+				else
+					ActualMenu->topItemPos = 0;
+				if(ActualMenu->itemSelected >= ActualMenu->maxMenuItems - ActualMenu->maxMenuLines)
+				{
+					ActualMenu->topItemPos = ActualMenu->maxMenuItems - ActualMenu->maxMenuLines;
+				}
+			}
+			else
+				ActualMenu->topItemPos = 0;
+
+		}
+		else if(WichKey != DryerKey::NO_KEY)
+		{
+			lcdLedAutoOffTimer->restart();
+		}
+		peripheralsControl();
+		statusParam->serialDeviceAttached = externalCommand->isDeviceConnected();
+		if(statusParam->serialDeviceAttached)
+		{
+			serialComunicationCtrl();
 		}
 	}
 
@@ -1212,6 +1293,10 @@ void SmartDryer::changeTime()
 				break;
 			default:
 				break;
+		}
+		if(WichKey != DryerKey::NO_KEY)
+		{
+			lcdLedAutoOffTimer->restart();
 		}
 		peripheralsControl();
 		statusParam->serialDeviceAttached = externalCommand->isDeviceConnected();
@@ -1337,6 +1422,10 @@ void SmartDryer::changeDate()
 			default:
 				break;
 		}
+		if(WichKey != DryerKey::NO_KEY)
+		{
+			lcdLedAutoOffTimer->restart();
+		}
 		peripheralsControl();
 		statusParam->serialDeviceAttached = externalCommand->isDeviceConnected();
 		if(statusParam->serialDeviceAttached)
@@ -1374,6 +1463,10 @@ void SmartDryer::showInfo()
 				break;
 			default:
 				break;
+		}
+		if(WichKey != DryerKey::NO_KEY)
+		{
+			lcdLedAutoOffTimer->restart();
 		}
 		peripheralsControl();
 		statusParam->serialDeviceAttached = externalCommand->isDeviceConnected();
@@ -1585,6 +1678,10 @@ void SmartDryer::changeProgram(uint8_t WichProgram)
 			default:
 				break;
 		}
+		if(WichKey != DryerKey::NO_KEY)
+		{
+			lcdLedAutoOffTimer->restart();
+		}
 		peripheralsControl();
 		statusParam->serialDeviceAttached = externalCommand->isDeviceConnected();
 		if(statusParam->serialDeviceAttached)
@@ -1706,6 +1803,10 @@ void SmartDryer::startProgram(uint8_t WichProgram)
 					ExitStartProgram = true;
 				}
 			}
+		}
+		if(WichKey != DryerKey::NO_KEY)
+		{
+			lcdLedAutoOffTimer->restart();
 		}
 		peripheralsControl();
 		statusParam->serialDeviceAttached = externalCommand->isDeviceConnected();

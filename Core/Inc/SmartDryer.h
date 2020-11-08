@@ -73,6 +73,7 @@ private:
 		CHANGE_DATE_MENU,
 		CHANGE_PROGRAMS_LIST,
 		START_PROGRAMS_LIST,
+		BACKLIGHT_CTRL,
 		SHOW_INFO_PAGE,
 		MAX_MENU_ITEMS
 	};
@@ -151,6 +152,13 @@ private:
 		MAX_PROGRAM_ADDRESS
 	};
 
+	enum
+	{
+		BACKLIGHT_OFF = 0,
+		BACKLIGHT_ON = 1,
+		BACKLIGHT_AUTO = 2
+	};
+
 	typedef struct
 	{
 		bool dryerOn = false;
@@ -160,6 +168,7 @@ private:
 		bool programStarted = false;
 		bool serialDeviceAttached = false;
 		bool serialCommandReceived = false;
+		uint8_t backlightStatus = BACKLIGHT_AUTO;
 	}DRYER_PARAMS;
 
 	typedef struct
@@ -210,6 +219,7 @@ private:
 	ChronoTimer *showHelpMessageTimer;
 	ChronoTimer *programStartedTimer;
 	ChronoTimer *blinkSerialIconTimer;
+	ChronoTimer *lcdLedAutoOffTimer;
 
 	ChronoTimer *testTimer;
 
@@ -238,7 +248,7 @@ private:
 	MENU_STRUCTURE *startDryerMenu;
 	MENU_STRUCTURE *changeProgramsMenu;
 	MENU_STRUCTURE *startProgramsMenu;
-
+	MENU_STRUCTURE *backlightCtrl;
 
 	uint8_t screen = NAV_MENU;
 
