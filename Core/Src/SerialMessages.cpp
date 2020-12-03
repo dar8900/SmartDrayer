@@ -76,7 +76,7 @@ void SerialMessage::sendMessage(String Message, bool NewLine, uint32_t SendDelay
 	}
 }
 
-bool SerialMessage::readSerialPolling()
+bool SerialMessage::readSerial()
 {
 	bool Ready = false;
 	String CommandStr = "";
@@ -236,7 +236,7 @@ int16_t SerialMessage::receiveSerialCommand()
 	int16_t Command = NO_COMMANDS;
 	bool InvalidMsg = false;
 	char Req[MAX_REQ_LEN];
-	if(readSerialPolling())
+	if(readSerial())
 	{
 		for(int i = 0; i < RECEIVE_BUFFER_LEN; i++)
 		{

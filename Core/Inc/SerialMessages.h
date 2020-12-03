@@ -42,7 +42,7 @@ private:
 	uint8_t connectionRetries = 0;
 	void ENABLE_USART_RX();
 	void writeSerial();
-	bool readSerialPolling();
+	bool readSerial();
 	void clearDataBuffer();
 	int16_t getStartStopReq(char *Req);
 	int16_t getSetReq(char *Req, std::string Command);

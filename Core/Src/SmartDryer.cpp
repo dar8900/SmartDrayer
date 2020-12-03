@@ -225,29 +225,28 @@ void SmartDryer::turnOffLed(uint8_t WichLed)
 
 void SmartDryer::ledControl()
 {
-
 	switch(ledStatus)
 	{
 		case THERMO_ON_FAN_OFF:
-			blinkLed(RED_LED, 10);
+			blinkLed(RED_LED, THERMO_ON_LED_BLINK_DELAY);
 			turnOffLed(GREEN_LED);
 			break;
 		case THERMO_OFF_FAN_ON:
 			turnOffLed(RED_LED);
-			blinkLed(GREEN_LED, 500);
+			blinkLed(GREEN_LED, FAN_ON_LED_BLINK_DELAY);
 			break;
 		case THERMO_OFF_FAN_OFF:
 			turnOffLed(GREEN_LED);
 			turnOffLed(RED_LED);
 			break;
 		case THERMO_ON_FAN_ON:
-			blinkLed(RED_LED, 10);
-			blinkLed(GREEN_LED, 500);
+			blinkLed(RED_LED, THERMO_ON_LED_BLINK_DELAY);
+			blinkLed(GREEN_LED, FAN_ON_LED_BLINK_DELAY);
 			break;
 		case TEMP_REACHED:
 			turnOnLed(RED_LED);
-			HAL_Delay(250);
-			ledStatus = UNKNOWN_STATE;
+//			HAL_Delay(250);
+//			ledStatus = UNKNOWN_STATE;
 			break;
 		case PROGRAM_INIT:
 			for(int i = 0; i < 50*10; i++)

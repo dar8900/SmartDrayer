@@ -203,6 +203,9 @@ private:
 		float 	readedValueFL;
 	}SENSOR_TEMP;
 
+	static const uint16_t THERMO_ON_LED_BLINK_DELAY = 500;
+	static const uint16_t FAN_ON_LED_BLINK_DELAY = 500;
+
 	NHDST7565_LCD *display;
 	DS1307_RTC *clock;
 	DryerKey *keyboard;
@@ -234,6 +237,7 @@ private:
 	uint16_t ledStatus = THERMO_OFF_FAN_OFF;
 	SENSOR_TEMP chamberTemperature;
 	SENSOR_TEMP chamberHumity;
+
 
 	static const uint8_t NTemps =  13;
 	uint8_t *paramTemperatures;
